@@ -14,6 +14,13 @@
 
     ],
     'sources': [
+      'client/Q3Vm.cc',
+      'client/Q3Vm.h',
+	  'client/Q3SysCall.cc',
+	  'client/Q3SysCall.h',
+	  'client/Quake3.h',
+	  'client/Logger.cc',
+	  'client/Logger.h',
       'client/recordsystem.cc',
       'client/recordsystem.h',
     ],
