@@ -2,6 +2,13 @@
 * originally from Q3Fusion (http://www.sourceforge.net/projects/q3fusion/)
 */
 #include "Q3Vm.h"
+#include "Logger.h"
+
+int PASSFLOAT2(float x) {
+	float	floatTemp;
+	floatTemp = x;
+	return *(int *)&floatTemp;
+}
 
 #define byteswap int_byteswap
 int int_byteswap(int i) {
@@ -27,24 +34,24 @@ short int_byteswap(short s) {
 
 /**
 */
-Q3Vm::Q3Vm(const char* path, byte* oldmem, Q3SysCall *syscall) 
+Q3Vm::Q3Vm(const char* path, Q3SysCall *syscall) 
   : syscall_(syscall) {
-	if( !vm_ || !path || !path[0] ) return;
-	memset(vm_, 0, sizeof(vm_t));
+	if( !path || !path[0] ) return;
+	memset(&vm_, 0, sizeof(vm_t));
 
 	stacksize_ = 0;
-	initialized_ = false;
-	this->Create(path, oldmem);
+	initialized_ = qfalse;
+	initialized_ = this->Create(path, NULL);
 }
 
 
 /**
 */
 Q3Vm::~Q3Vm() {
-	if (vm_->memory)
-		free(vm_->memory);
+	if (vm_.memory)
+		free(vm_.memory);
 
-	memset(vm_, 0, sizeof(vm_t));
+	memset(&vm_, 0, sizeof(vm_t));
 }
 
 
@@ -62,11 +69,11 @@ void Q3Vm::Run() {
 	byte    *dataSegment;
 	unsigned  dataSegmentMask;
 
-	opStack = vm_->opStack;
-	opPointer = vm_->opPointer;
+	opStack = vm_.opStack;
+	opPointer = vm_.opPointer;
 
-	dataSegment = vm_->dataSegment;
-	dataSegmentMask = vm_->dataSegmentMask;
+	dataSegment = vm_.dataSegment;
+	dataSegmentMask = vm_.dataSegmentMask;
 
 	//keep going until opPointer is NULL
 	//opPointer is set in OP_LEAVE, stored in the function stack
@@ -99,18 +106,18 @@ void Q3Vm::Run() {
 			// subroutines
 			//
 			//jumps to a specific opcode
-#define GOTO(x) {opPointer = vm_->codeSegment + (x) * 2;}
+#define GOTO(x) {opPointer = vm_.codeSegment + (x) * 2;}
 
 			//enter a function, assign function parameters (length=param) from stack
 		case OP_ENTER:
-			vm_->opBase -= param;
-			*((int*)(dataSegment + vm_->opBase) + 1) = *opStack++;
+			vm_.opBase -= param;
+			*((int*)(dataSegment + vm_.opBase) + 1) = *opStack++;
 			break;
 
 			//leave a function, move opcode pointer to previous function
 		case OP_LEAVE:
-			opPointer = vm_->codeSegment + *((int*)(dataSegment + vm_->opBase) + 1);
-			vm_->opBase += param;
+			opPointer = vm_.codeSegment + *((int*)(dataSegment + vm_.opBase) + 1);
+			vm_.opBase += param;
 			break;
 
 			//call a function at address stored in opStack[0]
@@ -120,7 +127,7 @@ void Q3Vm::Run() {
 			//CyberMind - param(opStack[0]) is the function address, negative means a engine trap
 			//added fix for external function pointers
 			//if param is greater than the memorySize, it's a real function pointer, so call it
-			if( param < 0 || param >= vm_->memorySize) {
+			if( param < 0 || param >= vm_.memorySize) {
 				int ret = 0, realfunc = 0;
 				int* args = NULL;
 				//int     *fp;
@@ -128,14 +135,14 @@ void Q3Vm::Run() {
 				// system trap or real system function
 
 				// save local registers for recursive execution
-				//vm_->opBase = opBase;
-				vm_->opStack = opStack;
-				vm_->opPointer = opPointer;
+				//vm_.opBase = opBase;
+				vm_.opStack = opStack;
+				vm_.opPointer = opPointer;
 
 				//clear hook var
-				vm_->hook_realfunc = 0;
+				vm_.hook_realfunc = 0;
 
-				args = (int *)(dataSegment + vm_->opBase) + 2;
+				args = (int *)(dataSegment + vm_.opBase) + 2;
 
 				//if a trap function, call our local syscall, which parses each message
 				if (param < 0) {
@@ -148,16 +155,16 @@ void Q3Vm::Run() {
 				}
 
 				// restore local registers
-				//opBase = vm_->opBase;
-				opStack = vm_->opStack;
-				opPointer = vm_->opPointer;
+				//opBase = vm_.opBase;
+				opStack = vm_.opStack;
+				opPointer = vm_.opPointer;
 
 				//if we are running a vm_ function due to hook
 				//and we have a real vm_ func to call, call it
-				if (vm_->hook_realfunc && param >= vm_->memorySize) {
+				if (vm_.hook_realfunc && param >= vm_.memorySize) {
 					//replace func address with return address
-					opStack[0] = (int)(opPointer - vm_->codeSegment);
-					GOTO (vm_->hook_realfunc)
+					opStack[0] = (int)(opPointer - vm_.codeSegment);
+					GOTO (vm_.hook_realfunc)
 						//otherwise we use the syscall/hook func return value
 				} else {
 					opStack[0] = ret;
@@ -165,7 +172,7 @@ void Q3Vm::Run() {
 				break;
 			}
 			//replace func address with return address
-			opStack[0] = (int)(opPointer - vm_->codeSegment); // push pc /return address/
+			opStack[0] = (int)(opPointer - vm_.codeSegment); // push pc /return address/
 			//jump to vm_ function at address
 			GOTO( param )
 				break;
@@ -180,7 +187,7 @@ void Q3Vm::Run() {
 			//pushes a specified value onto the end of the stack
 		case OP_CONST: opStack--; opStack[0] = param;     break;
 			//pushes a specified
-		case OP_LOCAL: opStack--; opStack[0] = param + vm_->opBase;  break;
+		case OP_LOCAL: opStack--; opStack[0] = param + vm_.opBase;  break;
 
 
 			//
@@ -234,7 +241,7 @@ void Q3Vm::Run() {
 			//this is essentially the 'dereferencing' opcode set
 			//1-byte
 		case OP_LOAD1:
-			if (opStack[0] >= vm_->memorySize)
+			if (opStack[0] >= vm_.memorySize)
 				opStack[0] = *(byte*)(opStack[0]);
 			else
 				opStack[0] = dataSegment[opStack[0] & dataSegmentMask];
@@ -243,7 +250,7 @@ void Q3Vm::Run() {
 
 			//2-byte
 		case OP_LOAD2:
-			if (opStack[0] >= vm_->memorySize)
+			if (opStack[0] >= vm_.memorySize)
 				opStack[0] = *(unsigned short*)(opStack[0]);
 			else
 				opStack[0] = *(unsigned short*)&dataSegment[opStack[0] & dataSegmentMask];
@@ -252,7 +259,7 @@ void Q3Vm::Run() {
 
 			//4-byte
 		case OP_LOAD4:
-			if (opStack[0] >= vm_->memorySize)
+			if (opStack[0] >= vm_.memorySize)
 				opStack[0] = *(int*)(opStack[0]);
 			else
 				opStack[0] = *(int*)&dataSegment[opStack[0] & dataSegmentMask];
@@ -262,7 +269,7 @@ void Q3Vm::Run() {
 			//store a value from opStack[0] into address stored in opStack[1]
 			//1-byte
 		case OP_STORE1:
-			if (opStack[1] >= vm_->memorySize)
+			if (opStack[1] >= vm_.memorySize)
 				*(byte*)(opStack[1]) = (byte)(opStack[0] & 0xFF  );
 			else
 				dataSegment[opStack[1] & dataSegmentMask] = (byte)(opStack[0] & 0xFF  );
@@ -271,7 +278,7 @@ void Q3Vm::Run() {
 			break;
 			//2-byte
 		case OP_STORE2:
-			if (opStack[1] >= vm_->memorySize)
+			if (opStack[1] >= vm_.memorySize)
 				*(unsigned short*)(opStack[1]) = (unsigned short)(opStack[0] & 0xFFFF);
 			else
 				*(unsigned short*)&dataSegment[opStack[1] & dataSegmentMask] =  (unsigned short)(opStack[0] & 0xFFFF);
@@ -280,7 +287,7 @@ void Q3Vm::Run() {
 			break;
 			//4-byte
 		case OP_STORE4:
-			if (opStack[1] >= vm_->memorySize)
+			if (opStack[1] >= vm_.memorySize)
 				*(int*)(opStack[1]) = opStack[0];
 			else
 				*(int*)&dataSegment[opStack[1] & dataSegmentMask] = opStack[0];
@@ -290,7 +297,7 @@ void Q3Vm::Run() {
 
 
 			//set a function-call arg (offset = param) to the value in opStack[0]
-		case OP_ARG   : *(int*)&dataSegment[(param + vm_->opBase) & dataSegmentMask] = opStack[0]; opStack++; break;
+		case OP_ARG   : *(int*)&dataSegment[(param + vm_.opBase) & dataSegmentMask] = opStack[0]; opStack++; break;
 
 			//copy mem at address pointed to by opStack[0] to address pointed to by opStack[1]
 			//for 'param' number of bytes
@@ -386,8 +393,8 @@ void Q3Vm::Run() {
 		}
 	} while( opPointer );
 
-	//  vm_->opBase = opBase;
-	vm_->opStack = opStack;
+	//  vm_.opBase = opBase;
+	vm_.opStack = opStack;
 	//  vm->opPointer = opPointer;
 }
 
@@ -398,12 +405,12 @@ int Q3Vm::Exec(int command, int arg0, int arg1, int arg2, int arg3, int arg4, in
 	int* args;
 
 	// prepare local stack
-	vm_->opBase -= 15 * sizeof( int );
-	args = (int *)(vm_->dataSegment + vm_->opBase);
+	vm_.opBase -= 15 * sizeof( int );
+	args = (int *)(vm_.dataSegment + vm_.opBase);
 
 	// push all params
 	args[ 0] = 0;
-	args[ 1] = (int)(vm_->opPointer - vm_->codeSegment); // save pc
+	args[ 1] = (int)(vm_.opPointer - vm_.codeSegment); // save pc
 	args[ 2] = command;
 	args[ 3] = arg0;
 	args[ 4] = arg1;
@@ -418,55 +425,55 @@ int Q3Vm::Exec(int command, int arg0, int arg1, int arg2, int arg3, int arg4, in
 	args[13] = arg10;
 	args[14] = arg11;
 
-	vm_->opPointer = NULL; //VM_Run stops execution when opPointer is NULL
+	vm_.opPointer = NULL; //VM_Run stops execution when opPointer is NULL
 
 	//(ready) move back in stack to save pc
-	vm_->opStack--;
-	vm_->opStack[0] = (vm_->opPointer - vm_->codeSegment);
+	vm_.opStack--;
+	vm_.opStack[0] = (vm_.opPointer - vm_.codeSegment);
 	//(set) move opPointer to start of opcodes
-	vm_->opPointer = vm_->codeSegment;
+	vm_.opPointer = vm_.codeSegment;
 
 	//GO!
 	Run();
 
 	// restore previous state
-	vm_->opPointer = vm_->codeSegment + args[1];
-	vm_->opBase += 15 * sizeof( int );
+	vm_.opPointer = vm_.codeSegment + args[1];
+	vm_.opBase += 15 * sizeof( int );
 
 	// pick return value from stack
-	return *vm_->opStack++;
+	return *vm_.opStack++;
 }
 
 
 /**
 */
 qboolean Q3Vm::Restart(qboolean savemem) {
-	if(!vm_) return qfalse;
-
 	char name[MAX_QPATH];
 	byte* oldmem = NULL;
 
 	//save filename (we need this to reload the same file, obviously)
-	strncpy(name, vm_->name, sizeof(name));
+	strncpy(name, vm_.name, sizeof(name));
 
 	//save memory pointer or free it
 	if (savemem == qtrue)
-		oldmem = vm_->memory;
+		oldmem = vm_.memory;
 	else
-		free(vm_->memory);
+		free(vm_.memory);
 
 	//kill it!
-	memset(vm_, 0, sizeof(vm_t));
+	memset(&vm_, 0, sizeof(vm_t));
 
 	//reload
 	if (!Create(name, oldmem)) {
-		if (vm_->memory)
-			free(vm_->memory);
+		if (vm_.memory)
+			free(vm_.memory);
 
-		memset(vm_, 0, sizeof(vm_t));
+		memset(&vm_, 0, sizeof(vm_t));
+		initialized_ = qfalse;
 		return qfalse;
 	}
 
+	initialized_ = qtrue;
 	return qtrue;
 }
 
@@ -479,10 +486,10 @@ void *Q3Vm::ExplicitArgPtr(int intValue) {
 	}
 
 	// currentVM is missing on reconnect here as well?
-	if ( vm_==NULL )
+	if ( vm_.dataSegment==NULL )
 		return NULL;
 
-	return (void *)(vm_->dataSegment + (intValue & vm_->dataSegmentMask));
+	return (void *)(vm_.dataSegment + (intValue & vm_.dataSegmentMask));
 }
 
 
@@ -497,22 +504,22 @@ qboolean Q3Vm::Create(const char *path, byte *oldmem) {
 	int* dst;
 	vmOps_t op;
 	int codeSegmentSize;
-	vm_->swapped = qfalse;
+	vm_.swapped = qfalse;
 
 	fileHandle_t fvm = NULL;
 	//open VM file (use engine calls so we can easily read into .pk3)
-	vm_->fileSize = syscall_->FSFOpenFile(path, &fvm, FS_READ);
+	vm_.fileSize = syscall_->FSFOpenFile(path, &fvm, FS_READ);
 	//allocate memory block the size of the file
-	vmBase = (byte*)malloc(vm_->fileSize);
+	vmBase = (byte*)malloc(vm_.fileSize);
 
 	//malloc failed
 	if (!vmBase) {
-		memset(vm_, 0, sizeof(vm_t));
+		memset(&vm_, 0, sizeof(vm_t));
 		return qfalse;
 	}
 
 	//read VM file into memory block
-	syscall_->FSRead(vmBase, vm_->fileSize, fvm);
+	syscall_->FSRead(vmBase, vm_.fileSize, fvm);
 	syscall_->FSFCloseFile(fvm);
 
 	header = (vmHeader_t*)vmBase;
@@ -520,7 +527,7 @@ qboolean Q3Vm::Create(const char *path, byte *oldmem) {
 	//if we are a big-endian machine, need to swap everything around
 	if (header->vmMagic == VM_MAGIC_BIG) {
 		printf("WARNING: VM_Create: Big-endian magic number detected, will byteswap during load.\n");
-		vm_->swapped = qtrue;
+		vm_.swapped = qtrue;
 		header->vmMagic = byteswap(header->vmMagic);
 		header->instructionCount = byteswap(header->instructionCount);
 		header->codeOffset = byteswap(header->codeOffset);
@@ -530,57 +537,57 @@ qboolean Q3Vm::Create(const char *path, byte *oldmem) {
 		header->litLength = byteswap(header->litLength);
 		header->bssLength = byteswap(header->bssLength);
 	}
-	vm_->header = *header; //save header info in vm_t
+	vm_.header = *header; //save header info in vm_t
 
 	// check file
 	if (header->vmMagic != VM_MAGIC || header->instructionCount <= 0 || header->codeLength <= 0) {
 		free(vmBase);
-		memset(vm_, 0, sizeof(vm_t));
+		memset(&vm_, 0, sizeof(vm_t));
 		return qfalse;
 	}
 
 	// setup segments
-	vm_->codeSegmentLen = header->instructionCount;
-	vm_->dataSegmentLen = header->dataLength + header->litLength + header->bssLength;
+	vm_.codeSegmentLen = header->instructionCount;
+	vm_.dataSegmentLen = header->dataLength + header->litLength + header->bssLength;
 
 	// calculate memory protection mask (including the stack?)
-	for (vm_->dataSegmentMask = 1; ; vm_->dataSegmentMask <<= 1) {
-		if(vm_->dataSegmentMask > vm_->dataSegmentLen + stacksize_) {
-			vm_->dataSegmentMask--;
+	for (vm_.dataSegmentMask = 1; ; vm_.dataSegmentMask <<= 1) {
+		if(vm_.dataSegmentMask > vm_.dataSegmentLen + stacksize_) {
+			vm_.dataSegmentMask--;
 			break;
 		}
 	}
 
 	//each opcode is 2 ints long, calculate total size of opcodes
-	codeSegmentSize = vm_->codeSegmentLen * sizeof(int) * 2;
+	codeSegmentSize = vm_.codeSegmentLen * sizeof(int) * 2;
 
-	vm_->memorySize = codeSegmentSize + vm_->dataSegmentLen + stacksize_;
+	vm_.memorySize = codeSegmentSize + vm_.dataSegmentLen + stacksize_;
 	//load memory code block (freed in VM_Destroy)
 	//if we are reloading, we should keep the same memory location, otherwise, make more
-	vm_->memory = (oldmem ? oldmem : (byte*)malloc(vm_->memorySize));
+	vm_.memory = (oldmem ? oldmem : (byte*)malloc(vm_.memorySize));
 	//malloc failed
-	if (!vm_->memory) {
-		printf("Unable to allocate VM memory chunk (size=%i)\n", vm_->memorySize);
+	if (!vm_.memory) {
+		printf("Unable to allocate VM memory chunk (size=%i)\n", vm_.memorySize);
 		free(vmBase);
-		memset(vm_, 0, sizeof(vm_t));
+		memset(&vm_, 0, sizeof(vm_t));
 		return qfalse;
 	}
 	//clear the memory
-	memset(vm_->memory, 0, vm_->memorySize);
+	memset(vm_.memory, 0, vm_.memorySize);
 
 	// set pointers
-	vm_->codeSegment = (int*)vm_->memory;
-	vm_->dataSegment = (byte*)(vm_->memory + codeSegmentSize);
-	vm_->stackSegment = (byte*)(vm_->dataSegment + vm_->dataSegmentLen);
+	vm_.codeSegment = (int*)vm_.memory;
+	vm_.dataSegment = (byte*)(vm_.memory + codeSegmentSize);
+	vm_.stackSegment = (byte*)(vm_.dataSegment + vm_.dataSegmentLen);
 
 	//setup registers
-	vm_->opPointer = NULL;
-	vm_->opStack = (int*)(vm_->stackSegment + stacksize_);
-	vm_->opBase = vm_->dataSegmentLen + stacksize_ / 2;
+	vm_.opPointer = NULL;
+	vm_.opStack = (int*)(vm_.stackSegment + stacksize_);
+	vm_.opBase = vm_.dataSegmentLen + stacksize_ / 2;
 
 	//load instructions from file to memory
 	src = vmBase + header->codeOffset;
-	dst = vm_->codeSegment;
+	dst = vm_.codeSegment;
 
 	//loop through each instruction
 	for (n = 0; n < header->instructionCount; n++) {
@@ -614,7 +621,7 @@ qboolean Q3Vm::Create(const char *path, byte *oldmem) {
 		case OP_GEF:
 		case OP_BLOCK_COPY:
 			*dst = *(int*)src;
-			if (vm_->swapped == qtrue)
+			if (vm_.swapped == qtrue)
 				*dst = byteswap(*dst);
 			dst++;
 			src += 4;
@@ -633,13 +640,13 @@ qboolean Q3Vm::Create(const char *path, byte *oldmem) {
 
 	// load data segment from file to memory
 	lsrc = (int*)(vmBase + header->dataOffset);
-	dst = (int*)(vm_->dataSegment);
+	dst = (int*)(vm_.dataSegment);
 
 	//loop through each 4-byte data block (even though data may be single bytes)
 	for (n = 0; n < header->dataLength/sizeof(int); n++) {
 		*dst = *lsrc++;
 		//swap if need-be
-		if (vm_->swapped == qtrue)
+		if (vm_.swapped == qtrue)
 			*dst = byteswap(*dst);
 		dst++;
 	}
@@ -658,7 +665,7 @@ qboolean Q3Vm::Create(const char *path, byte *oldmem) {
 */
 int Q3Vm::SysCalls(byte *memoryBase, int cmd, int *args) {
 	int ret;
-
+	//LOG(LOG_DEBUG, "%i", cmd);
 	switch(cmd) {
 	case G_PRINT: // ( const char *string );
 		syscall_->Printf((const char *)ptr(0));
@@ -749,7 +756,7 @@ int Q3Vm::SysCalls(byte *memoryBase, int cmd, int *args) {
 		syscall_->UnlinkEntity((gentity_t *)ptr(0));
 		return 0;
 	case G_ENTITIES_IN_BOX: // ( const vec3_t mins, const vec3_t maxs, gentity_t **list, int maxcount );
-		return syscall_->EntitiesInBox((const vec_t *)ptr(0), (const vec_t *)ptr(1), (int *)ptr(2), arg(3));
+		return syscall_->EntitiesInBox((const vec_t *)ptr(0), (const vec_t *)ptr(1), (gentity_t **)ptr(2), arg(3));
 	case G_ENTITY_CONTACT: // ( const vec3_t mins, const vec3_t maxs, const gentity_t *ent );
 		return syscall_->EntityContact((const vec_t *)ptr(0), (const vec_t *)ptr(1), (const gentity_t *)ptr(2));
 	case G_BOT_ALLOCATE_CLIENT:		// ( void );
@@ -792,7 +799,7 @@ int Q3Vm::SysCalls(byte *memoryBase, int cmd, int *args) {
 	case BOTLIB_PC_ADD_GLOBAL_DEFINE: //(char* string)
 		return syscall_->BotLibDefine((char *)ptr(0));
 	case BOTLIB_START_FRAME: //(float time)
-		return syscall_->BotLibStartFrame(arg(0));
+		return syscall_->BotLibStartFrame(VMF(0));
 	case BOTLIB_LOAD_MAP: //(const char *mapname)
 		return syscall_->BotLibLoadMap((const char *)ptr(0));
 	case BOTLIB_UPDATENTITY: //(int ent, void /* struct bot_updateentity_s */ *bue)
@@ -815,7 +822,7 @@ int Q3Vm::SysCalls(byte *memoryBase, int cmd, int *args) {
 		syscall_->AASPresenceTypeBoundingBox(arg(0), (vec_t *)ptr(1), (vec_t *)ptr(2));
 		return 0;
 	case BOTLIB_AAS_TIME: //(void)
-		return syscall_->AASTime();
+		return PASSFLOAT2(syscall_->AASTime());
 	case BOTLIB_AAS_POINT_AREA_NUM:	//(vec3_t point)
 		return syscall_->AASPointAreaNum((vec_t *)ptr(0));
 	case BOTLIB_AAS_POINT_REACHABILITY_AREA_INDEX:	//(vec3_t point)
@@ -910,29 +917,29 @@ int Q3Vm::SysCalls(byte *memoryBase, int cmd, int *args) {
 		syscall_->EADelayedJump(arg(0));
 		return 0;
 	case BOTLIB_EA_MOVE: //(int client, vec3_t dir, float speed)
-		syscall_->EAMove(arg(0), (vec_t *)ptr(1), arg(2));
+		syscall_->EAMove(arg(0), (vec_t *)ptr(1), VMF(2));
 		return 0;
 	case BOTLIB_EA_VIEW: //(int client, vec3_t viewangles)
 		syscall_->EAView(arg(0), (vec_t *)ptr(1));
 		return 0;
 	case BOTLIB_EA_END_REGULAR:	//(int client, float thinktime)
-		syscall_->EAEndRegular(arg(0), arg(1));
+		syscall_->EAEndRegular(arg(0), VMF(1));
 		return 0;
 	case BOTLIB_EA_GET_INPUT: //(int client, float thinktime, void /* struct bot_input_s */ *input)
-		syscall_->EAGetInput(arg(0), arg(1), ptr(2));
+		syscall_->EAGetInput(arg(0), VMF(1), ptr(2));
 		return 0;
 	case BOTLIB_EA_RESET_INPUT:	//(int client)
 		syscall_->EAResetInput(arg(0));
 		return 0;
 	case BOTLIB_AI_LOAD_CHARACTER: //(char *charfile, float skill)
-		return syscall_->BotLoadCharacter((char *)ptr(0), arg(1));
+		return syscall_->BotLoadCharacter((char *)ptr(0), VMF(1));
 	case BOTLIB_AI_FREE_CHARACTER: //(int character)
 		syscall_->BotFreeCharacter(arg(0));
 		return 0;
 	case BOTLIB_AI_CHARACTERISTIC_FLOAT: //(int character, int index)
-		return syscall_->CharacteristicFloat(arg(0), arg(1));
+		return PASSFLOAT2(syscall_->CharacteristicFloat(arg(0), arg(1)));
 	case BOTLIB_AI_CHARACTERISTIC_BFLOAT: //(int character, int index, float min, float max)
-		return syscall_->CharacteristicBFloat(arg(0), arg(1), arg(2), arg(3));
+		return PASSFLOAT2(syscall_->CharacteristicBFloat(arg(0), arg(1), VMF(2), VMF(3)));
 	case BOTLIB_AI_CHARACTERISTIC_INTEGER: //(int character, int index)
 		return syscall_->CharacteristicInteger(arg(0), arg(1));
 	case BOTLIB_AI_CHARACTERISTIC_BINTEGER:	//(int character, int index, int min, int max)
@@ -1025,7 +1032,7 @@ int Q3Vm::SysCalls(byte *memoryBase, int cmd, int *args) {
 	case BOTLIB_AI_CHOOSE_LTG_ITEM:	//(int goalstate, vec3_t origin, int *inventory, int travelflags)
 		return syscall_->BotChooseLTGItem(arg(0), (vec_t *)ptr(1), (int *)ptr(2), arg(3));
 	case BOTLIB_AI_CHOOSE_NBG_ITEM:	//(int goalstate, vec3_t origin, int *inventory, int travelflags, void /* struct bot_goal_s */ *ltg, float maxtime)
-		return syscall_->BotChooseNBGItem(arg(0), (vec_t *)ptr(1), (int *)ptr(2), arg(3), ptr(4), arg(5));
+		return syscall_->BotChooseNBGItem(arg(0), (vec_t *)ptr(1), (int *)ptr(2), arg(3), ptr(4), VMF(5));
 	case BOTLIB_AI_TOUCHING_GOAL: //(vec3_t origin, void /* struct bot_goal_s */ *goal)
 		return syscall_->BotTouchingGoal((vec_t *)ptr(0), ptr(1));
 	case BOTLIB_AI_ITEM_GOAL_IN_VIS_BUT_NOT_VISIBLE: //(int viewer, vec3_t eye, vec3_t viewangles, void /* struct bot_goal_s */ *goal)
@@ -1037,9 +1044,9 @@ int Q3Vm::SysCalls(byte *memoryBase, int cmd, int *args) {
 	case BOTLIB_AI_GET_MAP_LOCATION_GOAL: //(char *name, void /* struct bot_goal_s */ *goal)
 		return syscall_->BotGetMapLocationGoal((char *)ptr(0), ptr(1));
 	case BOTLIB_AI_AVOID_GOAL_TIME: //(int goalstate, int number)
-		return syscall_->BotAvoidGoalTime(arg(0), arg(1));
+		return PASSFLOAT2(syscall_->BotAvoidGoalTime(arg(0), arg(1)));
 	case BOTLIB_AI_SET_AVOID_GOAL_TIME:	//(int goalstate, int number, float avoidtime)
-		syscall_->BotSetAvoidGoalTime(arg(0), arg(1), arg(2));
+		syscall_->BotSetAvoidGoalTime(arg(0), arg(1), VMF(2));
 		return 0;
 	case BOTLIB_AI_INIT_LEVEL_ITEMS: //(void)
 		syscall_->BotInitLevelItems();
@@ -1059,7 +1066,7 @@ int Q3Vm::SysCalls(byte *memoryBase, int cmd, int *args) {
 		syscall_->BotSaveGoalFuzzyLogic(arg(0), (char *)ptr(1));
 		return 0;
 	case BOTLIB_AI_MUTATE_GOAL_FUZZY_LOGIC: //(int goalstate, float range)
-		syscall_->BotMutateGoalFuzzyLogic(arg(0), arg(1));
+		syscall_->BotMutateGoalFuzzyLogic(arg(0), VMF(1));
 		return 0;
 	case BOTLIB_AI_ALLOC_GOAL_STATE: //(int state)
 		return syscall_->BotAllocGoalState(arg(0));
@@ -1070,13 +1077,13 @@ int Q3Vm::SysCalls(byte *memoryBase, int cmd, int *args) {
 		syscall_->BotResetMoveState(arg(0));
 		return 0;
 	case BOTLIB_AI_ADD_AVOID_SPOT: //(int movestate, vec3_t origin, float radius, int type)
-		syscall_->BotAddAvoidSpot(arg(0), (vec_t *)ptr(1), arg(2), arg(3));
+		syscall_->BotAddAvoidSpot(arg(0), (vec_t *)ptr(1), VMF(2), arg(3));
 		return 0;
 	case BOTLIB_AI_MOVE_TO_GOAL: //(void /* struct bot_moveresult_s */ *result, int movestate, void /* struct bot_goal_s */ *goal, int travelflags)
 		syscall_->BotMoveToGoal(ptr(0), arg(1), ptr(2), arg(3));
 		return 0;
 	case BOTLIB_AI_MOVE_IN_DIRECTION: //(int movestate, vec3_t dir, float speed, int type)
-		return syscall_->BotMoveInDirection(arg(0), (vec_t *)ptr(1), arg(2), arg(3));
+		return syscall_->BotMoveInDirection(arg(0), (vec_t *)ptr(1), VMF(2), arg(3));
 	case BOTLIB_AI_RESET_AVOID_REACH: //(int movestate)
 		syscall_->BotResetAvoidReach(arg(0));
 		return 0;
@@ -1086,7 +1093,7 @@ int Q3Vm::SysCalls(byte *memoryBase, int cmd, int *args) {
 	case BOTLIB_AI_REACHABILITY_AREA: //(vec3_t origin, int testground)
 		return syscall_->BotReachabilityArea((vec_t *)ptr(0), arg(1));
 	case BOTLIB_AI_MOVEMENT_VIEW_TARGET: //(int movestate, void /* struct bot_goal_s */ *goal, int travelflags, float lookahead, vec3_t target)
-		return syscall_->BotMovementViewTarget(arg(0), ptr(1), arg(2), arg(3), (vec_t *)ptr(4));
+		return syscall_->BotMovementViewTarget(arg(0), ptr(1), arg(2), VMF(3), (vec_t *)ptr(4));
 	case BOTLIB_AI_PREDICT_VISIBLE_POSITION: //(vec3_t origin, int areanum, void /* struct bot_goal_s */ *goal, int travelflags, vec3_t target)
 		return syscall_->BotPredictVisiblePosition((vec_t *)ptr(0), arg(1), ptr(2), arg(3), (vec_t *)ptr(4));
 	case BOTLIB_AI_ALLOC_MOVE_STATE: //(void)
@@ -1131,17 +1138,23 @@ int Q3Vm::SysCalls(byte *memoryBase, int cmd, int *args) {
 	case G_STRNCPY: //(char *strDest, const char *strSource, size_t count )
 		return (int)syscall_->StringNCopy((char *)ptr(0), (const char *)ptr(1), arg(2));
 	case G_SIN:	//(float)
-		return syscall_->Sin(arg(0));
+		return PASSFLOAT2(syscall_->Sin(VMF(0)));
+		//return syscall_->syscall_(G_SIN, arg(0));
 	case G_COS:	//(float)
-		return syscall_->Cos(arg(0));
+		return PASSFLOAT2(syscall_->Cos(VMF(0)));
+		//return syscall_->syscall_(G_COS, arg(0));
 	case G_ATAN2: //(float, float)
-		return syscall_->ATan2(arg(0), arg(1));
+		return PASSFLOAT2(syscall_->ATan2(VMF(0), VMF(1)));
+		//return syscall_->syscall_(G_ATAN2, arg(0));
 	case G_SQRT: //(float)
-		return syscall_->Sqrt(arg(0));
+		return PASSFLOAT2(syscall_->Sqrt(VMF(0)));
+		//return syscall_->syscall_(G_SQRT, arg(0));
 	case G_FLOOR: //(float)
-		return syscall_->Floor(arg(0));
+		return PASSFLOAT2(syscall_->Floor(VMF(0)));
+		//return syscall_->syscall_(G_FLOOR, arg(0));
 	case G_CEIL: //(float)
-		return syscall_->Ceil(arg(0));
+		return PASSFLOAT2(syscall_->Ceil(VMF(0)));
+		//return syscall_->syscall_(G_CEIL, arg(0));
 	default: //bad trap (ignore it, print error to console)
 		syscall_->Printf("ERROR: Unhandled syscall:\n");
 		return 0;

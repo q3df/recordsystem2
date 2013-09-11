@@ -4,17 +4,17 @@
 /* Define NULL pointer value */
 #ifndef NULL
 #	ifdef __cplusplus
-#		define NULL    0
+#		define NULL 0
 #	else
-#		define NULL    ((void *)0)
+#		define NULL ((void *)0)
 #	endif
 #endif
 
 #ifdef WIN32
 #	undef QDECL
-#	define	QDECL	__cdecl
+#	define QDECL __cdecl
 #else
-#	define	QDECL
+#	define QDECL
 #endif
 
 #define G_MEMSET         100

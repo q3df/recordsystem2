@@ -46,7 +46,7 @@ public:
 	qboolean AreasConnected(int area1, int area2);
 	void LinkEntity(gentity_t *ent);
 	void UnlinkEntity(gentity_t *ent);
-	int EntitiesInBox(const vec3_t mins, const vec3_t maxs, int *list, int maxcount);
+	int EntitiesInBox(const vec3_t mins, const vec3_t maxs, gentity_t **list, int maxcount);
 	qboolean EntityContact(const vec3_t mins, const vec3_t maxs, const gentity_t *ent);
 	qboolean EntityContactCapsule(const vec3_t mins, const vec3_t maxs, const gentity_t *ent);
 	int BotAllocateClient(void);
@@ -209,8 +209,9 @@ public:
 	float Floor(float value);
 	float Ceil(float value);
 
-private:
 	syscall_t syscall_;
+
+private:
 };
 
 
