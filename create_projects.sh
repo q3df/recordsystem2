@@ -1,2 +1,2 @@
 #!/bin/sh
-tools/gyp/gyp --depth "%CD%" -I recordsystem.gypi
+tools/gyp/gyp --depth "$(pwd)" -I recordsystem.gypi

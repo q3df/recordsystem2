@@ -4,7 +4,7 @@ if [ -z "$1" ]; then
   echo "ERROR: Please specify a build target: Debug or Release"
 else
   if [ -z "$2" ]; then
-    PROJECT_NAME='qagamei386'
+    PROJECT_NAME='qagamex86'
   else
     PROJECT_NAME=$2
   fi

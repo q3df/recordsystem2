@@ -29,3 +29,6 @@ _ReSharper*/
 *.sdf
 *.sln
 *.opensdf
+*.target.mk
+Makefile
+*.Makefile
