@@ -1,6 +1,4 @@
 #include "Q3SysCall.h"
-#include <Windows.h>
-#include <WinBase.h>
 
 int PASSFLOAT(float x) {
 	float	floatTemp;

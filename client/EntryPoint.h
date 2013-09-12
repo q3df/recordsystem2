@@ -6,4 +6,5 @@
 #	endif
 #else
 #	define C_DLLEXPORT
+#	define DLLEXPORT
 #endif

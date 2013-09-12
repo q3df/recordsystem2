@@ -1,5 +1,7 @@
 #include "Logger.h"
 #include <cstdarg>
+#include <string.h>
+#include <stdio.h>
 
 Logger::Logger(std::string path) {
 }

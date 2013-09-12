@@ -128,7 +128,7 @@ void Q3Vm::Run() {
 			//added fix for external function pointers
 			//if param is greater than the memorySize, it's a real function pointer, so call it
 			if( param < 0 || param >= vm_.memorySize) {
-				int ret = 0, realfunc = 0;
+				int ret = 0;
 				int* args = NULL;
 				//int     *fp;
 
@@ -506,7 +506,7 @@ qboolean Q3Vm::Create(const char *path, byte *oldmem) {
 	int codeSegmentSize;
 	vm_.swapped = qfalse;
 
-	fileHandle_t fvm = NULL;
+	fileHandle_t fvm;
 	//open VM file (use engine calls so we can easily read into .pk3)
 	vm_.fileSize = syscall_->FSFOpenFile(path, &fvm, FS_READ);
 	//allocate memory block the size of the file
@@ -643,7 +643,7 @@ qboolean Q3Vm::Create(const char *path, byte *oldmem) {
 	dst = (int*)(vm_.dataSegment);
 
 	//loop through each 4-byte data block (even though data may be single bytes)
-	for (n = 0; n < header->dataLength/sizeof(int); n++) {
+	for (n = 0; n < header->dataLength/(int)sizeof(int); n++) {
 		*dst = *lsrc++;
 		//swap if need-be
 		if (vm_.swapped == qtrue)
@@ -664,7 +664,6 @@ qboolean Q3Vm::Create(const char *path, byte *oldmem) {
 /**
 */
 int Q3Vm::SysCalls(byte *memoryBase, int cmd, int *args) {
-	int ret;
 	//LOG(LOG_DEBUG, "%i", cmd);
 	switch(cmd) {
 	case G_PRINT: // ( const char *string );

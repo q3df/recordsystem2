@@ -18,4 +18,5 @@ private:
 	Q3Vm *vm_;
 };
 
-#endif CLIENT_RECORDSYSTEM_H_
+#endif // CLIENT_RECORDSYSTEM_H_
+

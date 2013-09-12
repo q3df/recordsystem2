@@ -21,6 +21,6 @@ private:
 	Logger(std::string path);
 };
 
-#define LOG(x1, x2, ...) Logger::GetInstance()->Log(x1, __FILE__, __LINE__, x2, __VA_ARGS__)
+//#define LOG(x1, x2, ...) Logger::GetInstance()->Log(x1, __FILE__, __LINE__, x2, __VA_ARGS__)
 
 #endif // CLIENT_LOGGER_H_
