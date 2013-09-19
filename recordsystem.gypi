@@ -118,12 +118,12 @@
 				'cflags': [
 					'-Wall', '-Werror', '-W', '-Wno-unused-parameter',
 					'-pthread', '-fno-exceptions', '-pedantic',
-					'-fPIC'
+					'-std=c++0x', '-fPIC'
 				],
 				'cflags_cc': [
 				],
 				'defines': [ 'LINUX' ],
-				'ldflags': [  ],
+				'ldflags': [ '-std=c++0x' ],
 			}
 		}],
 	],
