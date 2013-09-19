@@ -6,8 +6,8 @@
 extern Recordsystem *gRecordsystem;
 
 Recordsystem::Recordsystem(syscall_t syscall)
-	: syscall_(new Q3SysCall(syscall)),
-	  vm_syscall_(new Q3SysCall(syscall)) {
+	: vm_syscall_(new Q3SysCall(syscall)),
+	  syscall_(new Q3SysCall(syscall)) {
 
 	printHook1_ = new Q3SysCallHook(G_PRINT, EXECUTE_TYPE_BEFORE, [](Q3SysCallHook *hook) {
 		gRecordsystem->syscall_->Printf("[Q3df] PRINT HOOK EXECUTED 1 BEFORE\n");
