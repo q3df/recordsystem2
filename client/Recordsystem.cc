@@ -10,10 +10,12 @@ Recordsystem::Recordsystem(syscall_t syscall)
 	  vm_syscall_(new Q3SysCall(syscall)) {
 
 	printHook1_ = new Q3SysCallHook(G_PRINT, EXECUTE_TYPE_BEFORE, [](Q3SysCallHook *hook) {
+		hook->setHandled(true);
 		gRecordsystem->syscall_->Printf("[Q3df] PRINT HOOK EXECUTED 1 BEFORE\n");
 	});
 
 	printHook2_ = new Q3SysCallHook(G_PRINT, EXECUTE_TYPE_AFTER,  [](Q3SysCallHook *hook) {
+		hook->setHandled(true);
 		gRecordsystem->syscall_->Printf("[Q3df] PRINT HOOK EXECUTED 2: AFTER\n\n");
 	});
 
@@ -22,7 +24,6 @@ Recordsystem::Recordsystem(syscall_t syscall)
 }
 
 Recordsystem::~Recordsystem() {
-	//vm_syscall_->removeHook(printHook_);
 	delete printHook1_;
 	delete printHook2_;
 	delete syscall_;

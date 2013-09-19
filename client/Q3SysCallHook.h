@@ -33,13 +33,16 @@ public:
 	void setReturnArg(int retArg);
 	void setReturnVMA(void *retPtr);
 	void setReturnVMF(float retArg);
-	
+	void setHandled(bool handled);
+	bool isHandled();
+
 private:
 	int arg_[11];
 	int eventType_;
 	int executeType_;
 	int returnValue_;
-	
+	bool isHandled_;
+
 	void reset();
 	std::function<void(Q3SysCallHook *)> callback_;
 	void executeCallback() { this->callback_(this);	};

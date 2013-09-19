@@ -27,8 +27,12 @@ void Q3SysCall::removeHook(Q3SysCallHook *hook) {
 
 
 void Q3SysCall::Printf(const char *fmt) {
+	Q3SysCallHook *hook = NULL;
 	EXECUTE_CALLBACK_VOID_ARG1(G_PRINT, EXECUTE_TYPE_BEFORE, (void *)fmt)
-	syscall_(G_PRINT, fmt);
+
+	if(!hook || (hook && !hook->isHandled()))
+		syscall_(G_PRINT, fmt);
+
 	EXECUTE_CALLBACK_VOID_ARG1(G_PRINT, EXECUTE_TYPE_AFTER, (void *)fmt)
 }
 
@@ -209,7 +213,6 @@ int Q3SysCall::RealTime(qtime_t *qtime) {
 
 void Q3SysCall::SnapVector(float *v) {
 	syscall_(G_SNAPVECTOR, v);
-	return;
 }
 
 // BotLib traps start here

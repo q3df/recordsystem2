@@ -3,13 +3,36 @@
 Q3SysCallHook::Q3SysCallHook(gameImport_t eventType, Q3SysCallHookExecuteType executeType, std::function<void(Q3SysCallHook *)> callback)
   : callback_(callback),
     eventType_(eventType),
-	executeType_(executeType) {
+	executeType_(executeType),
+	isHandled_(false) {
 }
 
 Q3SysCallHook::~Q3SysCallHook() {
 }
 
+void Q3SysCallHook::setHandled(bool handled) {
+	isHandled_ = handled;
+}
+
+bool Q3SysCallHook::isHandled() {
+	return isHandled_;
+}
+
 void Q3SysCallHook::reset() {
+	arg_[0] = 0;
+	arg_[1] = 0;
+	arg_[2] = 0;
+	arg_[3] = 0;
+	arg_[4] = 0;
+	arg_[5] = 0;
+	arg_[6] = 0;
+	arg_[7] = 0;
+	arg_[8] = 0;
+	arg_[9] = 0;
+	arg_[10] = 0;
+	arg_[11] = 0;
+	returnValue_ = 0;
+	isHandled_ = false;
 }
 
 

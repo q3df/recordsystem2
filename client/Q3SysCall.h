@@ -10,19 +10,6 @@ using namespace std;
 
 typedef std::map<Q3SysCallHook*, Q3SysCallHook*> HookHandlers;
 
-#define EXECUTE_CALLBACK_VOID_ARG1(hookType, executeType, arg1)												\
-	{																										\
-		HookHandlers::iterator it;																			\
-		for (it = hookHandlers_.begin(); it != hookHandlers_.end(); it++) {									\
-			if( (*it).first->eventType_ == (hookType) && (*it).first->executeType_ == (executeType)) {		\
-				(*it).first->reset();																		\
-				(*it).first->setParam(0, (void *)(arg1));													\
-				(*it).first->executeCallback();																\
-			}																								\
-		}																									\
-	}																										
-
-
 class Q3SysCall {
 public:
 	Q3SysCall(syscall_t syscall);
@@ -233,6 +220,64 @@ private:
 	syscall_t syscall_;
 	HookHandlers hookHandlers_;
 };
+
+
+#define EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)	\
+	{																														\
+		HookHandlers::iterator it;																							\
+		for (it = hookHandlers_.begin(); it != hookHandlers_.end(); it++) {													\
+			if( (*it).first->eventType_ == (hookType) && (*it).first->executeType_ == (executeType)) {						\
+				(*it).first->reset();																						\
+				(*it).first->setParam(0, (arg1));																			\
+				(*it).first->setParam(0, (arg2));																			\
+				(*it).first->setParam(0, (arg3));																			\
+				(*it).first->setParam(0, (arg4));																			\
+				(*it).first->setParam(0, (arg5));																			\
+				(*it).first->setParam(0, (arg6));																			\
+				(*it).first->setParam(0, (arg7));																			\
+				(*it).first->setParam(0, (arg8));																			\
+				(*it).first->setParam(0, (arg9));																			\
+				(*it).first->setParam(0, (arg10));																			\
+				(*it).first->setParam(0, (arg11));																			\
+				(*it).first->executeCallback();																				\
+				hook = (*it).first;																							\
+			}																												\
+		}																													\
+	}																										
+
+#define EXECUTE_CALLBACK_VOID_ARG1(hookType, executeType, arg1) \
+	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+#define EXECUTE_CALLBACK_VOID_ARG2(hookType, executeType, arg1, arg2) \
+	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+#define EXECUTE_CALLBACK_VOID_ARG3(hookType, executeType, arg1, arg2, arg3) \
+	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, 0, 0, 0, 0, 0, 0, 0, 0)
+
+#define EXECUTE_CALLBACK_VOID_ARG4(hookType, executeType, arg1, arg2, arg3, arg4) \
+	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, arg4, 0, 0, 0, 0, 0, 0, 0)
+
+#define EXECUTE_CALLBACK_VOID_ARG5(hookType, executeType, arg1, arg2, arg3, arg4, arg5) \
+	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, arg4, arg5, 0, 0, 0, 0, 0, 0)
+
+#define EXECUTE_CALLBACK_VOID_ARG6(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6) \
+	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+#define EXECUTE_CALLBACK_VOID_ARG7(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7) \
+	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, 0, 0, 0, 0, 0)
+
+#define EXECUTE_CALLBACK_VOID_ARG8(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) \
+	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, 0, 0, 0)
+
+#define EXECUTE_CALLBACK_VOID_ARG9(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) \
+	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, 0, 0)
+
+#define EXECUTE_CALLBACK_VOID_ARG10(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10) \
+	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, 0)
+
+#define EXECUTE_CALLBACK_VOID_ARG11(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11) \
+	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
+
 
 
 #endif // CLIENT_Q3SYSCALL_H_
