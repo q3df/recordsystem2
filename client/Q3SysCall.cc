@@ -13,8 +13,23 @@ Q3SysCall::Q3SysCall(syscall_t syscall) :
 Q3SysCall::~Q3SysCall() {
 }
 
+void Q3SysCall::addHook(Q3SysCallHook *hook) {
+	hookHandlers_.insert(std::pair<Q3SysCallHook*, Q3SysCallHook*>(hook, hook));
+}
+
+void Q3SysCall::removeHook(Q3SysCallHook *hook) {
+	HookHandlers::iterator it = hookHandlers_.find(hook);
+	if( it != hookHandlers_.end())
+		hookHandlers_.erase(it);
+	else
+		printf("ERROR REMOVE: it == hookHandlers_.end()\n");
+}
+
+
 void Q3SysCall::Printf(const char *fmt) {
+	EXECUTE_CALLBACK_VOID_ARG1(G_PRINT, EXECUTE_TYPE_BEFORE, (void *)fmt)
 	syscall_(G_PRINT, fmt);
+	EXECUTE_CALLBACK_VOID_ARG1(G_PRINT, EXECUTE_TYPE_AFTER, (void *)fmt)
 }
 
 void Q3SysCall::Error(const char *fmt) {

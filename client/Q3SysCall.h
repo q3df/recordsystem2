@@ -2,9 +2,26 @@
 #define CLIENT_Q3SYSCALL_H_
 
 #include <string>
+#include <map>
+#include "Q3SysCallHook.h"
 #include "Quake3.h"
 
 using namespace std;
+
+typedef std::map<Q3SysCallHook*, Q3SysCallHook*> HookHandlers;
+
+#define EXECUTE_CALLBACK_VOID_ARG1(hookType, executeType, arg1)												\
+	{																										\
+		HookHandlers::iterator it;																			\
+		for (it = hookHandlers_.begin(); it != hookHandlers_.end(); it++) {									\
+			if( (*it).first->eventType_ == (hookType) && (*it).first->executeType_ == (executeType)) {		\
+				(*it).first->reset();																		\
+				(*it).first->setParam(0, (void *)(arg1));													\
+				(*it).first->executeCallback();																\
+			}																								\
+		}																									\
+	}																										
+
 
 class Q3SysCall {
 public:
@@ -204,14 +221,17 @@ public:
 	float ATan2(float a, float b);
 	float Sqrt(float value);
 	void MatrixMultiply(float in1[3][3], float in2[3][3], float out[3][3]);
-	void AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
-	void PerpendicularVector( vec3_t dst, const vec3_t src );
+	void AngleVectors(const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
+	void PerpendicularVector(vec3_t dst, const vec3_t src );
 	float Floor(float value);
 	float Ceil(float value);
-
-	syscall_t syscall_;
+	
+	void addHook(Q3SysCallHook *hook);
+	void removeHook(Q3SysCallHook *hook);
 
 private:
+	syscall_t syscall_;
+	HookHandlers hookHandlers_;
 };
 
 

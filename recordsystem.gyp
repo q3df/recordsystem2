@@ -14,6 +14,8 @@
 			'client/Q3Vm.h',
 			'client/Q3SysCall.cc',
 			'client/Q3SysCall.h',
+			'client/Q3SysCallHook.cc',
+			'client/Q3SysCallHook.h',
 			'client/Quake3.h',
 			'client/Logger.cc',
 			'client/Logger.h',

@@ -5,6 +5,8 @@
 #include "Q3SysCall.h"
 #include "Q3Vm.h"
 
+
+
 class Recordsystem {
 public:
 	Recordsystem(syscall_t syscall);
@@ -12,10 +14,13 @@ public:
 
 	int VmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11);
 
-
 private:
+	Q3SysCall *vm_syscall_;
 	Q3SysCall *syscall_;
 	Q3Vm *vm_;
+
+	Q3SysCallHook *printHook1_;
+	Q3SysCallHook *printHook2_;
 };
 
 #endif // CLIENT_RECORDSYSTEM_H_
