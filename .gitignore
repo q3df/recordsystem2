@@ -3,6 +3,8 @@ build/
 tools/protorpc/lib/
 tools/protorpc/bin/
 tools/protorpc/zz_*
+protoc/*.pb.cc
+protoc/*.pb.h
 #ignore thumbnails created by windows
 Thumbs.db
 #Ignore files build by Visual Studio
