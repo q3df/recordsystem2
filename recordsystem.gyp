@@ -12,8 +12,26 @@
 		'defines': [
 		],
 		'include_dirs': [
+			'tools/protorpc/src/'
 		],
+		'actions': [{
+			'action_name': 'protoc echoService compiling',
+			'inputs': [
+				'protoc/echoservice.pb'
+			],
+			'outputs': [
+				'protoc/echoservice.pb.pb.cc',
+				'protoc/echoservice.pb.pb.h',
+			],
+			'action': [
+				'./tools/protorpc/bin/protoc.exe',
+				'--cxx_out=./',
+				'protoc/echoservice.pb'
+			],
+		}],
 		'sources': [
+			'protoc/echoservice.pb.pb.cc',
+			'protoc/echoservice.pb.pb.h',
 			'client/Q3Vm.cc',
 			'client/Q3Vm.h',
 			'client/Q3SysCall.cc',
@@ -40,6 +58,11 @@
 				'defines': [
 					'WIN32',
 				],
+				'VCLinkerTool': {
+					'AdditionalDependencies': [
+						'tools/protorpc/lib/protobuf-win32.lib'
+					],
+				},
 				'include_dirs': [
 				],
 			}],

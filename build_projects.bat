@@ -9,7 +9,7 @@ goto end
 )
 
 if "%2" == "" (
-set PROJECT_NAME=qagamei386
+set PROJECT_NAME=qagamex86
 ) else (
 set PROJECT_NAME=%2
 )

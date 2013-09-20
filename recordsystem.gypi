@@ -95,6 +95,7 @@
 				},
 				'VCLinkerTool': {
 					'AdditionalDependencies': [
+						'tools/protorpc/lib/protobuf-win32.lib'
 					],
 					'GenerateDebugInformation': 'true',
 					'MapFileName': '$(OutDir)\\$(TargetName).map',
