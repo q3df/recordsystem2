@@ -3,29 +3,34 @@
 
 #include "Q3SysCallHook.h"
 
+
 extern Recordsystem *gRecordsystem;
 
 Recordsystem::Recordsystem(syscall_t syscall)
 	: vm_syscall_(new Q3SysCall(syscall)),
 	  syscall_(new Q3SysCall(syscall)) {
-
+	
 	printHook1_ = new Q3SysCallHook(G_PRINT, EXECUTE_TYPE_BEFORE, [](Q3SysCallHook *hook) {
-		hook->setHandled(true);
-		gRecordsystem->syscall_->Printf("[Q3df] PRINT HOOK EXECUTED 1 BEFORE\n");
-	});
+		::service::EchoRequest echoArgs;
+		::service::NullResponse echoReply;
+		::google::protobuf::rpc::Error err;
+		printf("[Q3df.PrintHook] %s\n", hook->getParamPtr(0));
 
-	printHook2_ = new Q3SysCallHook(G_PRINT, EXECUTE_TYPE_AFTER,  [](Q3SysCallHook *hook) {
-		hook->setHandled(true);
-		gRecordsystem->syscall_->Printf("[Q3df] PRINT HOOK EXECUTED 2: AFTER\n\n");
+		echoArgs.set_msg((const char *)hook->getParamPtr(0));
+		err = gRecordsystem->apiEchoService->Echo(&echoArgs, &echoReply);
+		if(!err.IsNil()) {
+			printf("echoStub.Echo.Error: %s\n", err.String().c_str());
+		}
 	});
 
 	vm_syscall_->addHook(printHook1_);
-	vm_syscall_->addHook(printHook2_);
+
+	apiClient = new ::google::protobuf::rpc::Client("127.0.0.1", 1234);
+	apiEchoService = new ::service::EchoService_Stub(apiClient);
 }
 
 Recordsystem::~Recordsystem() {
 	delete printHook1_;
-	delete printHook2_;
 	delete syscall_;
 	delete vm_syscall_;
 }

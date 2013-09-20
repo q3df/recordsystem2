@@ -229,16 +229,16 @@ private:
 			if( (*it).first->eventType_ == (hookType) && (*it).first->executeType_ == (executeType)) {						\
 				(*it).first->reset();																						\
 				(*it).first->setParam(0, (arg1));																			\
-				(*it).first->setParam(0, (arg2));																			\
-				(*it).first->setParam(0, (arg3));																			\
-				(*it).first->setParam(0, (arg4));																			\
-				(*it).first->setParam(0, (arg5));																			\
-				(*it).first->setParam(0, (arg6));																			\
-				(*it).first->setParam(0, (arg7));																			\
-				(*it).first->setParam(0, (arg8));																			\
-				(*it).first->setParam(0, (arg9));																			\
-				(*it).first->setParam(0, (arg10));																			\
-				(*it).first->setParam(0, (arg11));																			\
+				(*it).first->setParam(1, (arg2));																			\
+				(*it).first->setParam(2, (arg3));																			\
+				(*it).first->setParam(3, (arg4));																			\
+				(*it).first->setParam(4, (arg5));																			\
+				(*it).first->setParam(5, (arg6));																			\
+				(*it).first->setParam(6, (arg7));																			\
+				(*it).first->setParam(7, (arg8));																			\
+				(*it).first->setParam(8, (arg9));																			\
+				(*it).first->setParam(9, (arg10));																			\
+				(*it).first->setParam(10, (arg11));																			\
 				(*it).first->executeCallback();																				\
 				hook = (*it).first;																							\
 			}																												\

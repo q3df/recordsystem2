@@ -5,7 +5,9 @@
 #include "Q3SysCall.h"
 #include "Q3Vm.h"
 
-
+#include "../protoc/echoservice.pb.h"
+#include <google/protobuf/rpc/rpc_server.h>
+#include <google/protobuf/rpc/rpc_client.h>
 
 class Recordsystem {
 public:
@@ -19,8 +21,10 @@ private:
 	Q3SysCall *syscall_;
 	Q3Vm *vm_;
 
+	::google::protobuf::rpc::Client *apiClient;
+	::service::EchoService_Stub *apiEchoService;
+
 	Q3SysCallHook *printHook1_;
-	Q3SysCallHook *printHook2_;
 };
 
 #endif // CLIENT_RECORDSYSTEM_H_

@@ -17,21 +17,21 @@
 		'actions': [{
 			'action_name': 'protoc echoService compiling',
 			'inputs': [
-				'protoc/echoservice.pb'
+				'protoc/echoservice.proto'
 			],
 			'outputs': [
-				'protoc/echoservice.pb.pb.cc',
-				'protoc/echoservice.pb.pb.h',
+				'protoc/echoservice.pb.cc',
+				'protoc/echoservice.pb.h',
 			],
 			'action': [
-				'./tools/protorpc/bin/protoc.exe',
-				'--cxx_out=./',
-				'protoc/echoservice.pb'
+				'./compileprotoc.sh',
+				'protoc',
+				'echoservice.proto'
 			],
 		}],
 		'sources': [
-			'protoc/echoservice.pb.pb.cc',
-			'protoc/echoservice.pb.pb.h',
+			'protoc/echoservice.pb.cc',
+			'protoc/echoservice.pb.h',
 			'client/Q3Vm.cc',
 			'client/Q3Vm.h',
 			'client/Q3SysCall.cc',
@@ -58,10 +58,67 @@
 				'defines': [
 					'WIN32',
 				],
-				'VCLinkerTool': {
-					'AdditionalDependencies': [
-						'tools/protorpc/lib/protobuf-win32.lib'
-					],
+				'msvs_settings': {
+					'VCLinkerTool': {
+						'AdditionalDependencies': [
+							'tools/protorpc/lib/protobuf-win32.lib'
+						],
+					},
+				},
+				'include_dirs': [
+				],
+			}],
+		],
+	},{
+		'target_name': 'recordsystemd',
+		'type': 'executable',
+		'msvs_guid': 'F3706CA9-3A31-4B33-8CF6-73EAAC40BF1E',
+		'dependencies': [
+		],
+		'defines': [
+		],
+		'include_dirs': [
+			'tools/protorpc/src/'
+		],
+		'actions': [{
+			'action_name': 'protoc echoService compiling',
+			'inputs': [
+				'protoc/echoservice.proto'
+			],
+			'outputs': [
+				'protoc/echoservice.pb.cc',
+				'protoc/echoservice.pb.h',
+			],
+			'action': [
+				'./compileprotoc.sh',
+				'protoc',
+				'echoservice.proto'
+			],
+		}],
+		'sources': [
+			'protoc/echoservice.pb.cc',
+			'protoc/echoservice.pb.h',
+			'server/RecordsystemDaemon.cc',
+			'server/RecordsystemDaemon.h',
+		],
+		'conditions': [
+			['OS=="linux"', {
+				'defines': [
+					'LINUX',
+				],
+				'include_dirs': [
+				],
+			}],
+			['OS=="win"', {
+				'defines': [
+					'WIN32',
+				],
+				'msvs_settings': {
+					'VCLinkerTool': {
+						'AdditionalDependencies': [
+							'tools/protorpc/lib/protobuf-win32.lib'
+						],
+					},
 				},
 				'include_dirs': [
 				],

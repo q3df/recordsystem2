@@ -72,45 +72,47 @@
 		['OS=="win"', {
 			'target_defaults': {
 				'defines': [ 'WIN32', '_CRT_SECURE_NO_DEPRECATE', '_CRT_NONSTDC_NO_DEPRECATE' ],
-				'msvs_disabled_warnings': [4355, 4800],
+				'msvs_disabled_warnings': [4996, 4541, 4355, 4800],
 				'msvs_configuration_attributes': {
 					'OutputDirectory': '<(DEPTH)\\build\\$(ConfigurationName)',
 					'IntermediateDirectory': '$(OutDir)\\obj\\$(ProjectName)',
 					'CharacterSet': '1',
 				},
-				'VCCLCompilerTool': {
-					'RuntimeLibrary': '3',  # /MDd
-					'MinimalRebuild': 'false',
-					'BufferSecurityCheck': 'true',
-					'EnableFunctionLevelLinking': 'true',
-					'RuntimeTypeInfo': 'false',
-					'WarningLevel': '3',
-					'WarnAsError': 'true',
-					'Detect64BitPortabilityProblems': 'false',
-					'AdditionalOptions': ['/MP'],
-					'ExceptionHandling': '1',  # /EHsc
-				},
-				'VCLibrarianTool': {
-					'AdditionalOptions': ['/ignore:4221'],
-				},
-				'VCLinkerTool': {
-					'AdditionalDependencies': [
-						'tools/protorpc/lib/protobuf-win32.lib'
-					],
-					'GenerateDebugInformation': 'true',
-					'MapFileName': '$(OutDir)\\$(TargetName).map',
-					'ImportLibrary': '$(OutDir)\\lib\\$(TargetName).lib',
-					'FixedBaseAddress': '1',
-					# LinkIncremental values:
-					#   0 == default
-					#   1 == /INCREMENTAL:NO
-					#   2 == /INCREMENTAL
-					'LinkIncremental': '1',
-					# SubSystem values:
-					#   0 == not set
-					#   1 == /SUBSYSTEM:CONSOLE
-					#   2 == /SUBSYSTEM:WINDOWS
-					'SubSystem': '1',
+				'msvs_settings': {
+					'VCCLCompilerTool': {
+						'RuntimeLibrary': '2',
+						'MinimalRebuild': 'false',
+						'BufferSecurityCheck': 'true',
+						'EnableFunctionLevelLinking': 'true',
+						'RuntimeTypeInfo': 'false',
+						'WarningLevel': '3',
+						'WarnAsError': 'true',
+						'Detect64BitPortabilityProblems': 'false',
+						'AdditionalOptions': ['/MP'],
+						'ExceptionHandling': '1',  # /EHsc
+					},
+					'VCLibrarianTool': {
+						'AdditionalOptions': [
+						],
+					},
+					'VCLinkerTool': {
+						'AdditionalDependencies': [
+						],
+						'GenerateDebugInformation': 'true',
+						'MapFileName': '$(OutDir)\\$(TargetName).map',
+						'ImportLibrary': '$(OutDir)\\lib\\$(TargetName).lib',
+						'FixedBaseAddress': '1',
+						# LinkIncremental values:
+						#   0 == default
+						#   1 == /INCREMENTAL:NO
+						#   2 == /INCREMENTAL
+						'LinkIncremental': '1',
+						# SubSystem values:
+						#   0 == not set
+						#   1 == /SUBSYSTEM:CONSOLE
+						#   2 == /SUBSYSTEM:WINDOWS
+						'SubSystem': '1',
+					},
 				},
 			},
 		}],

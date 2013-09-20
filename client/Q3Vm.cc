@@ -857,7 +857,7 @@ int Q3Vm::SysCalls(byte *memoryBase, int cmd, int *args) {
 	case BOTLIB_AAS_SWIMMING: //(vec3_t origin)
 		return syscall_->AASSwimming((vec_t *)ptr(0));
 	case BOTLIB_AAS_PREDICT_CLIENT_MOVEMENT: //(void /* struct aas_clientmove_s */ *move, int entnum, vec3_t origin, int presencetype, int onground, vec3_t velocity, vec3_t cmdmove, int cmdframes, int maxframes, float frametime, int stopevent, int stopareanum, int visualize)
-		return syscall_->AASPredictClientMovement(ptr(0), arg(1), (vec_t *)ptr(2), arg(3), arg(4), (vec_t *)ptr(5), (vec_t *)ptr(6), arg(7), arg(8), arg(9), arg(10), arg(11), arg(12));
+		return syscall_->AASPredictClientMovement(ptr(0), arg(1), (vec_t *)ptr(2), arg(3), arg(4), (vec_t *)ptr(5), (vec_t *)ptr(6), arg(7), arg(8), VMF(9), arg(10), arg(11), arg(12));
 	case BOTLIB_EA_SAY:	//(int client, char *str)
 		syscall_->EASay(arg(0), (char *)ptr(1));
 		return 0;
