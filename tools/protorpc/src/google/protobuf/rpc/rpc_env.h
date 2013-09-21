@@ -6,6 +6,7 @@
 #define GOOGLE_PROTOBUF_RPC_ENV_H__
 
 #include <google/protobuf/stubs/common.h>
+#include <pthread.h>
 
 namespace google {
 namespace protobuf {

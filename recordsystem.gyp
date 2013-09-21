@@ -53,6 +53,14 @@
 				],
 				'include_dirs': [
 				],
+				'link_settings': {
+					'libraries': [
+						'tools/protorpc/lib/libprotobuf-posix32.a',
+						'-pthread'
+					],
+					'library_dirs': [
+					]
+				},
 			}],
 			['OS=="win"', {
 				'defines': [
@@ -108,6 +116,14 @@
 				],
 				'include_dirs': [
 				],
+				'link_settings': {
+					'libraries': [
+						'tools/protorpc/lib/libprotobuf-posix32.a',
+						'-pthread'
+					],
+					'library_dirs': [
+					]
+				},
 			}],
 			['OS=="win"', {
 				'defines': [

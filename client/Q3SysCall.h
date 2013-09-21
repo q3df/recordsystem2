@@ -212,7 +212,7 @@ public:
 	void PerpendicularVector(vec3_t dst, const vec3_t src );
 	float Floor(float value);
 	float Ceil(float value);
-	
+
 	void addHook(Q3SysCallHook *hook);
 	void removeHook(Q3SysCallHook *hook);
 
@@ -243,7 +243,7 @@ private:
 				hook = (*it).first;																							\
 			}																												\
 		}																													\
-	}																										
+	}
 
 #define EXECUTE_CALLBACK_VOID_ARG1(hookType, executeType, arg1) \
 	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)

@@ -3,9 +3,12 @@
 // license that can be found in the LICENSE file.
 
 #include "google/protobuf/rpc/rpc_env.h"
-#include "google/protobuf/rpc/rpc_port.h"
-
+//#include "google/protobuf/rpc/rpc_port.h"
+ 
 #include <google/protobuf/stubs/once.h>
+#include <deque>
+#include <cstdarg>
+#include <pthread.h>
 
 namespace google {
 namespace protobuf {
@@ -16,7 +19,7 @@ struct StartThreadState {
   void (*user_function)(void*);
   void* arg;
 };
-}
+
 static void* StartThreadWrapper(void* arg) {
   StartThreadState* state = reinterpret_cast<StartThreadState*>(arg);
   state->user_function(state->arg);
@@ -27,7 +30,7 @@ static void* StartThreadWrapper(void* arg) {
 
 class PosixEnv : public Env {
  public:
-  PosixEnv::PosixEnv() : page_size_(getpagesize()), started_bgthread_(false) {
+  PosixEnv() : page_size_(getpagesize()), started_bgthread_(false) {
     PthreadCall("mutex_init", pthread_mutex_init(&mu_, NULL));
     PthreadCall("cvar_init", pthread_cond_init(&bgsignal_, NULL));
   }
@@ -44,7 +47,7 @@ class PosixEnv : public Env {
     fprintf(stderr, "%s\n", buffer);
   }
 
-  void PosixEnv::StartThread(void (*function)(void* arg), void* arg) {
+  void StartThread(void (*function)(void* arg), void* arg) {
     pthread_t t;
     StartThreadState* state = new StartThreadState;
     state->user_function = function;
@@ -52,7 +55,7 @@ class PosixEnv : public Env {
     PthreadCall("start thread", pthread_create(&t, NULL,  &StartThreadWrapper, state));
   }
 
-  void PosixEnv::Schedule(void (*function)(void*), void* arg) {
+  void Schedule(void (*function)(void*), void* arg) {
     PthreadCall("lock", pthread_mutex_lock(&mu_));
   
     // Start background thread if necessary

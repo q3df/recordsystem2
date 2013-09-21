@@ -29,7 +29,7 @@ public:
 	int getReturnArg();
 	void *getReturnVMA();
 	float getReturnVMF();
-	
+
 	void setReturnArg(int retArg);
 	void setReturnVMA(void *retPtr);
 	void setReturnVMF(float retArg);

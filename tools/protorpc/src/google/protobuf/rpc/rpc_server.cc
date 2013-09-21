@@ -36,7 +36,7 @@ void Server::AddService(Service* service, bool ownership) {
   for(int i = 0; i < service->GetDescriptor()->method_count(); i++) {
     auto method = service->GetDescriptor()->method(i);
     auto method_name = Service::GetServiceMethodName(method);
-    service_method_map_[method_name] = const_cast<::google::protobuf::MethodDescriptor*>(method);
+    service_method_map_[method_name] = const_cast<google::protobuf::MethodDescriptor*>(method);
   }
 }
 

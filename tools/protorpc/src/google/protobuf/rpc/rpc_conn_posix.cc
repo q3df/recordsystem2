@@ -37,7 +37,7 @@ bool Conn::IsValid() const {
 }
 
 bool Conn::DialTCP(const char* host, int port) {
-  struct sockaddr_un addr;
+  struct sockaddr_in sa;
   int status, len;
 
   if(IsValid()) Close();
@@ -51,7 +51,7 @@ bool Conn::DialTCP(const char* host, int port) {
   sa.sin_family = AF_INET;
   sa.sin_port = htons(port);
   sa.sin_addr.s_addr = inet_addr(host);
-  addressSize = sizeof(sa);
+  int addressSize = sizeof(sa);
 
   if(connect(sock_, ( struct sockaddr * )&sa, addressSize ) == -1 ) {
     logf("connect failed.\n");
@@ -59,6 +59,7 @@ bool Conn::DialTCP(const char* host, int port) {
     return false;
   }
 
+  int flag = 1;
   setsockopt(sock_, IPPROTO_TCP, TCP_NODELAY, (char*)&flag, sizeof(flag));
   return true;
 }
@@ -82,7 +83,7 @@ bool Conn::ListenTCP(int port, int backlog) {
     Close();
     return false;
   }
-  if(::listen(fd, backlog) != 0) {
+  if(::listen(sock_, backlog) != 0) {
     logf("listen failed.\n");
     Close();
     return false;
@@ -103,7 +104,7 @@ void Conn::Close() {
 Conn* Conn::Accept() {
   struct sockaddr_in addr;
   socklen_t addrlen = sizeof(addr);
-  int sock = ::accept(fd, (struct sockaddr*)&addr, &addrlen);
+  int sock = ::accept(sock_, (struct sockaddr*)&addr, &addrlen);
   if(sock == 0) {
     logf("listen failed.\n");
     return NULL;

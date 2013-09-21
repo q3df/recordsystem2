@@ -9,12 +9,12 @@ extern Recordsystem *gRecordsystem;
 Recordsystem::Recordsystem(syscall_t syscall)
 	: vm_syscall_(new Q3SysCall(syscall)),
 	  syscall_(new Q3SysCall(syscall)) {
-	
+
 	printHook1_ = new Q3SysCallHook(G_PRINT, EXECUTE_TYPE_BEFORE, [](Q3SysCallHook *hook) {
 		::service::EchoRequest echoArgs;
 		::service::NullResponse echoReply;
 		::google::protobuf::rpc::Error err;
-		printf("[Q3df.PrintHook] %s\n", hook->getParamPtr(0));
+		printf("[Q3df.PrintHook] %s\n", (char *)hook->getParamPtr(0));
 
 		echoArgs.set_msg((const char *)hook->getParamPtr(0));
 		err = gRecordsystem->apiEchoService->Echo(&echoArgs, &echoReply);

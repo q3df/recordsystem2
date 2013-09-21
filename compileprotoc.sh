@@ -12,8 +12,13 @@ fi
 OLDCD=$(pwd)
 cd $1
 
-../tools/protorpc/bin/protoc.exe --cxx_out=./ $2
+if [ -f "../tools/protorpc/bin/protoc.exe" ]; then
+	../tools/protorpc/bin/protoc.exe --cxx_out=./ $2
+fi
 
+if [ -f "../tools/protorpc/bin/protoc" ]; then
+	../tools/protorpc/bin/protoc --cxx_out=./ $2
+fi
 
 cd $OLDCD
 
