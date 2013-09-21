@@ -7,6 +7,9 @@
 #if (defined(_WIN32) || defined(_WIN64))
 #  include "google/protobuf/rpc/rpc_env_windows.cc"
 #else
+#  include <deque>
+#  include <cstdarg>
+#  include <pthread.h>
 #  include "google/protobuf/rpc/rpc_env_posix.cc"
 #endif
 

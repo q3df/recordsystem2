@@ -3,10 +3,11 @@
 // license that can be found in the LICENSE file.
 
 #include "google/protobuf/rpc/rpc_conn.h"
-#include <cstdarg>
+
 #if (defined(_WIN32) || defined(_WIN64))
 #  include "./rpc_conn_windows.cc"
 #else
+#  include <cstdarg>
 #  include "./rpc_conn_posix.cc"
 #endif
 

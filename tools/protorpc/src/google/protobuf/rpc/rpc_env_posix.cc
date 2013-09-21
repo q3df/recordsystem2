@@ -6,9 +6,6 @@
 //#include "google/protobuf/rpc/rpc_port.h"
  
 #include <google/protobuf/stubs/once.h>
-#include <deque>
-#include <cstdarg>
-#include <pthread.h>
 
 namespace google {
 namespace protobuf {

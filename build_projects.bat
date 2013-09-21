@@ -25,10 +25,11 @@ set MSBUILD_PATH=%SystemRoot%\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
 )
 
 if exist "%MSBUILD_PATH%" (
-"%MSBUILD_PATH%" /v:m /p:Configuration=%1;Platform=Win32 /t:"%PROJECT_NAME%" recordsystem.sln
+echo Building %1 target for all projects...
+"%MSBUILD_PATH%" /v:m /p:Configuration=%1;Platform=Win32 recordsystem.sln
 ) else if exist "%DevEnvDir%\devenv.com" (
-echo Building %1 target for %PROJECT_NAME% project...
-"%DevEnvDir%\devenv.com" /build %1 recordsystem.sln /project %PROJECT_NAME%%PROJECT_EXT%
+echo Building %1 target for all projects...
+"%DevEnvDir%\devenv.com" /build %1 recordsystem.sln
 ) else if exist "%VCINSTALLDIR%\vcpackages\vcbuild.exe" (
 echo Building %1 target for all projects...
 "%VCINSTALLDIR%\vcpackages\vcbuild.exe" recordsystem.sln "%1|Win32"

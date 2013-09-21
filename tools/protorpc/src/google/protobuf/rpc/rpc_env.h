@@ -1,4 +1,4 @@
-// Copyright 2013 <chaishushan{AT}gmail.com>. All rights reserved.
+﻿// Copyright 2013 <chaishushan{AT}gmail.com>. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -6,7 +6,6 @@
 #define GOOGLE_PROTOBUF_RPC_ENV_H__
 
 #include <google/protobuf/stubs/common.h>
-#include <pthread.h>
 
 namespace google {
 namespace protobuf {

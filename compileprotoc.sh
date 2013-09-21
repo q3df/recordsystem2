@@ -9,6 +9,7 @@ if [ ! -f "$1/$2" ]; then
 	echo "$1/$2 file not found!"
 	exit 1
 fi
+
 OLDCD=$(pwd)
 cd $1
 
