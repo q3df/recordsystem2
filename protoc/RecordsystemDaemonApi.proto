@@ -1,0 +1,20 @@
+package service;
+option cc_generic_services = true;
+
+message NullResponse {
+}
+
+message ClientInfoRequest {
+}
+
+message ClientCommandRequest {
+}
+
+message ClientCommandResponse {
+}
+
+service RSDaemonApi {
+	rpc ClientConnected (ClientInfoRequest) returns (NullResponse);
+	rpc ClientDisconnected (ClientInfoRequest) returns (NullResponse);
+	rpc ClientCommand (ClientCommandRequest) returns (ClientCommandResponse);
+}

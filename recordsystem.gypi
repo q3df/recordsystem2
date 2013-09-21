@@ -88,7 +88,7 @@
 						'WarningLevel': '3',
 						'WarnAsError': 'true',
 						'Detect64BitPortabilityProblems': 'false',
-						'AdditionalOptions': ['/MP'],
+						'AdditionalOptions': ['/MP', '/GR'],
 						'ExceptionHandling': '1',  # /EHsc
 					},
 					'VCLibrarianTool': {
