@@ -4,6 +4,7 @@
 #include "Quake3.h"
 #include "Q3SysCall.h"
 #include "Q3Vm.h"
+#include "ApiAsyncExecuter.h"
 
 #include <echoservice.pb.h>
 #include <google/protobuf/rpc/rpc_server.h>
@@ -16,6 +17,7 @@ public:
 
 	int VmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11);
 
+	ApiAsyncExecuter *asyncExec_;
 private:
 	Q3SysCall *vm_syscall_;
 	Q3SysCall *syscall_;
