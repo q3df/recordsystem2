@@ -121,7 +121,7 @@
 				'cflags': [
 					'-Wall', '-Werror', '-W', '-Wno-unused-parameter',
 					'-pthread', '-fno-exceptions', '-pedantic',
-					'-std=c++0x', '-fPIC', '-fexceptions'
+					'-std=c++0x', '-fPIC', '-fexceptions', '-fpermissive'
 				],
 				'cflags_cc': [
 				],

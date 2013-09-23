@@ -9,8 +9,8 @@
 #include <google/protobuf/message.h>
 #include <google/protobuf/rpc/rpc_client.h>
 
-typedef std::function<::google::protobuf::rpc::Error ()> ExecuterFunction;
-typedef std::function<void(::google::protobuf::Message *, ::google::protobuf::rpc::Error *)> ExecuterCallbackFunction;
+typedef std::function<google::protobuf::rpc::Error ()> ExecuterFunction;
+typedef std::function<void(google::protobuf::Message *, google::protobuf::rpc::Error *)> ExecuterCallbackFunction;
 
 class ApiAsyncItem {
 public:

@@ -5,7 +5,7 @@ ApiAsyncExecuter::ApiAsyncExecuter() : stoppingThread_(false) {
 	mutex2_ = PTHREAD_MUTEX_INITIALIZER;
 	cond_ = PTHREAD_COND_INITIALIZER;
 
-	int ret = pthread_create(&thread_, NULL, &ApiAsyncExecuter::BackgroundWorkerStart, this);
+	pthread_create(&thread_, NULL, &ApiAsyncExecuter::BackgroundWorkerStart, this);
 }
 
 ApiAsyncExecuter::~ApiAsyncExecuter() {

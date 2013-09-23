@@ -11,7 +11,7 @@ extern Recordsystem *gRecordsystem;
 #define EXECUTE_ASYNC(func, instance, sentMsg, replyMsg, callback)			\
 	auto bind = std::bind((func),(instance),(sentMsg),(replyMsg));			\
 	gRecordsystem->asyncExec_->ExecuteAsync((bind), (replyMsg), (callback));
-		
+
 void fix_utf8_string(std::string& str)
 {
     std::string temp;
@@ -20,14 +20,14 @@ void fix_utf8_string(std::string& str)
 }
 
 Recordsystem::Recordsystem(syscall_t syscall)
-	: vm_syscall_(new Q3SysCall(syscall)),
-	  syscall_(new Q3SysCall(syscall)),
-	  asyncExec_(new ApiAsyncExecuter()) {
+	: asyncExec_(new ApiAsyncExecuter()),
+	  vm_syscall_(new Q3SysCall(syscall)),
+	  syscall_(new Q3SysCall(syscall)) {
 
 	printHook1_ = new Q3SysCallHook(G_PRINT, EXECUTE_TYPE_BEFORE, [](Q3SysCallHook *hook) {
 		::service::EchoRequest *echoArgs = new ::service::EchoRequest();
 		::service::NullResponse *echoReply = new ::service::NullResponse();
-		
+
 		std::string msg((const char *)hook->getParamPtr(0));
 		fix_utf8_string(msg);
 		echoArgs->set_msg(msg);
