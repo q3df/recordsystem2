@@ -4,8 +4,8 @@ tools/protorpc/lib/
 tools/protorpc/bin/
 tools/protorpc/zz_*
 tools/Boost/*
-protoc/*.pb.cc
-protoc/*.pb.h
+tools/libQ3dfApi/*.pb.cc
+tools/libQ3dfApi/*.pb.h
 #ignore thumbnails created by windows
 Thumbs.db
 #Ignore files build by Visual Studio
