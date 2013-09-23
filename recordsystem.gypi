@@ -84,11 +84,11 @@
 						'MinimalRebuild': 'false',
 						'BufferSecurityCheck': 'true',
 						'EnableFunctionLevelLinking': 'true',
-						'RuntimeTypeInfo': 'false',
+						'RuntimeTypeInfo': 'true',
 						'WarningLevel': '3',
 						'WarnAsError': 'true',
 						'Detect64BitPortabilityProblems': 'false',
-						'AdditionalOptions': ['/MP', '/GR'],
+						'AdditionalOptions': ['/MP'],
 						'ExceptionHandling': '1',  # /EHsc
 					},
 					'VCLibrarianTool': {

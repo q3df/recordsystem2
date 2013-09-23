@@ -8,32 +8,17 @@
 		'type': 'shared_library',
 		'msvs_guid': '905C1895-E657-4584-B1C9-C8642BDA8523',
 		'dependencies': [
-			'tools/pthreads-win32/pthread.gyp:pthreads'
+			'tools/pthreads-win32/pthread.gyp:pthreads',
+			'tools/libQ3dfApi/libQ3dfApi.gyp:Q3dfApi'
 		],
 		'defines': [
 		],
 		'include_dirs': [
 			'tools/protorpc/src/',
-			'tools/utf8/'
+			'tools/utf8/',
+			'tools/libQ3dfApi/'
 		],
-		'actions': [{
-			'action_name': 'protoc echoService compiling',
-			'inputs': [
-				'protoc/echoservice.proto'
-			],
-			'outputs': [
-				'protoc/echoservice.pb.cc',
-				'protoc/echoservice.pb.h',
-			],
-			'action': [
-				'./compileprotoc.sh',
-				'protoc',
-				'echoservice.proto'
-			],
-		}],
 		'sources': [
-			'protoc/echoservice.pb.cc',
-			'protoc/echoservice.pb.h',
 			'client/Q3Vm.cc',
 			'client/Q3Vm.h',
 			'client/Q3SysCall.cc',
@@ -86,17 +71,17 @@
 		'type': 'executable',
 		'msvs_guid': 'F3706CA9-3A31-4B33-8CF6-73EAAC40BF1E',
 		'dependencies': [
-			'qagamex86'
+			'qagamex86',
+			'tools/libQ3dfApi/libQ3dfApi.gyp:Q3dfApi'
 		],
 		'defines': [
 		],
 		'include_dirs': [
-			'tools/protorpc/src/'
+			'tools/protorpc/src/',
+			'tools/libQ3dfApi/'
 		],
 		'actions': [],
 		'sources': [
-			'protoc/echoservice.pb.cc',
-			'protoc/echoservice.pb.h',
 			'server/RecordsystemDaemon.cc',
 			'server/RecordsystemDaemon.h',
 		],

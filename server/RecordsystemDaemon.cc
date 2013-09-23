@@ -1,6 +1,6 @@
 #include "RecordsystemDaemon.h"
 
-#include "../protoc/echoservice.pb.h"
+#include <echoservice.pb.h>
 #include <google/protobuf/rpc/rpc_server.h>
 #include <google/protobuf/rpc/rpc_client.h>
 
