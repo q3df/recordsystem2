@@ -1,10 +1,16 @@
 #include "Recordsystem.h"
 #include "Logger.h"
-
 #include "Q3SysCallHook.h"
-
+#include <utf8.h>
 
 extern Recordsystem *gRecordsystem;
+
+void fix_utf8_string(std::string& str)
+{
+    std::string temp;
+    utf8::replace_invalid(str.begin(), str.end(), back_inserter(temp));
+    str = temp;
+}
 
 Recordsystem::Recordsystem(syscall_t syscall)
 	: vm_syscall_(new Q3SysCall(syscall)),
@@ -14,9 +20,11 @@ Recordsystem::Recordsystem(syscall_t syscall)
 		::service::EchoRequest echoArgs;
 		::service::NullResponse echoReply;
 		::google::protobuf::rpc::Error err;
-		printf("[Q3df.PrintHook] %s\n", (char *)hook->getParamPtr(0));
+		
+		std::string msg((const char *)hook->getParamPtr(0));
+		fix_utf8_string(msg);
+		echoArgs.set_msg(msg);
 
-		echoArgs.set_msg((const char *)hook->getParamPtr(0));
 		err = gRecordsystem->apiEchoService->Echo(&echoArgs, &echoReply);
 		if(!err.IsNil()) {
 			printf("echoStub.Echo.Error: %s\n", err.String().c_str());
@@ -30,6 +38,8 @@ Recordsystem::Recordsystem(syscall_t syscall)
 }
 
 Recordsystem::~Recordsystem() {
+	printf("Recordsystem::~Recordsystem();\r\n");
+	apiClient->Close();
 	delete printHook1_;
 	delete syscall_;
 	delete vm_syscall_;

@@ -10,7 +10,7 @@ public:
 	virtual ~EchoService() {}
 
 	virtual const ::google::protobuf::rpc::Error Echo(const ::service::EchoRequest* args, ::service::NullResponse* reply) {
-		printf("%s", args->msg().c_str());
+		printf("%s: %s", args->GetTypeName().c_str(), args->msg().c_str());
 		return ::google::protobuf::rpc::Error::Nil();
 	}
 };

@@ -3,6 +3,7 @@ build/
 tools/protorpc/lib/
 tools/protorpc/bin/
 tools/protorpc/zz_*
+tools/Boost/*
 protoc/*.pb.cc
 protoc/*.pb.h
 #ignore thumbnails created by windows
