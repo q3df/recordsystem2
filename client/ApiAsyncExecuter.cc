@@ -17,9 +17,9 @@ ApiAsyncExecuter::~ApiAsyncExecuter() {
 	pthread_mutex_destroy(&mutex2_);
 }
 
-void ApiAsyncExecuter::ExecuteAsync(ExecuterFunction item, ::google::protobuf::Message *replyMsg, ExecuterCallbackFunction callback) {
+void ApiAsyncExecuter::ExecuteAsync(ExecuterFunction item, ::google::protobuf::Message *replyMsg, ::google::protobuf::Message *sentMsg, ExecuterCallbackFunction callback) {
 		pthread_mutex_lock(&mutex_);
-		itemsThread.push(new ApiAsyncItem(item, callback, replyMsg));
+		itemsThread.push(new ApiAsyncItem(item, callback, replyMsg, sentMsg));
 		pthread_mutex_unlock(&mutex_);
 
 		pthread_cond_signal(&cond_);
@@ -42,25 +42,24 @@ void ApiAsyncExecuter::BackgroundWorker() {
 	while(!stoppingThread_) {
 		pthread_mutex_lock(&mutex_);
 
-		printf("THREAD: working start waiting...\r\n");
-		pthread_cond_wait(&cond_, &mutex_);
+		while(itemsThread.empty() && !stoppingThread_) {
+			printf("THREAD: working start waiting...\r\n");
+			pthread_cond_wait(&cond_, &mutex_);
+		}
+
 		if(stoppingThread_)
 			break;
 
-		ApiAsyncItem *item;
-		if(!itemsThread.empty()) {
-			item = itemsThread.front();
-			itemsThread.pop();
-		}
+		ApiAsyncItem *item = itemsThread.front();
+		itemsThread.pop();
+		pthread_mutex_unlock(&mutex_);
+
 		if(item) {
 			item->ExecuteApi();
-
 			pthread_mutex_lock(&mutex2_);
 			itemsMainThread.push(item);
 			pthread_mutex_unlock(&mutex2_);
 		}
-
-		pthread_mutex_unlock(&mutex_);
 	}
 }
 

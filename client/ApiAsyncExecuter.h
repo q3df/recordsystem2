@@ -14,14 +14,16 @@ typedef std::function<void(google::protobuf::Message *, google::protobuf::rpc::E
 
 class ApiAsyncItem {
 public:
-	ApiAsyncItem(ExecuterFunction item, ExecuterCallbackFunction callback, ::google::protobuf::Message *replyMsg)
+	ApiAsyncItem(ExecuterFunction item, ExecuterCallbackFunction callback, ::google::protobuf::Message *replyMsg, ::google::protobuf::Message *sentMsg)
 		: callback_(callback),
 		  function_(item),
-		  replyMsg_(replyMsg) {
+		  replyMsg_(replyMsg),
+		  sentMsg_(sentMsg) {
 	};
 
 	~ApiAsyncItem() {
 		delete replyMsg_;
+		delete sentMsg_;
 	};
 
 	void ExecuteApi() {
@@ -36,6 +38,7 @@ private:
 	ExecuterCallbackFunction callback_;
 	ExecuterFunction function_;
 	::google::protobuf::Message *replyMsg_;
+	::google::protobuf::Message *sentMsg_;
 	::google::protobuf::rpc::Error error;
 };
 
@@ -44,7 +47,7 @@ public:
 	ApiAsyncExecuter();
 	~ApiAsyncExecuter();
 
-	void ExecuteAsync(ExecuterFunction item, ::google::protobuf::Message *replyMsg, ExecuterCallbackFunction callback);
+	void ExecuteAsync(ExecuterFunction item, ::google::protobuf::Message *replyMsg, ::google::protobuf::Message *sentMsg, ExecuterCallbackFunction callback);
 	void DoMainThreadWork();
 
 private:

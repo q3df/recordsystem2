@@ -15,23 +15,23 @@
 			'../protorpc/src/'
 		],
 		'actions': [{
-			'action_name': 'protoc echoService compiling',
+			'action_name': 'protoc Q3dfApi compiling',
 			'inputs': [
-				'echoservice.proto'
+				'Q3dfApi.proto'
 			],
 			'outputs': [
-				'echoservice.pb.cc',
-				'echoservice.pb.h',
+				'Q3dfApi.pb.cc',
+				'Q3dfApi.pb.h',
 			],
 			'action': [
 				'../../compileprotoc.sh',
 				'./',
-				'echoservice.proto'
+				'Q3dfApi.proto'
 			],
 		}],
 		'sources': [
-			'echoservice.pb.cc',
-			'echoservice.pb.h',
+			'Q3dfApi.pb.cc',
+			'Q3dfApi.pb.h',
 		],
 		'conditions': [
 			['OS=="linux"', {

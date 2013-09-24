@@ -5,15 +5,21 @@ message NullResponse {
 }
 
 message ClientInfoRequest {
+	required string nickname = 1;
+	required int32 playernum = 2;
 }
 
 message ClientCommandRequest {
+	required int32 playernum = 1;
+	required string command = 2;
+	required string args = 3;
 }
 
 message ClientCommandResponse {
+	optional string messageToPrint = 1;
 }
 
-service RSDaemonApi {
+service Q3dfApi {
 	rpc ClientConnected (ClientInfoRequest) returns (NullResponse);
 	rpc ClientDisconnected (ClientInfoRequest) returns (NullResponse);
 	rpc ClientCommand (ClientCommandRequest) returns (ClientCommandResponse);
