@@ -26,6 +26,66 @@ static cvarTable_t gameCvarTable[] = {
 
 static int gameCvarTableSize = sizeof( gameCvarTable ) / sizeof( gameCvarTable[0] );
 
+#define EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12)	\
+	{																														\
+		HookHandlers::iterator it;																							\
+		for (it = hookHandlers_.begin(); it != hookHandlers_.end(); it++) {													\
+			if( (*it).first->eventType_ == (hookType) && (*it).first->executeType_ == (executeType)) {						\
+				(*it).first->reset();																						\
+				(*it).first->setParam(0, (arg1));																			\
+				(*it).first->setParam(1, (arg2));																			\
+				(*it).first->setParam(2, (arg3));																			\
+				(*it).first->setParam(3, (arg4));																			\
+				(*it).first->setParam(4, (arg5));																			\
+				(*it).first->setParam(5, (arg6));																			\
+				(*it).first->setParam(6, (arg7));																			\
+				(*it).first->setParam(7, (arg8));																			\
+				(*it).first->setParam(8, (arg9));																			\
+				(*it).first->setParam(9, (arg10));																			\
+				(*it).first->setParam(10, (arg11));																			\
+				(*it).first->setParam(11, (arg12));																			\
+				(*it).first->executeCallback();																				\
+				hook = (*it).first;																							\
+			}																												\
+		}																													\
+	}
+
+#define EXECUTE_CALLBACK_VOID_ARG1(hookType, executeType, arg1) \
+	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+#define EXECUTE_CALLBACK_VOID_ARG2(hookType, executeType, arg1, arg2) \
+	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+#define EXECUTE_CALLBACK_VOID_ARG3(hookType, executeType, arg1, arg2, arg3) \
+	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+#define EXECUTE_CALLBACK_VOID_ARG4(hookType, executeType, arg1, arg2, arg3, arg4) \
+	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, arg4, 0, 0, 0, 0, 0, 0, 0, 0)
+
+#define EXECUTE_CALLBACK_VOID_ARG5(hookType, executeType, arg1, arg2, arg3, arg4, arg5) \
+	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, arg4, arg5, 0, 0, 0, 0, 0, 0, 0)
+
+#define EXECUTE_CALLBACK_VOID_ARG6(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6) \
+	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+#define EXECUTE_CALLBACK_VOID_ARG7(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7) \
+	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, 0, 0, 0, 0, 0, 0)
+
+#define EXECUTE_CALLBACK_VOID_ARG8(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) \
+	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, 0, 0, 0, 0)
+
+#define EXECUTE_CALLBACK_VOID_ARG9(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) \
+	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, 0, 0, 0)
+
+#define EXECUTE_CALLBACK_VOID_ARG10(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10) \
+	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, 0, 0)
+
+#define EXECUTE_CALLBACK_VOID_ARG11(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11) \
+	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, 0)
+
+#define EXECUTE_CALLBACK_VOID_ARG12(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12) \
+	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12)
+
 
 void fix_utf8_string(std::string& str) {
     std::string temp;
@@ -79,6 +139,7 @@ Recordsystem::~Recordsystem() {
 	delete Q3dfApi_;
 	delete syscall_;
 	delete vm_syscall_;
+	hookHandlers_.clear();
 }
 
 ApiAsyncExecuter *Recordsystem::GetAsyncExecuter() {
@@ -93,6 +154,86 @@ Q3SysCall *Recordsystem::GetSyscalls() {
 	return syscall_;
 }
 
+void Recordsystem::addHook(Q3SysCallHook *hook) {
+	hookHandlers_.insert(std::pair<Q3SysCallHook*, Q3SysCallHook*>(hook, hook));
+}
+
+void Recordsystem::removeHook(Q3SysCallHook *hook) {
+	HookHandlers::iterator it = hookHandlers_.find(hook);
+	if( it != hookHandlers_.end())
+		hookHandlers_.erase(it);
+	else
+		printf("ERROR REMOVE: it == hookHandlers_.end()\n");
+}
+
+int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11) {
+	int ret = 0;
+	Q3SysCallHook *hook = NULL;
+
+	switch(command) {
+	case GAME_INIT:
+		GetSyscalls()->Printf("------- Recordsystem initilizing -------\n");
+
+		RegisterQuake3Cvars();
+
+		GetSyscalls()->Printf(va("[Q3df] API-Server is %s:%i ...\n", rs_api_server.string, rs_api_port.integer));
+		apiClient_ = new rpc::Client(rs_api_server.string, rs_api_port.integer);
+		Q3dfApi_ = new Q3dfApi_Stub(apiClient_);
+
+		GetSyscalls()->Printf(va("[Q3df] Loading vm/qagame.qvm ...\n", rs_api_server.string, rs_api_port.integer));
+		vm_ = new Q3Vm("vm/qagame.qvm", vm_syscall_);
+		if(!vm_->IsInitilized()) {
+			GetSyscalls()->Error("[Q3df:error] Faild initializing vm/qagame.qvm!\n");
+			return 0;
+		}else
+			GetSyscalls()->Printf(va("[Q3df] Proxy to vm/qagame.qvm is initialized.\n", rs_api_server.string, rs_api_port.integer));
+
+		EXECUTE_CALLBACK_VOID_ARG1(GAME_INIT, EXECUTE_TYPE_BEFORE, 0)
+		break;
+
+	case GAME_RUN_FRAME:
+		UpdateQuake3Cvars();
+		EXECUTE_CALLBACK_VOID_ARG1(GAME_RUN_FRAME, EXECUTE_TYPE_BEFORE, 0)
+		GetAsyncExecuter()->DoMainThreadWork();
+		break;
+
+	case GAME_SHUTDOWN:
+		EXECUTE_CALLBACK_VOID_ARG1(GAME_SHUTDOWN, EXECUTE_TYPE_BEFORE, 0)
+
+		if(vm_->IsInitilized())
+			ret = vm_->Exec(command, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
+
+		GetSyscalls()->Printf("[Q3df] Recordsystem shutingdown...\n");
+		vm_->~Q3Vm();
+		
+		return ret;
+		break;
+
+	case GAME_CLIENT_CONNECT: // return functions!
+	case BOTAI_START_FRAME:
+		break;
+
+	case GAME_CLIENT_THINK: // void functions!
+	case GAME_CLIENT_USERINFO_CHANGED:
+	case GAME_CLIENT_DISCONNECT:
+	case GAME_CLIENT_BEGIN:
+	case GAME_CLIENT_COMMAND:
+	case GAME_CONSOLE_COMMAND:
+		EXECUTE_CALLBACK_VOID_ARG12(command, EXECUTE_TYPE_BEFORE, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
+		break;
+	}
+	
+	if(vm_->IsInitilized())
+		ret = vm_->Exec(command, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
+
+	if(command == GAME_CLIENT_CONNECT)
+		return (int)vm_->ExplicitArgPtr(ret);
+	else
+		return ret;
+}
+
+
+// *** PRIVATE **********************************************************************************************
 void Recordsystem::RegisterQuake3Cvars() {
 	int i;
 	cvarTable_t	*cv;
@@ -123,51 +264,4 @@ void Recordsystem::UpdateQuake3Cvars() {
 			}
 		}
 	}
-}
-
-int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11) {
-	int ret = 0;
-
-	switch(command) {
-	case GAME_INIT:
-		GetSyscalls()->Printf("------- Recordsystem initilizing -------\n");
-
-		RegisterQuake3Cvars();
-
-		GetSyscalls()->Printf(va("[Q3df] API-Server is %s:%i ...\n", rs_api_server.string, rs_api_port.integer));
-		apiClient_ = new rpc::Client(rs_api_server.string, rs_api_port.integer);
-		Q3dfApi_ = new Q3dfApi_Stub(apiClient_);
-
-		GetSyscalls()->Printf(va("[Q3df] Loading vm/qagame.qvm ...\n", rs_api_server.string, rs_api_port.integer));
-		vm_ = new Q3Vm("vm/qagame.qvm", vm_syscall_);
-		if(!vm_->IsInitilized()) {
-			GetSyscalls()->Error("[Q3df:error] Faild initializing vm/qagame.qvm!\n");
-			return 0;
-		}else
-			GetSyscalls()->Printf(va("[Q3df] Proxy to vm/qagame.qvm is initialized.\n", rs_api_server.string, rs_api_port.integer));
-
-		break;
-
-	case GAME_RUN_FRAME:
-		UpdateQuake3Cvars();
-		GetAsyncExecuter()->DoMainThreadWork();
-		break;
-
-	case GAME_SHUTDOWN:
-		if(vm_->IsInitilized())
-			ret = vm_->Exec(command, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
-
-		GetSyscalls()->Printf("[Q3df] Recordsystem shutingdown...\n");
-		vm_->~Q3Vm();
-		
-		return ret;
-	}
-	
-	if(vm_->IsInitilized())
-		ret = vm_->Exec(command, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
-
-	if(command == GAME_CLIENT_CONNECT)
-		return (int)vm_->ExplicitArgPtr(ret);
-	else
-		return ret;
 }

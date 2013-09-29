@@ -1,6 +1,6 @@
 #include "Q3SysCallHook.h"
 
-Q3SysCallHook::Q3SysCallHook(gameImport_t eventType, Q3SysCallHookExecuteType executeType, std::function<void(Q3SysCallHook *)> callback)
+Q3SysCallHook::Q3SysCallHook(int eventType, Q3SysCallHookExecuteType executeType, std::function<void(Q3SysCallHook *)> callback)
   : eventType_(eventType),
     executeType_(executeType),
 	isHandled_(false),

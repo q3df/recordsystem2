@@ -1,10 +1,8 @@
 #ifndef CLIENT_Q3SYSCALLHOOK_H_
 #define CLIENT_Q3SYSCALLHOOK_H_
 
-#include <list>
-#include "Q3SysCallHook.h"
-#include "Quake3.h"
 #include <functional>
+#include <map>
 
 enum Q3SysCallHookExecuteType
 {
@@ -14,8 +12,9 @@ enum Q3SysCallHookExecuteType
 
 class Q3SysCallHook {
 friend class Q3SysCall;
+friend class Recordsystem;
 public:
-	Q3SysCallHook(gameImport_t eventType, Q3SysCallHookExecuteType executeType, std::function<void(Q3SysCallHook *)>);
+	Q3SysCallHook(int eventType, Q3SysCallHookExecuteType executeType, std::function<void(Q3SysCallHook *)>);
 	~Q3SysCallHook();
 
 	int getParam(int index);
@@ -47,5 +46,7 @@ private:
 	std::function<void(Q3SysCallHook *)> callback_;
 	void executeCallback() { this->callback_(this);	};
 };
+
+typedef std::map<Q3SysCallHook*, Q3SysCallHook*> HookHandlers;
 
 #endif // CLIENT_Q3SYSCALLHOOK_H_
