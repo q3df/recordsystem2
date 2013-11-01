@@ -20,10 +20,4 @@ cmake ..^
   -DCMAKE_CXX_FLAGS_RELEASE="/MD /O2 /Ob2 /DNDEBUG"^
   ^
   -DCMAKE_EXE_LINKER_FLAGS="/MANIFEST:NO"
-  
-nmake VERBOSE=1
-nmake install
-
-@rem --------------------------------------------------------------------------
 cd ..
-@rem PAUSE

@@ -3,7 +3,7 @@
 # license that can be found in the LICENSE file.
 
 project(PROTORPC)
-
+cmake_minimum_required(VERSION 2.8)
 #------------------------------------------------------------------------------
 
 if(WIN32)
