@@ -3,6 +3,10 @@
 if [ -z "$1" ]; then
   echo "ERROR: Please specify a build target: Debug or Release"
 else
+  cd tools/protorpc
+  sh build.sh
+  cd ../../
+
   if [ `uname` = "Linux" ]; then
     make -j16 all BUILDTYPE=$1
   else
