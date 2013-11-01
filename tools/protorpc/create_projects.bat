@@ -1,6 +1,7 @@
+rmdir /Q /S zz_build_tmp
 mkdir zz_build_tmp
 cd    zz_build_tmp
-call "%VS100COMNTOOLS%"\..\..\VC\bin\vcvars32.bat
+
 cmake ..^
   -G "NMake Makefiles"^
   -DCMAKE_BUILD_TYPE=release^
