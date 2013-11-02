@@ -121,12 +121,13 @@
 				'cflags': [
 					'-Wall', '-Werror', '-W', '-Wno-unused-parameter',
 					'-pthread', '-fno-exceptions', '-pedantic',
-					'-std=c++0x', '-fPIC', '-fexceptions', '-fpermissive'
+					'-std=c++0x', '-fPIC', '-fexceptions', '-fpermissive',
+					'-m32', '-L/usr/lib32'
 				],
 				'cflags_cc': [
 				],
 				'defines': [ 'LINUX' ],
-				'ldflags': [ '-std=c++0x' ],
+				'ldflags': [ '-std=c++0x', '-m32', '-L/usr/lib32' ],
 			}
 		}],
 	],
