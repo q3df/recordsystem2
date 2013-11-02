@@ -36,7 +36,7 @@ public:
 	bool isHandled();
 
 private:
-	int arg_[11];
+	int arg_[12];
 	int eventType_;
 	int executeType_;
 	int returnValue_;
