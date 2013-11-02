@@ -122,7 +122,7 @@
 					'-Wall', '-Werror', '-W', '-Wno-unused-parameter',
 					'-pthread', '-fno-exceptions', '-pedantic',
 					'-std=c++0x', '-fPIC', '-fexceptions', '-fpermissive',
-					'-m32', '-L/usr/lib32'
+					'-m32', '-L/usr/lib32', '-Wno-strict-aliasing'
 				],
 				'cflags_cc': [
 				],
