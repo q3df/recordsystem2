@@ -1,21 +1,28 @@
-#ifndef CLIENT_Q3SYSCALLHOOK_H_
-#define CLIENT_Q3SYSCALLHOOK_H_
+#ifndef CLIENT_Q3Hook_H_
+#define CLIENT_Q3Hook_H_
 
 #include <functional>
 #include <map>
 
-enum Q3SysCallHookExecuteType
+enum Q3HookExecuteType
 {
 	EXECUTE_TYPE_BEFORE,
 	EXECUTE_TYPE_AFTER
 };
 
-class Q3SysCallHook {
+enum Q3HookReturnType
+{
+	HOOK_RETURN_TYPE_VMF,
+	HOOK_RETURN_TYPE_VMA,
+	HOOK_RETURN_TYPE_ARG
+};
+
+class Q3Hook {
 friend class Q3SysCall;
 friend class Recordsystem;
 public:
-	Q3SysCallHook(int eventType, Q3SysCallHookExecuteType executeType, std::function<void(Q3SysCallHook *)>);
-	~Q3SysCallHook();
+	Q3Hook(int eventType, Q3HookExecuteType executeType, std::function<void(Q3Hook *)>);
+	~Q3Hook();
 
 	int getParam(int index);
 	float getParamFloat(int index);
@@ -43,10 +50,10 @@ private:
 	bool isHandled_;
 
 	void reset();
-	std::function<void(Q3SysCallHook *)> callback_;
+	std::function<void(Q3Hook *)> callback_;
 	void executeCallback() { this->callback_(this);	};
 };
 
-typedef std::map<Q3SysCallHook*, Q3SysCallHook*> HookHandlers;
+typedef std::map<Q3Hook*, Q3Hook*> HookHandlers;
 
-#endif // CLIENT_Q3SYSCALLHOOK_H_
+#endif // CLIENT_Q3Hook_H_

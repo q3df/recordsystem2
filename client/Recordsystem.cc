@@ -1,4 +1,5 @@
 #include "Recordsystem.h"
+#include "Q3HookCallback.h"
 #include <cstdarg>
 
 using namespace google::protobuf;
@@ -25,67 +26,6 @@ static cvarTable_t gameCvarTable[] = {
 };
 
 static int gameCvarTableSize = sizeof( gameCvarTable ) / sizeof( gameCvarTable[0] );
-
-#define EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12)	\
-	{																														\
-		HookHandlers::iterator it;																							\
-		for (it = hookHandlers_.begin(); it != hookHandlers_.end(); it++) {													\
-			if( (*it).first->eventType_ == (hookType) && (*it).first->executeType_ == (executeType)) {						\
-				(*it).first->reset();																						\
-				(*it).first->setParam(0, (arg1));																			\
-				(*it).first->setParam(1, (arg2));																			\
-				(*it).first->setParam(2, (arg3));																			\
-				(*it).first->setParam(3, (arg4));																			\
-				(*it).first->setParam(4, (arg5));																			\
-				(*it).first->setParam(5, (arg6));																			\
-				(*it).first->setParam(6, (arg7));																			\
-				(*it).first->setParam(7, (arg8));																			\
-				(*it).first->setParam(8, (arg9));																			\
-				(*it).first->setParam(9, (arg10));																			\
-				(*it).first->setParam(10, (arg11));																			\
-				(*it).first->setParam(11, (arg12));																			\
-				(*it).first->executeCallback();																				\
-				hook = (*it).first;																							\
-			}																												\
-		}																													\
-	}
-
-#define EXECUTE_CALLBACK_VOID_ARG1(hookType, executeType, arg1) \
-	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-
-#define EXECUTE_CALLBACK_VOID_ARG2(hookType, executeType, arg1, arg2) \
-	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-
-#define EXECUTE_CALLBACK_VOID_ARG3(hookType, executeType, arg1, arg2, arg3) \
-	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-
-#define EXECUTE_CALLBACK_VOID_ARG4(hookType, executeType, arg1, arg2, arg3, arg4) \
-	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, arg4, 0, 0, 0, 0, 0, 0, 0, 0)
-
-#define EXECUTE_CALLBACK_VOID_ARG5(hookType, executeType, arg1, arg2, arg3, arg4, arg5) \
-	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, arg4, arg5, 0, 0, 0, 0, 0, 0, 0)
-
-#define EXECUTE_CALLBACK_VOID_ARG6(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6) \
-	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-
-#define EXECUTE_CALLBACK_VOID_ARG7(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7) \
-	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, 0, 0, 0, 0, 0, 0)
-
-#define EXECUTE_CALLBACK_VOID_ARG8(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) \
-	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, 0, 0, 0, 0)
-
-#define EXECUTE_CALLBACK_VOID_ARG9(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) \
-	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, 0, 0, 0)
-
-#define EXECUTE_CALLBACK_VOID_ARG10(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10) \
-	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, 0, 0)
-
-#define EXECUTE_CALLBACK_VOID_ARG11(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11) \
-	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, 0)
-
-#define EXECUTE_CALLBACK_VOID_ARG12(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12) \
-	EXECUTE_CALLBACK_VOID(hookType, executeType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12)
-
 
 void fix_utf8_string(std::string& str) {
     std::string temp;
@@ -114,23 +54,13 @@ Recordsystem::Recordsystem(syscall_t syscall)
 	  vm_syscall_(new Q3SysCall(syscall)),
 	  syscall_(new Q3SysCall(syscall)) {
 
-	/*printHook1_ = new Q3SysCallHook(G_PRINT, EXECUTE_TYPE_BEFORE, [](Q3SysCallHook *hook) {
-		EchoRequest *echoArgs = new EchoRequest();
-		NullResponse *echoReply = new NullResponse();
 
-		std::string msg((const char *)hook->getParamPtr(0));
-		fix_utf8_string(msg);
-		echoArgs->set_msg(msg);
-
-		EXECUTE_ASYNC(&EchoService_Stub::Echo, gRecordsystem->apiEchoService, echoArgs, echoReply, [](Message *msg, rpc::Error *err) {
-			if(!err->IsNil()) {
-				printf("echoStub.Echo.Error: %s\n", err->String().c_str());
-			}else if(!((NullResponse *)msg)->msg().empty())
-				printf("echoStub.Echo.Return: %s\n", ((NullResponse *)msg)->msg().c_str());
-		});
+	testHook1_ = new Q3Hook(GAME_CLIENT_CONNECT, EXECUTE_TYPE_BEFORE, [](Q3Hook *hook) {
+		gRecordsystem->GetSyscalls()->Printf(va("CL: %i | firstTime: %i | isBot: %i\r\n", hook->getParam(0), hook->getParam(1), hook->getParam(2)));
+		hook->setReturnVMA("blabal bad hook user");
 	});
 
-	vm_syscall_->addHook(printHook1_);*/
+	this->addHook(testHook1_);
 }
 
 Recordsystem::~Recordsystem() {
@@ -139,6 +69,7 @@ Recordsystem::~Recordsystem() {
 	delete Q3dfApi_;
 	delete syscall_;
 	delete vm_syscall_;
+	delete testHook1_;
 	hookHandlers_.clear();
 }
 
@@ -154,21 +85,19 @@ Q3SysCall *Recordsystem::GetSyscalls() {
 	return syscall_;
 }
 
-void Recordsystem::addHook(Q3SysCallHook *hook) {
-	hookHandlers_.insert(std::pair<Q3SysCallHook*, Q3SysCallHook*>(hook, hook));
+void Recordsystem::addHook(Q3Hook *hook) {
+	hookHandlers_.insert(std::pair<Q3Hook*, Q3Hook*>(hook, hook));
 }
 
-void Recordsystem::removeHook(Q3SysCallHook *hook) {
+void Recordsystem::removeHook(Q3Hook *hook) {
 	HookHandlers::iterator it = hookHandlers_.find(hook);
 	if( it != hookHandlers_.end())
 		hookHandlers_.erase(it);
-	else
-		printf("ERROR REMOVE: it == hookHandlers_.end()\n");
 }
 
 int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11) {
 	int ret = 0;
-	Q3SysCallHook *hook = NULL;
+	Q3Hook *hook = NULL;
 	if(hook == NULL)
 		hook = NULL; // fixed compile error because of unused...
 
@@ -190,17 +119,17 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 		}else
 			GetSyscalls()->Printf(va("[Q3df] Proxy to vm/qagame.qvm is initialized.\n", rs_api_server.string, rs_api_port.integer));
 
-		EXECUTE_CALLBACK_VOID_ARG1(GAME_INIT, EXECUTE_TYPE_BEFORE, 0)
+		EXECUTE_CALLBACK_VOID_ARG12(command, EXECUTE_TYPE_BEFORE, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
 		break;
 
 	case GAME_RUN_FRAME:
 		UpdateQuake3Cvars();
-		EXECUTE_CALLBACK_VOID_ARG1(GAME_RUN_FRAME, EXECUTE_TYPE_BEFORE, 0)
+		EXECUTE_CALLBACK_VOID_ARG12(command, EXECUTE_TYPE_BEFORE, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
 		GetAsyncExecuter()->DoMainThreadWork();
 		break;
 
 	case GAME_SHUTDOWN:
-		EXECUTE_CALLBACK_VOID_ARG1(GAME_SHUTDOWN, EXECUTE_TYPE_BEFORE, 0)
+		EXECUTE_CALLBACK_VOID_ARG12(command, EXECUTE_TYPE_BEFORE, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
 
 		if(vm_->IsInitilized())
 			ret = vm_->Exec(command, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
@@ -213,6 +142,9 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 
 	case GAME_CLIENT_CONNECT: // return functions!
 	case BOTAI_START_FRAME:
+		EXECUTE_CALLBACK_RETURN_ARG(command, EXECUTE_TYPE_BEFORE, ret, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
+		if(ret != 0)
+			return ret;
 		break;
 
 	case GAME_CLIENT_THINK: // void functions!
@@ -225,13 +157,31 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 		break;
 	}
 
-	if(vm_->IsInitilized())
+	if(vm_->IsInitilized()) {
 		ret = vm_->Exec(command, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
+		if(command == GAME_CLIENT_CONNECT)
+			ret = (int)vm_->ExplicitArgPtr(ret);
+	}
 
-	if(command == GAME_CLIENT_CONNECT)
-		return (int)vm_->ExplicitArgPtr(ret);
-	else
-		return ret;
+	switch(command) {
+	case GAME_CLIENT_CONNECT: // return functions!
+	case BOTAI_START_FRAME:
+		EXECUTE_CALLBACK_RETURN_ARG(command, EXECUTE_TYPE_BEFORE, ret, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
+		break;
+
+	case GAME_INIT: // void functions!
+	case GAME_RUN_FRAME:
+	case GAME_CLIENT_THINK:
+	case GAME_CLIENT_USERINFO_CHANGED:
+	case GAME_CLIENT_DISCONNECT:
+	case GAME_CLIENT_BEGIN:
+	case GAME_CLIENT_COMMAND:
+	case GAME_CONSOLE_COMMAND:
+		EXECUTE_CALLBACK_VOID_ARG12(command, EXECUTE_TYPE_AFTER, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
+		break;
+	}
+
+	return ret;
 }
 
 

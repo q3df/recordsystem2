@@ -2,7 +2,7 @@
 #define CLIENT_Q3SYSCALL_H_
 
 #include <string>
-#include "Q3SysCallHook.h"
+#include "Q3Hook.h"
 #include "Quake3.h"
 
 using namespace std;
@@ -210,8 +210,8 @@ public:
 	float Floor(float value);
 	float Ceil(float value);
 
-	void addHook(Q3SysCallHook *hook);
-	void removeHook(Q3SysCallHook *hook);
+	void addHook(Q3Hook *hook);
+	void removeHook(Q3Hook *hook);
 
 private:
 	syscall_t syscall_;

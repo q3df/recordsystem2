@@ -5,7 +5,7 @@
 #include "Q3SysCall.h"
 #include "Q3Vm.h"
 #include "ApiAsyncExecuter.h"
-#include "Q3SysCallHook.h"
+#include "Q3Hook.h"
 #include <utf8.h>
 #include <functional>
 
@@ -36,8 +36,8 @@ public:
 	Q3dfApi *GetQ3dfApi();
 	Q3SysCall *GetSyscalls();
 
-	void addHook(Q3SysCallHook *hook);
-	void removeHook(Q3SysCallHook *hook);
+	void addHook(Q3Hook *hook);
+	void removeHook(Q3Hook *hook);
 	
 	int VmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11);
 
@@ -52,6 +52,8 @@ private:
 	rpc::Client *apiClient_;
 	Q3dfApi_Stub *Q3dfApi_;
 	HookHandlers hookHandlers_;
+
+	Q3Hook *testHook1_;
 
 };
 
