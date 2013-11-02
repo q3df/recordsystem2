@@ -10,8 +10,8 @@ vmCvar_t rs_api_key;
 
 typedef struct {
 	vmCvar_t	*vmCvar;
-	char		*cvarName;
-	char		*defaultString;
+	char		cvarName[256];
+	char		defaultString[4096];
 	int			cvarFlags;
 	int			modificationCount;  // for tracking changes
 	qboolean	trackChange;	    // track this variable, and announce if changed
@@ -19,9 +19,9 @@ typedef struct {
 } cvarTable_t;
 
 static cvarTable_t gameCvarTable[] = {
-	{ &rs_api_server, "rs_api_server", "127.0.0.1", CVAR_ARCHIVE | CVAR_NORESTART, 0, qfalse },
-	{ &rs_api_port, "rs_api_port", "1234", CVAR_ARCHIVE | CVAR_NORESTART, 0, qfalse },
-	{ &rs_api_key, "rs_api_key", "-", CVAR_ARCHIVE | CVAR_NORESTART, 0, qfalse }
+	{ &rs_api_server, "rs_api_server", "127.0.0.1", CVAR_ARCHIVE | CVAR_NORESTART, 0, qfalse, qfalse },
+	{ &rs_api_port, "rs_api_port", "1234", CVAR_ARCHIVE | CVAR_NORESTART, 0, qfalse, qfalse },
+	{ &rs_api_key, "rs_api_key", "-", CVAR_ARCHIVE | CVAR_NORESTART, 0, qfalse, qfalse }
 };
 
 static int gameCvarTableSize = sizeof( gameCvarTable ) / sizeof( gameCvarTable[0] );
@@ -93,7 +93,7 @@ void fix_utf8_string(std::string& str) {
     str = temp;
 }
 
-char *va( char *format, ... ) {
+char *va( const char *format, ... ) {
 	va_list		argptr;
 	static char		string[2][32000];	// in case va is called by nested functions
 	static int		index = 0;
@@ -169,6 +169,8 @@ void Recordsystem::removeHook(Q3SysCallHook *hook) {
 int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11) {
 	int ret = 0;
 	Q3SysCallHook *hook = NULL;
+	if(hook == NULL)
+		hook = NULL; // fixed compile error because of unused...
 
 	switch(command) {
 	case GAME_INIT:
@@ -205,7 +207,7 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 
 		GetSyscalls()->Printf("[Q3df] Recordsystem shutingdown...\n");
 		vm_->~Q3Vm();
-		
+
 		return ret;
 		break;
 
@@ -222,7 +224,7 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 		EXECUTE_CALLBACK_VOID_ARG12(command, EXECUTE_TYPE_BEFORE, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
 		break;
 	}
-	
+
 	if(vm_->IsInitilized())
 		ret = vm_->Exec(command, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
 
@@ -237,7 +239,6 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 void Recordsystem::RegisterQuake3Cvars() {
 	int i;
 	cvarTable_t	*cv;
-	qboolean remapped = qfalse;
 
 	for ( i = 0, cv = gameCvarTable; i < gameCvarTableSize ; i++, cv++ ) {
 		GetSyscalls()->CvarRegister( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags );
@@ -249,7 +250,6 @@ void Recordsystem::RegisterQuake3Cvars() {
 void Recordsystem::UpdateQuake3Cvars() {
 	int	i;
 	cvarTable_t	*cv;
-	qboolean remapped = qfalse;
 
 	for ( i = 0, cv = gameCvarTable ; i < gameCvarTableSize ; i++, cv++ ) {
 		if ( cv->vmCvar ) {
