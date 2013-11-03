@@ -4,63 +4,40 @@
 
 using namespace google::protobuf;
 using namespace service;
+using namespace std::placeholders;
 
 vmCvar_t rs_api_server;
 vmCvar_t rs_api_port;
 vmCvar_t rs_api_key;
 
-typedef struct {
-	vmCvar_t	*vmCvar;
-	char		cvarName[256];
-	char		defaultString[4096];
-	int			cvarFlags;
-	int			modificationCount;  // for tracking changes
-	qboolean	trackChange;	    // track this variable, and announce if changed
-	qboolean	teamShader;         // track and if changed, update shader state
-} cvarTable_t;
+extern "C" {
+	void fix_utf8_string(std::string& str) {
+		std::string temp;
+		utf8::replace_invalid(str.begin(), str.end(), back_inserter(temp));
+		str = temp;
+	}
 
-static cvarTable_t gameCvarTable[] = {
-	{ &rs_api_server, "rs_api_server", "127.0.0.1", CVAR_ARCHIVE | CVAR_NORESTART, 0, qfalse, qfalse },
-	{ &rs_api_port, "rs_api_port", "1234", CVAR_ARCHIVE | CVAR_NORESTART, 0, qfalse, qfalse },
-	{ &rs_api_key, "rs_api_key", "-", CVAR_ARCHIVE | CVAR_NORESTART, 0, qfalse, qfalse }
+	const char *va( const char *format, ... ) {
+		va_list		argptr;
+		static char		string[2][32000];	// in case va is called by nested functions
+		static int		index = 0;
+		char	*buf;
+
+		buf = string[index & 1];
+		index++;
+
+		va_start (argptr, format);
+		vsprintf (buf, format,argptr);
+		va_end (argptr);
+
+		return buf;
+	}
 };
-
-static int gameCvarTableSize = sizeof( gameCvarTable ) / sizeof( gameCvarTable[0] );
-
-void fix_utf8_string(std::string& str) {
-    std::string temp;
-    utf8::replace_invalid(str.begin(), str.end(), back_inserter(temp));
-    str = temp;
-}
-
-char *va( const char *format, ... ) {
-	va_list		argptr;
-	static char		string[2][32000];	// in case va is called by nested functions
-	static int		index = 0;
-	char	*buf;
-
-	buf = string[index & 1];
-	index++;
-
-	va_start (argptr, format);
-	vsprintf (buf, format,argptr);
-	va_end (argptr);
-
-	return buf;
-}
 
 Recordsystem::Recordsystem(syscall_t syscall)
 	: asyncExec_(new ApiAsyncExecuter()),
 	  vm_syscall_(new Q3SysCall(syscall)),
 	  syscall_(new Q3SysCall(syscall)) {
-
-
-	testHook1_ = new Q3Hook(GAME_CLIENT_CONNECT, EXECUTE_TYPE_BEFORE, [](Q3Hook *hook) {
-		gRecordsystem->GetSyscalls()->Printf(va("CL: %i | firstTime: %i | isBot: %i\r\n", hook->getParam(0), hook->getParam(1), hook->getParam(2)));
-		hook->setReturnVMA((void *)"blabal bad hook user");
-	});
-
-	this->addHook(testHook1_);
 }
 
 Recordsystem::~Recordsystem() {
@@ -69,8 +46,8 @@ Recordsystem::~Recordsystem() {
 	delete Q3dfApi_;
 	delete syscall_;
 	delete vm_syscall_;
-	delete testHook1_;
 	hookHandlers_.clear();
+	cvarList.clear();
 }
 
 ApiAsyncExecuter *Recordsystem::GetAsyncExecuter() {
@@ -85,11 +62,11 @@ Q3SysCall *Recordsystem::GetSyscalls() {
 	return syscall_;
 }
 
-void Recordsystem::addHook(Q3Hook *hook) {
+void Recordsystem::AddHook(Q3Hook *hook) {
 	hookHandlers_.insert(std::pair<Q3Hook*, Q3Hook*>(hook, hook));
 }
 
-void Recordsystem::removeHook(Q3Hook *hook) {
+void Recordsystem::RemoveHook(Q3Hook *hook) {
 	HookHandlers::iterator it = hookHandlers_.find(hook);
 	if( it != hookHandlers_.end())
 		hookHandlers_.erase(it);
@@ -105,7 +82,9 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 	case GAME_INIT:
 		GetSyscalls()->Printf("------- Recordsystem initilizing -------\n");
 
-		RegisterQuake3Cvars();
+		RegisterCvar(&rs_api_server, "rs_api_server", "127.0.0.1", CVAR_ARCHIVE | CVAR_NORESTART, qfalse);
+		RegisterCvar(&rs_api_port, "rs_api_port", "1234", CVAR_ARCHIVE | CVAR_NORESTART, qfalse);
+		RegisterCvar(&rs_api_key, "rs_api_key", "-", CVAR_ARCHIVE | CVAR_NORESTART, qfalse);
 
 		GetSyscalls()->Printf(va("[Q3df] API-Server is %s:%i ...\n", rs_api_server.string, rs_api_port.integer));
 		apiClient_ = new rpc::Client(rs_api_server.string, rs_api_port.integer);
@@ -184,32 +163,28 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 	return ret;
 }
 
+void Recordsystem::RegisterCvar(vmCvar_t *cvarPtr, const char name[MAX_CVAR_VALUE_STRING], 
+								const char defaultValue[MAX_CVAR_VALUE_STRING], int flags, qboolean track) {
 
-// *** PRIVATE **********************************************************************************************
-void Recordsystem::RegisterQuake3Cvars() {
-	int i;
-	cvarTable_t	*cv;
+	VmCvarItem *item = new VmCvarItem(cvarPtr, name, defaultValue, flags, track);
+	GetSyscalls()->CvarRegister( item->vmCvar, item->cvarName, item->defaultString, item->cvarFlags );
+	if ( item->vmCvar )
+		item->modificationCount = item->vmCvar->modificationCount;
 
-	for ( i = 0, cv = gameCvarTable; i < gameCvarTableSize ; i++, cv++ ) {
-		GetSyscalls()->CvarRegister( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags );
-		if ( cv->vmCvar )
-			cv->modificationCount = cv->vmCvar->modificationCount;
-	}
+	cvarList.push_back(item);
 }
 
+// *** PRIVATE **********************************************************************************************
 void Recordsystem::UpdateQuake3Cvars() {
-	int	i;
-	cvarTable_t	*cv;
+	for (std::list<VmCvarItem *>::iterator it = cvarList.begin(); it != cvarList.end(); it++) {
+		if((*it)->vmCvar) {
+			GetSyscalls()->CvarUpdate( (*it)->vmCvar );
 
-	for ( i = 0, cv = gameCvarTable ; i < gameCvarTableSize ; i++, cv++ ) {
-		if ( cv->vmCvar ) {
-			GetSyscalls()->CvarUpdate( cv->vmCvar );
+			if ( (*it)->modificationCount != (*it)->vmCvar->modificationCount ) {
+				(*it)->modificationCount = (*it)->vmCvar->modificationCount;
 
-			if ( cv->modificationCount != cv->vmCvar->modificationCount ) {
-				cv->modificationCount = cv->vmCvar->modificationCount;
-
-				if ( cv->trackChange ) {
-					GetSyscalls()->SendServerCommand(-1, va("print \"Server: %s changed to %s\n\"", cv->cvarName, cv->vmCvar->string));
+				if ( (*it)->trackChange ) {
+					GetSyscalls()->SendServerCommand(-1, va("print \"Server: %s changed to %s\n\"", (*it)->cvarName, (*it)->vmCvar->string));
 				}
 			}
 		}

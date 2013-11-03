@@ -5,7 +5,7 @@ message NullResponse {
 }
 
 message ClientInfoRequest {
-	required string nickname = 1;
+	optional string nickname = 1;
 	required int32 playernum = 2;
 }
 

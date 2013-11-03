@@ -1,23 +1,32 @@
 #include "RecordsystemDaemon.h"
 
-//#include <echoservice.pb.h>
+#include <Q3dfApi.pb.h>
 #include <google/protobuf/rpc/rpc_server.h>
 #include <google/protobuf/rpc/rpc_client.h>
 
-//class EchoService: public service::EchoService {
-//public:
-//	inline EchoService() {}
-//	virtual ~EchoService() {}
-//
-//	virtual const ::google::protobuf::rpc::Error Echo(const ::service::EchoRequest* args, ::service::NullResponse* reply) {
-//		printf("%s: %s", args->GetTypeName().c_str(), args->msg().c_str());
-//		return ::google::protobuf::rpc::Error::Nil();
-//	}
-//};
+class Q3dfApi: public service::Q3dfApi {
+public:
+	inline Q3dfApi() {}
+	virtual ~Q3dfApi() {}
+
+	virtual const ::google::protobuf::rpc::Error ClientConnected(const ::service::ClientInfoRequest* args, ::service::NullResponse* reply) {
+		printf("clientConnected: pl=%i\n", args->playernum());
+		return ::google::protobuf::rpc::Error::Nil();
+	}
+
+	virtual const ::google::protobuf::rpc::Error ClientDisconnected(const ::service::ClientInfoRequest* args, ::service::NullResponse* reply) {
+		printf("clientDisconnected: pl=%i\n", args->playernum());
+		return ::google::protobuf::rpc::Error::Nil();
+	}
+
+	virtual const ::google::protobuf::rpc::Error ClientCommand(const ::service::ClientCommandRequest* args, ::service::ClientCommandResponse* reply) {
+		return ::google::protobuf::rpc::Error::Nil();
+	}
+};
 
 int main(int argc, char **argv) {
 	::google::protobuf::rpc::Server server;
-	//server.AddService(new EchoService(), true);
+	server.AddService(new Q3dfApi(), true);
 	server.BindAndServe(1234);
 
 	return 0;

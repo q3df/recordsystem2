@@ -5,12 +5,15 @@
 #include <queue>
 #include <functional>
 #include <pthread.h>
-
 #include <google/protobuf/message.h>
 #include <google/protobuf/rpc/rpc_client.h>
 
 typedef std::function<google::protobuf::rpc::Error ()> ExecuterFunction;
 typedef std::function<void(google::protobuf::Message *, google::protobuf::rpc::Error *)> ExecuterCallbackFunction;
+
+#define EXECUTE_ASYNC(func, instance, sentMsg, replyMsg, callback)						\
+	auto bind = std::bind((func),(instance),(sentMsg),(replyMsg));						\
+	gRecordsystem->GetAsyncExecuter()->ExecuteAsync((bind), (replyMsg), (sentMsg), (callback));
 
 class ApiAsyncItem {
 public:
@@ -28,11 +31,9 @@ public:
 
 	void ExecuteApi() {
 		error = function_();
-	}
-
-	void ExecuteCallback() {
-		callback_(replyMsg_, &error);
 	};
+
+	void ExecuteCallback();
 
 private:
 	ExecuterCallbackFunction callback_;

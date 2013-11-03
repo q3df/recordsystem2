@@ -1,4 +1,12 @@
 #include "ApiAsyncExecuter.h"
+#include "Recordsystem.h"
+
+void ApiAsyncItem::ExecuteCallback() {
+	if(!callback_._Empty())
+		callback_(replyMsg_, &error);
+	else if(!error.IsNil())
+		gRecordsystem->GetSyscalls()->Printf(va("error: %s\n", error.String().c_str()));
+}
 
 ApiAsyncExecuter::ApiAsyncExecuter() : stoppingThread_(false) {
 	mutex_ = PTHREAD_MUTEX_INITIALIZER;

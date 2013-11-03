@@ -17,12 +17,8 @@ vm_syscall_->addHook(printHook1_);
 
 
 
-	testHook1_ = new Q3Hook(GAME_CLIENT_CONNECT, EXECUTE_TYPE_BEFORE, [](Q3Hook *hook) {
-		gRecordsystem->GetSyscalls()->Printf(va("CL: %i | firstTime: %i | isBot: %i\r\n", hook->getParam(0), hook->getParam(1), hook->getParam(2)));
-		hook->setReturnVMA("blabal bad hook user");
-	});
-
-	this->addHook(testHook1_);
-
-
-
+testHook1_ = new Q3Hook(GAME_CLIENT_CONNECT, EXECUTE_TYPE_BEFORE, [](Q3Hook *hook) {
+	gRecordsystem->GetSyscalls()->Printf(va("CL: %i | firstTime: %i | isBot: %i\r\n", hook->getParam(0), hook->getParam(1), hook->getParam(2)));
+	hook->setReturnVMA("blabal bad hook user");
+});
+this->addHook(testHook1_);

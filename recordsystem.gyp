@@ -35,6 +35,8 @@
 			'client/EntryPoint.h',
 			'client/ApiAsyncExecuter.cc',
 			'client/ApiAsyncExecuter.h',
+			'client/VmCvarItem.cc',
+			'client/VmCvarItem.h',
 		],
 		'conditions': [
 			['OS=="linux"', {
