@@ -1,5 +1,5 @@
 #include "VmCvarItem.h"
-#include <string>
+#include <memory.h>
 
 VmCvarItem::VmCvarItem(vmCvar_t	*cvarPtr,
 		const char name[MAX_CVAR_VALUE_STRING],
