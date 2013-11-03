@@ -2,7 +2,7 @@
 #include "Recordsystem.h"
 
 void ApiAsyncItem::ExecuteCallback() {
-	if(!callback_._Empty())
+	if(callback_)
 		callback_(replyMsg_, &error);
 	else if(!error.IsNil())
 		gRecordsystem->GetSyscalls()->Printf(va("error: %s\n", error.String().c_str()));

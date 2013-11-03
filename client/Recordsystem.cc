@@ -32,7 +32,7 @@ extern "C" {
 
 		return buf;
 	}
-};
+}
 
 Recordsystem::Recordsystem(syscall_t syscall)
 	: asyncExec_(new ApiAsyncExecuter()),
