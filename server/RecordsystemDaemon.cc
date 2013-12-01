@@ -3,7 +3,6 @@
 #include <Q3dfApi.pb.h>
 #include <google/protobuf/rpc/rpc_server.h>
 #include <google/protobuf/rpc/rpc_client.h>
-#include <Windows.h>
 
 class Q3dfApi: public service::Q3dfApi {
 public:

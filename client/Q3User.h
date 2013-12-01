@@ -1,8 +1,9 @@
 #ifndef CLIENT_Q3USER_H_
 #define CLIENT_Q3USER_H_
 
+class Recordsystem;
+
 #include "Q3SysCall.h"
-#include "Recordsystem.h"
 #include "Quake3.h"
 
 class Q3User {

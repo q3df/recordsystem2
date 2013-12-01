@@ -264,7 +264,7 @@ bool Recordsystem::GameInit(int levelTime, int randomSeed, int restart) {
 	vm_syscall_->addHook(new Q3Hook(G_PRINT, EXECUTE_TYPE_BEFORE, [](Q3Hook *hook) {
 		PrintfRequest *pRequest = new PrintfRequest();
 		pRequest->set_msg((const char *)hook->getParamPtr(0));
-		NullResponse *itemRes = new NullResponse();
+		//NullResponse *itemRes = new NullResponse();
 
 		//EXECUTE_ASYNC(&Q3dfApi_Stub::Printf, gRecordsystem->GetQ3dfApi(), pRequest, itemRes, NULL);
 	}));

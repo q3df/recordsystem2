@@ -1,4 +1,5 @@
 #include "Q3User.h"
+#include "Recordsystem.h"
 
 Q3User::Q3User(int playernum) {
 	playernum_ = playernum;

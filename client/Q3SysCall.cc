@@ -129,10 +129,11 @@ void Q3SysCall::CvarVariableStringBuffer(const char *var_name, char *buffer, int
 }
 
 void Q3SysCall::LocateGameData(gentity_t *gEnts, int numGEntities, int sizeofGEntity_t, playerState_t *clients, int sizeofGClient) {
-	Q3Hook *hook = NULL;
+	Q3Hook *hook;
 	EXECUTE_CALLBACK_VOID_ARG5(G_LOCATE_GAME_DATA, EXECUTE_TYPE_BEFORE, (void *)gEnts, numGEntities, sizeofGEntity_t, (void *)clients, sizeofGClient)
 
-	syscall_(G_LOCATE_GAME_DATA, gEnts, numGEntities, sizeofGEntity_t, clients, sizeofGClient);
+	if(!hook || (hook && !hook->isHandled()))
+		syscall_(G_LOCATE_GAME_DATA, gEnts, numGEntities, sizeofGEntity_t, clients, sizeofGClient);
 
 	EXECUTE_CALLBACK_VOID_ARG5(G_LOCATE_GAME_DATA, EXECUTE_TYPE_AFTER, (void *)gEnts, numGEntities, sizeofGEntity_t, (void *)clients, sizeofGClient)
 }
