@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 
+
 Logger::Logger(std::string path) {
 }
 
@@ -18,7 +19,7 @@ Logger *Logger::GetInstance() {
 	return instance;
 }
 
-void Logger::Log(LogType type, const char *file, int line, const char *fmt, ...) {
+Logger *Logger::Log(LogType type, const char *file, int line, const char *fmt, ...) {
 	va_list argptr;
 	char input[4096];
 	memset(&input, 0, sizeof(input));
@@ -28,14 +29,22 @@ void Logger::Log(LogType type, const char *file, int line, const char *fmt, ...)
 	va_end(argptr);
 
 	switch(type) {
-	case LOG_DEBUG:
-		printf("%s:%i|DEBUG: %s\r\n", file, line, input);
-		break;
-	case LOG_VERBOSE:
-		printf("%s:%i|VERBOSE: %s\r\n", file, line, input);
-		break;
 	case LOG_INFO:
-		printf("%s:%i|INFO: %s\r\n", file, line, input);
+		gRecordsystem->GetSyscalls()->Print(va("%s:%i|INFO: %s\n", file, line, input));
+		break;
+	case LOG_TRACE:
+		gRecordsystem->GetSyscalls()->Print(va("%s:%i|TRACE: %s\n", file, line, input));
+		break;
+	case LOG_WARNING:
+		gRecordsystem->GetSyscalls()->Print(va("%s:%i|WARNING: %s\n", file, line, input));
+		break;
+	case LOG_ERROR:
+		gRecordsystem->GetSyscalls()->Print(va("%s:%i|ERROR: %s\n", file, line, input));
+		break;
+	case LOG_DEBUG:
+		gRecordsystem->GetSyscalls()->Print(va("%s:%i|DEBUG: %s\n", file, line, input));
 		break;
 	}
+
+	return this;
 }

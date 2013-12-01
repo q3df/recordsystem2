@@ -1,6 +1,11 @@
 #include "Q3SysCall.h"
 #include "Q3HookCallback.h"
 
+extern "C" {
+	void fix_utf8_string(std::string& str);
+	const char *va( const char *format, ... );
+}
+
 int PASSFLOAT(float x) {
 	float	floatTemp;
 	floatTemp = x;
@@ -12,6 +17,15 @@ Q3SysCall::Q3SysCall(syscall_t syscall) :
 }
 
 Q3SysCall::~Q3SysCall() {
+	Q3Hook *hookItem = NULL;
+
+	for( HookHandlersIterator i = hookHandlers_.begin(); i != hookHandlers_.end(); ) {
+		hookItem = i->first;
+		hookHandlers_.erase(i++);
+		delete hookItem;
+	}
+
+	hookHandlers_.clear();
 }
 
 void Q3SysCall::addHook(Q3Hook *hook) {
@@ -37,6 +51,19 @@ void Q3SysCall::Printf(const char *fmt) {
 	EXECUTE_CALLBACK_VOID_ARG1(G_PRINT, EXECUTE_TYPE_AFTER, (void *)fmt)
 }
 
+void Q3SysCall::Print(const char *fmt) {
+	syscall_(G_PRINT, va("[Q3df] %s", fmt));
+}
+
+void Q3SysCall::PrintWarning(const char *fmt) {
+	syscall_(G_PRINT, va("[Q3df:WARNING] %s", fmt));
+}
+
+void Q3SysCall::PrintError(const char *fmt) {
+	syscall_(G_PRINT, va("[Q3df:ERROR] %s", fmt));
+}
+
+
 void Q3SysCall::Error(const char *fmt) {
 	syscall_(G_ERROR, fmt);
 }
@@ -44,6 +71,7 @@ void Q3SysCall::Error(const char *fmt) {
 int Q3SysCall::Milliseconds(void) {
 	return syscall_(G_MILLISECONDS);
 }
+
 int Q3SysCall::Argc(void) {
 	return syscall_(G_ARGC);
 }
@@ -101,7 +129,12 @@ void Q3SysCall::CvarVariableStringBuffer(const char *var_name, char *buffer, int
 }
 
 void Q3SysCall::LocateGameData(gentity_t *gEnts, int numGEntities, int sizeofGEntity_t, playerState_t *clients, int sizeofGClient) {
+	Q3Hook *hook = NULL;
+	EXECUTE_CALLBACK_VOID_ARG5(G_LOCATE_GAME_DATA, EXECUTE_TYPE_BEFORE, (void *)gEnts, numGEntities, sizeofGEntity_t, (void *)clients, sizeofGClient)
+
 	syscall_(G_LOCATE_GAME_DATA, gEnts, numGEntities, sizeofGEntity_t, clients, sizeofGClient);
+
+	EXECUTE_CALLBACK_VOID_ARG5(G_LOCATE_GAME_DATA, EXECUTE_TYPE_AFTER, (void *)gEnts, numGEntities, sizeofGEntity_t, (void *)clients, sizeofGClient)
 }
 
 void Q3SysCall::DropClient(int clientNum, const char *reason) {

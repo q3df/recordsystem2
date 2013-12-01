@@ -16,3 +16,15 @@ VmCvarItem::VmCvarItem(vmCvar_t	*cvarPtr,
 
 VmCvarItem::~VmCvarItem() {
 }
+
+int VmCvarItem::GetValueAsInteger() {
+	return this->vmCvar->integer;
+}
+
+const char *VmCvarItem::GetValueAsString() {
+	return this->vmCvar->string;
+}
+
+float VmCvarItem::GetValueAsFloat() {
+	return this->vmCvar->value;
+}

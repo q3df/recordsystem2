@@ -26,9 +26,15 @@
 			'client/Q3Hook.cc',
 			'client/Q3Hook.h',
 			'client/Q3HookCallback.h',
+			'client/Q3User.cc',
+			'client/Q3User.h',
 			'client/Quake3.h',
 			'client/Logger.cc',
 			'client/Logger.h',
+			'client/PluginStore.cc',
+			'client/PluginStore.h',
+			'client/PluginProxy.h',
+			'client/PluginBase.h',
 			'client/Recordsystem.cc',
 			'client/Recordsystem.h',
 			'client/EntryPoint.cc',
@@ -37,6 +43,7 @@
 			'client/ApiAsyncExecuter.h',
 			'client/VmCvarItem.cc',
 			'client/VmCvarItem.h',
+			'client/Plugins/MyFirstTest.cc',
 		],
 		'conditions': [
 			['OS=="linux"', {

@@ -47,6 +47,8 @@
 
 #define	MAX_GAMESTATE_CHARS	16000
 
+#define MAX_CLIENTS 64
+
 
 typedef enum {qfalse, qtrue}	qboolean;
 typedef int		fileHandle_t;
@@ -68,6 +70,10 @@ typedef enum {
 	FS_SEEK_END,
 	FS_SEEK_SET
 } fsOrigin_t;
+
+typedef enum {
+	CLIENT_FREE, CLIENT_CONNECTED, CLIENT_ACTIVE
+} clientState_t;
 
 /*
 ==========================================================

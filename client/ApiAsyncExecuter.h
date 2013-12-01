@@ -60,8 +60,8 @@ private:
 	pthread_mutex_t mutex_;
 	pthread_mutex_t mutex2_;
 	pthread_t thread_;
-	std::queue<ApiAsyncItem *> itemsThread;
-	std::queue<ApiAsyncItem *> itemsMainThread;
+	std::queue<ApiAsyncItem *> itemsThread_;
+	std::queue<ApiAsyncItem *> itemsMainThread_;
 };
 
 #endif // CLIENT_APIASYNCEXECUTER_H_

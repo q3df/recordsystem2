@@ -53,7 +53,7 @@ private:
 	std::function<void(Q3Hook *)> callback_;
 	void executeCallback() { this->callback_(this);	};
 };
-
+typedef std::map<Q3Hook*, Q3Hook*>::iterator HookHandlersIterator;
 typedef std::map<Q3Hook*, Q3Hook*> HookHandlers;
 
 #endif // CLIENT_Q3Hook_H_

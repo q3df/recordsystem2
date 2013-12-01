@@ -5,7 +5,7 @@ void ApiAsyncItem::ExecuteCallback() {
 	if(callback_)
 		callback_(replyMsg_, &error);
 	else if(!error.IsNil())
-		gRecordsystem->GetSyscalls()->Printf(va("error: %s\n", error.String().c_str()));
+		gRecordsystem->GetSyscalls()->PrintError(va("%s\n", error.String().c_str()));
 }
 
 ApiAsyncExecuter::ApiAsyncExecuter() : stoppingThread_(false) {
@@ -20,14 +20,23 @@ ApiAsyncExecuter::~ApiAsyncExecuter() {
 	stoppingThread_ = true;
 	pthread_cond_signal(&cond_);
 	pthread_join(thread_, NULL);
+
+	DoMainThreadWork();
+
 	pthread_cond_destroy(&cond_);
 	pthread_mutex_destroy(&mutex_);
 	pthread_mutex_destroy(&mutex2_);
+
+	if(!itemsThread_.empty())
+		gRecordsystem->GetSyscalls()->PrintWarning("ApiAsyncExecuter.~ApiAsyncExecuter.itemsThread is not empty!\n");
+
+	if(!itemsMainThread_.empty())
+		gRecordsystem->GetSyscalls()->PrintWarning("ApiAsyncExecuter.~ApiAsyncExecuter.itemsMainThread is not empty!\n");
 }
 
 void ApiAsyncExecuter::ExecuteAsync(ExecuterFunction item, ::google::protobuf::Message *replyMsg, ::google::protobuf::Message *sentMsg, ExecuterCallbackFunction callback) {
 		pthread_mutex_lock(&mutex_);
-		itemsThread.push(new ApiAsyncItem(item, callback, replyMsg, sentMsg));
+		itemsThread_.push(new ApiAsyncItem(item, callback, replyMsg, sentMsg));
 		pthread_mutex_unlock(&mutex_);
 
 		pthread_cond_signal(&cond_);
@@ -35,10 +44,10 @@ void ApiAsyncExecuter::ExecuteAsync(ExecuterFunction item, ::google::protobuf::M
 
 void ApiAsyncExecuter::DoMainThreadWork() {
 	pthread_mutex_lock(&mutex2_);
-	while(!itemsMainThread.empty()) {
+	while(!itemsMainThread_.empty()) {
 		ApiAsyncItem *item = NULL;
-		item = itemsMainThread.front();
-		itemsMainThread.pop();
+		item = itemsMainThread_.front();
+		itemsMainThread_.pop();
 
 		item->ExecuteCallback();
 		delete item;
@@ -50,23 +59,21 @@ void ApiAsyncExecuter::BackgroundWorker() {
 	while(!stoppingThread_) {
 		pthread_mutex_lock(&mutex_);
 
-		while(itemsThread.empty() && !stoppingThread_) {
-			printf("THREAD: working start waiting...\r\n");
+		while(itemsThread_.empty() && !stoppingThread_) {
 			pthread_cond_wait(&cond_, &mutex_);
 		}
 
-		if(stoppingThread_)
-			break;
+		while(!itemsThread_.empty()) {
+			ApiAsyncItem *item = itemsThread_.front();
+			itemsThread_.pop();
+			pthread_mutex_unlock(&mutex_);
 
-		ApiAsyncItem *item = itemsThread.front();
-		itemsThread.pop();
-		pthread_mutex_unlock(&mutex_);
-
-		if(item) {
-			item->ExecuteApi();
-			pthread_mutex_lock(&mutex2_);
-			itemsMainThread.push(item);
-			pthread_mutex_unlock(&mutex2_);
+			if(item) {
+				item->ExecuteApi();
+				pthread_mutex_lock(&mutex2_);
+				itemsMainThread_.push(item);
+				pthread_mutex_unlock(&mutex2_);
+			}
 		}
 	}
 }

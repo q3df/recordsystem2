@@ -13,6 +13,13 @@ public:
 	~Q3SysCall();
 
 	void Printf(const char *fmt);
+
+	// q3df specific start
+	void Print(const char *fmt);
+	void PrintWarning(const char *fmt);
+	void PrintError(const char *fmt);
+	// q3df specific stop
+
 	void Error(const char *fmt);
 	int Milliseconds(void);
 	int Argc(void);

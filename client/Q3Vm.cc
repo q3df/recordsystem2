@@ -4,6 +4,11 @@
 #include "Q3Vm.h"
 #include "Logger.h"
 
+extern "C" {
+	void fix_utf8_string(std::string& str);
+	const char *va( const char *format, ... );
+}
+
 int PASSFLOAT2(float x) {
 	float	floatTemp;
 	floatTemp = x;
@@ -99,7 +104,7 @@ void Q3Vm::Run() {
 		case OP_BREAK:
 			//anything else
 		default:
-			printf("ERROR: VM_Run: Unhandled opcode(%i)", op);
+			syscall_->PrintError(va("VM_Run: Unhandled opcode(%i)", op));
 			break;
 
 			//
@@ -307,7 +312,7 @@ void Q3Vm::Run() {
 				int* to = (int*)&dataSegment[opStack[1] & dataSegmentMask];
 
 				if( param & 3 ) {
-					syscall_->Error("[RS] vm__Run: OP_BLOCK_COPY not dword aligned" );
+					syscall_->Error("VM_Run: OP_BLOCK_COPY not dword aligned" );
 				}
 
 				// FIXME: assume pointers don't overlap?
@@ -526,7 +531,7 @@ qboolean Q3Vm::Create(const char *path, byte *oldmem) {
 
 	//if we are a big-endian machine, need to swap everything around
 	if (header->vmMagic == VM_MAGIC_BIG) {
-		printf("WARNING: VM_Create: Big-endian magic number detected, will byteswap during load.\n");
+		syscall_->PrintWarning("VM_Create: Big-endian magic number detected, will byteswap during load.\n");
 		vm_.swapped = qtrue;
 		header->vmMagic = byteswap(header->vmMagic);
 		header->instructionCount = byteswap(header->instructionCount);
@@ -567,7 +572,7 @@ qboolean Q3Vm::Create(const char *path, byte *oldmem) {
 	vm_.memory = (oldmem ? oldmem : (byte*)malloc(vm_.memorySize));
 	//malloc failed
 	if (!vm_.memory) {
-		printf("Unable to allocate VM memory chunk (size=%i)\n", vm_.memorySize);
+		syscall_->PrintError(va("Unable to allocate VM memory chunk (size=%i)\n", vm_.memorySize));
 		free(vmBase);
 		memset(&vm_, 0, sizeof(vm_t));
 		return qfalse;
@@ -1155,10 +1160,10 @@ int Q3Vm::SysCalls(byte *memoryBase, int cmd, int *args) {
 		return PASSFLOAT2(syscall_->Ceil(VMF(0)));
 		//return syscall_->syscall_(G_CEIL, arg(0));
 	default: //bad trap (ignore it, print error to console)
-		syscall_->Printf("ERROR: Unhandled syscall:\n");
+		syscall_->PrintError("VM::SysCalls: Unhandled syscall:\n");
 		return 0;
 	}
 
-	syscall_->Printf("ERROR: Unhandled syscall\n");
+	syscall_->PrintError("VM::SysCalls: Unhandled syscall\n");
 	return 0;
 }

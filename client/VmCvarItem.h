@@ -14,6 +14,11 @@ public:
 	);
 	~VmCvarItem();
 
+	int GetValueAsInteger();
+	const char *GetValueAsString();
+	float GetValueAsFloat();
+
+
 private:
 	vmCvar_t	*vmCvar;
 	char		cvarName[MAX_CVAR_VALUE_STRING];
