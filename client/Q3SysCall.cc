@@ -155,11 +155,23 @@ void Q3SysCall::GetConfigstring(int num, char *buffer, int bufferSize) {
 }
 
 void Q3SysCall::GetUserinfo(int num, char *buffer, int bufferSize) {
-	syscall_(G_GET_USERINFO, num, buffer, bufferSize);
+	Q3Hook *hook;
+	EXECUTE_CALLBACK_VOID_ARG3(G_GET_USERINFO, EXECUTE_TYPE_BEFORE, num, (void *)buffer, bufferSize)
+
+	if(!hook || (hook && !hook->isHandled()))
+		syscall_(G_GET_USERINFO, num, buffer, bufferSize);
+
+	EXECUTE_CALLBACK_VOID_ARG3(G_GET_USERINFO, EXECUTE_TYPE_AFTER, num, (void *)buffer, bufferSize)
 }
 
 void Q3SysCall::SetUserinfo(int num, const char *buffer) {
-	syscall_(G_SET_USERINFO, num, buffer);
+	Q3Hook *hook;
+	EXECUTE_CALLBACK_VOID_ARG2(G_SET_USERINFO, EXECUTE_TYPE_BEFORE, num, (void *)buffer)
+
+	if(!hook || (hook && !hook->isHandled()))
+		syscall_(G_SET_USERINFO, num, buffer);
+
+	EXECUTE_CALLBACK_VOID_ARG2(G_SET_USERINFO, EXECUTE_TYPE_AFTER, num, (void *)buffer)
 }
 
 void Q3SysCall::GetServerinfo(char *buffer, int bufferSize) {

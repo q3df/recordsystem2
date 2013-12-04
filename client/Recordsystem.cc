@@ -47,6 +47,7 @@ Recordsystem::Recordsystem(syscall_t syscall)
 Recordsystem::~Recordsystem() {
 	VmCvarItem *cvarItem = NULL;
 	Q3Hook *hookItem = NULL;
+	Q3User *userItem = NULL;
 
 	delete asyncExec_;
 	apiClient_->Close();
@@ -66,6 +67,12 @@ Recordsystem::~Recordsystem() {
 		delete cvarItem;
 	}
 
+	while(!userList_.empty()) {
+		userItem = userList_.back();
+		userList_.pop_back();
+		delete userItem;
+	}
+
 	hookHandlers_.clear();
 	cvarList_.clear();
 	pluginList_.clear();
@@ -78,6 +85,10 @@ ApiAsyncExecuter *Recordsystem::GetAsyncExecuter() {
 
 Q3dfApi_Stub *Recordsystem::GetQ3dfApi() {
 	return Q3dfApi_;
+}
+
+Q3SysCall *Recordsystem::GetVmSyscalls() {
+	return vm_syscall_;
 }
 
 Q3SysCall *Recordsystem::GetSyscalls() {
@@ -169,8 +180,8 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 	if(command == GAME_INIT) {
 		// initialize clients
 		for(int i = 0; i<MAX_CLIENTS; i++) {
-			userList_.push_back(Q3User(i));
-			userList_[i].SetState(CLIENT_FREE);
+			userList_.push_back(new Q3User(i));
+			userList_[i]->Reset();
 		}
 	}
 
@@ -214,7 +225,7 @@ int Recordsystem::GetUserCount() {
 	return MAX_CLIENTS;
 }
 
-Q3User Recordsystem::GetUser(int playernum) {
+Q3User *Recordsystem::GetUser(int playernum) {
 	return userList_[playernum];
 }
 

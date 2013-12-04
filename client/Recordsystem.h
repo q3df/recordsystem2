@@ -42,11 +42,12 @@ public:
 	~Recordsystem();
 
 	int GetUserCount();
-	Q3User GetUser(int playernum);
+	Q3User *GetUser(int playernum);
 	void RegisterCvar(vmCvar_t *cvarPtr, const char name[MAX_CVAR_VALUE_STRING], const char defaultValue[MAX_CVAR_VALUE_STRING], int flags, qboolean track);
 	ApiAsyncExecuter *GetAsyncExecuter();
 	Q3dfApi_Stub *GetQ3dfApi();
 	Q3SysCall *GetSyscalls();
+	Q3SysCall *GetVmSyscalls();
 	void AddHook(Q3Hook *hook);
 	void RemoveHook(Q3Hook *hook);
 	
@@ -73,7 +74,7 @@ private:
 
 	list<VmCvarItem *> cvarList_;
 	list<PluginBase *> pluginList_;
-	vector<Q3User> userList_;
+	vector<Q3User *> userList_;
 };
 
 extern Recordsystem *gRecordsystem;

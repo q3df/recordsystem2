@@ -4,8 +4,8 @@
 class PluginBase {
 public:
 	PluginBase() {}
-	virtual void Init() const = 0;
-	virtual void Destroy() const = 0;
+	virtual void Init() = 0;
+	virtual void Destroy() = 0;
 };
 
 #endif // CLIENT_PLUGINBASE_H_

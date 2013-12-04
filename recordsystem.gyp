@@ -43,7 +43,12 @@
 			'client/ApiAsyncExecuter.h',
 			'client/VmCvarItem.cc',
 			'client/VmCvarItem.h',
-			'client/Plugins/MyFirstTest.cc',
+			'client/Utils.cc',
+			'client/Utils.h',
+			'client/Plugins/UserManagementPlugin.cc',
+			'client/Plugins/ServerDemosPlugin.cc',
+			'client/Plugins/ServerRecordsPlugin.cc',
+			'client/Plugins/UserCommandsPlugin.cc',
 		],
 		'conditions': [
 			['OS=="linux"', {

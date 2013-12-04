@@ -17,22 +17,22 @@
 #	define QDECL
 #endif
 
-#define G_MEMSET         100
-#define G_MEMCPY         101
-#define G_STRNCPY        102
-#define G_SIN            103
-#define G_COS            104
-#define G_ATAN2          105
-#define G_SQRT           106
-#define G_MATRIXMULTIPLY      107
-#define G_ANGLEVECTORS        108
-#define G_PERPENDICULARVECTOR 109
-#define G_FLOOR          110
-#define G_CEIL           111
+#define G_MEMSET				100
+#define G_MEMCPY				101
+#define G_STRNCPY				102
+#define G_SIN					103
+#define G_COS					104
+#define G_ATAN2					105
+#define G_SQRT					106
+#define G_MATRIXMULTIPLY		107
+#define G_ANGLEVECTORS			108
+#define G_PERPENDICULARVECTOR	109
+#define G_FLOOR					110
+#define G_CEIL					111
 
-#define	MAX_QPATH			64
-#define	VM_MAGIC	0x12721444
-#define VM_MAGIC_BIG	0x44147212
+#define	MAX_QPATH				64
+#define	VM_MAGIC				0x12721444
+#define VM_MAGIC_BIG			0x44147212
 
 #define	MAX_CVAR_VALUE_STRING	256
 
@@ -43,12 +43,16 @@
 #define	MAX_WEAPONS				16		
 
 #define	MAX_PS_EVENTS			2
-#define	MAX_CONFIGSTRINGS	1024
+#define	MAX_CONFIGSTRINGS		1024
 
-#define	MAX_GAMESTATE_CHARS	16000
+#define	MAX_GAMESTATE_CHARS		16000
 
-#define MAX_CLIENTS 64
+#define MAX_CLIENTS				64
+#define MAX_INFO_STRING			1024
 
+#define BIG_INFO_STRING			8192
+#define BIG_INFO_VALUE			8192
+#define BIG_INFO_KEY			8192
 
 typedef enum {qfalse, qtrue}	qboolean;
 typedef int		fileHandle_t;
