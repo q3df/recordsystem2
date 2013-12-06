@@ -70,10 +70,10 @@ void UserManagementPlugin::OnClientConnected(Q3EventArgs *e) {
 	Q3User *cl = NULL;
 	int playernum = e->GetParam(0);
 	bool isFirstTime = e->GetParam(1) == 1 ? true : false;
-	bool isBot = e->GetParam(2) == 1 ? true : false;
+	//bool isBot = e->GetParam(2) == 1 ? true : false;
 
 	if(cvarRsNoNewClients.integer == 1) {
-		e->SetReturn("Sorry, server in latched for shutdown.");
+		e->SetReturn((void *)"Sorry, server in latched for shutdown.");
 		return;
 	}
 

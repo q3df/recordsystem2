@@ -2,7 +2,10 @@
 #define CLIENT_Q3EVENT_H_
 
 #include <functional>
+#include <cstring>
 #include <list>
+
+using namespace std;
 
 enum Q3EventExecuteType
 {
