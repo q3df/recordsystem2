@@ -5,7 +5,7 @@
 #include "Q3SysCall.h"
 #include "Q3Vm.h"
 #include "ApiAsyncExecuter.h"
-#include "Q3Hook.h"
+#include "Q3Event.h"
 #include "VmCvarItem.h"
 
 #include <utf8.h>
@@ -48,8 +48,8 @@ public:
 	Q3dfApi_Stub *GetQ3dfApi();
 	Q3SysCall *GetSyscalls();
 	Q3SysCall *GetVmSyscalls();
-	void AddHook(Q3Hook *hook);
-	void RemoveHook(Q3Hook *hook);
+	void AddEventHandler(Q3EventHandler *eventItem);
+	void RemoveEventHandler(Q3EventHandler *eventItem);
 	
 	int VmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11);
 
@@ -64,7 +64,7 @@ private:
 	Q3Vm *vm_;
 	rpc::Client *apiClient_;
 	Q3dfApi_Stub *Q3dfApi_;
-	HookHandlers hookHandlers_;
+
 
 	int gameClientSize_;
 	playerState_t *gameClients_;
@@ -72,6 +72,7 @@ private:
 	int	gentitySize_;
 	int	numEntities_;
 
+	EventHandlers eventList_;
 	list<VmCvarItem *> cvarList_;
 	list<PluginBase *> pluginList_;
 	vector<Q3User *> userList_;

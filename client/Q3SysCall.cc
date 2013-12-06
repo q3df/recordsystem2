@@ -1,5 +1,5 @@
 #include "Q3SysCall.h"
-#include "Q3HookCallback.h"
+#include "Recordsystem.h"
 
 extern "C" {
 	void fix_utf8_string(std::string& str);
@@ -17,38 +17,34 @@ Q3SysCall::Q3SysCall(syscall_t syscall) :
 }
 
 Q3SysCall::~Q3SysCall() {
-	Q3Hook *hookItem = NULL;
+	Q3EventHandler *eventItem = NULL;
 
-	for( HookHandlersIterator i = hookHandlers_.begin(); i != hookHandlers_.end(); ) {
-		hookItem = i->first;
-		hookHandlers_.erase(i++);
-		delete hookItem;
+	while(!eventList_.empty()) {
+		eventItem = eventList_.back();
+		eventList_.pop_back();
+		delete eventItem;
 	}
 
-	hookHandlers_.clear();
+	eventList_.clear();
 }
 
-void Q3SysCall::addHook(Q3Hook *hook) {
-	hookHandlers_.insert(std::pair<Q3Hook*, Q3Hook*>(hook, hook));
+void Q3SysCall::AddEventHandler(Q3EventHandler *eventItem) {
+	eventList_.push_back(eventItem);
 }
 
-void Q3SysCall::removeHook(Q3Hook *hook) {
-	HookHandlers::iterator it = hookHandlers_.find(hook);
-	if( it != hookHandlers_.end())
-		hookHandlers_.erase(it);
-	else
-		printf("ERROR REMOVE: it == hookHandlers_.end()\n");
+void Q3SysCall::RemoveEventHandler(Q3EventHandler *eventItem) {
+	gRecordsystem->GetSyscalls()->PrintError("Q3SysCall::RemoveEvent not implemented\n");
 }
 
 
 void Q3SysCall::Printf(const char *fmt) {
-	Q3Hook *hook = NULL;
-	EXECUTE_CALLBACK_VOID_ARG1(G_PRINT, EXECUTE_TYPE_BEFORE, (void *)fmt)
+	Q3EventHandler *eventItem = NULL;
+	EXECUTE_EVENT_VOID_ARG1(G_PRINT, EXECUTE_TYPE_BEFORE, (void *)fmt)
 
-	if(!hook || (hook && !hook->isHandled()))
+	if(!eventItem || (eventItem && !eventItem->GetHandled()))
 		syscall_(G_PRINT, fmt);
 
-	EXECUTE_CALLBACK_VOID_ARG1(G_PRINT, EXECUTE_TYPE_AFTER, (void *)fmt)
+	EXECUTE_EVENT_VOID_ARG1(G_PRINT, EXECUTE_TYPE_AFTER, (void *)fmt)
 }
 
 void Q3SysCall::Print(const char *fmt) {
@@ -129,13 +125,13 @@ void Q3SysCall::CvarVariableStringBuffer(const char *var_name, char *buffer, int
 }
 
 void Q3SysCall::LocateGameData(gentity_t *gEnts, int numGEntities, int sizeofGEntity_t, playerState_t *clients, int sizeofGClient) {
-	Q3Hook *hook;
-	EXECUTE_CALLBACK_VOID_ARG5(G_LOCATE_GAME_DATA, EXECUTE_TYPE_BEFORE, (void *)gEnts, numGEntities, sizeofGEntity_t, (void *)clients, sizeofGClient)
+	Q3EventHandler *eventItem;
+	EXECUTE_EVENT_VOID_ARG5(G_LOCATE_GAME_DATA, EXECUTE_TYPE_BEFORE, (void *)gEnts, numGEntities, sizeofGEntity_t, (void *)clients, sizeofGClient)
 
-	if(!hook || (hook && !hook->isHandled()))
+	if(!eventItem || (eventItem && !eventItem->GetHandled()))
 		syscall_(G_LOCATE_GAME_DATA, gEnts, numGEntities, sizeofGEntity_t, clients, sizeofGClient);
 
-	EXECUTE_CALLBACK_VOID_ARG5(G_LOCATE_GAME_DATA, EXECUTE_TYPE_AFTER, (void *)gEnts, numGEntities, sizeofGEntity_t, (void *)clients, sizeofGClient)
+	EXECUTE_EVENT_VOID_ARG5(G_LOCATE_GAME_DATA, EXECUTE_TYPE_AFTER, (void *)gEnts, numGEntities, sizeofGEntity_t, (void *)clients, sizeofGClient)
 }
 
 void Q3SysCall::DropClient(int clientNum, const char *reason) {
@@ -155,23 +151,23 @@ void Q3SysCall::GetConfigstring(int num, char *buffer, int bufferSize) {
 }
 
 void Q3SysCall::GetUserinfo(int num, char *buffer, int bufferSize) {
-	Q3Hook *hook;
-	EXECUTE_CALLBACK_VOID_ARG3(G_GET_USERINFO, EXECUTE_TYPE_BEFORE, num, (void *)buffer, bufferSize)
+	Q3EventHandler *eventItem;
+	EXECUTE_EVENT_VOID_ARG3(G_GET_USERINFO, EXECUTE_TYPE_BEFORE, num, (void *)buffer, bufferSize)
 
-	if(!hook || (hook && !hook->isHandled()))
+	if(!eventItem || (eventItem && !eventItem->GetHandled()))
 		syscall_(G_GET_USERINFO, num, buffer, bufferSize);
 
-	EXECUTE_CALLBACK_VOID_ARG3(G_GET_USERINFO, EXECUTE_TYPE_AFTER, num, (void *)buffer, bufferSize)
+	EXECUTE_EVENT_VOID_ARG3(G_GET_USERINFO, EXECUTE_TYPE_AFTER, num, (void *)buffer, bufferSize)
 }
 
 void Q3SysCall::SetUserinfo(int num, const char *buffer) {
-	Q3Hook *hook;
-	EXECUTE_CALLBACK_VOID_ARG2(G_SET_USERINFO, EXECUTE_TYPE_BEFORE, num, (void *)buffer)
+	Q3EventHandler *eventItem;
+	EXECUTE_EVENT_VOID_ARG2(G_SET_USERINFO, EXECUTE_TYPE_BEFORE, num, (void *)buffer)
 
-	if(!hook || (hook && !hook->isHandled()))
+	if(!eventItem || (eventItem && !eventItem->GetHandled()))
 		syscall_(G_SET_USERINFO, num, buffer);
 
-	EXECUTE_CALLBACK_VOID_ARG2(G_SET_USERINFO, EXECUTE_TYPE_AFTER, num, (void *)buffer)
+	EXECUTE_EVENT_VOID_ARG2(G_SET_USERINFO, EXECUTE_TYPE_AFTER, num, (void *)buffer)
 }
 
 void Q3SysCall::GetServerinfo(char *buffer, int bufferSize) {

@@ -1,8 +1,5 @@
 #include "Recordsystem.h"
-#include "Q3HookCallback.h"
 #include <cstdarg>
-
-
 
 using namespace google::protobuf;
 using namespace service;
@@ -46,7 +43,7 @@ Recordsystem::Recordsystem(syscall_t syscall)
 
 Recordsystem::~Recordsystem() {
 	VmCvarItem *cvarItem = NULL;
-	Q3Hook *hookItem = NULL;
+	Q3EventHandler *eventItem = NULL;
 	Q3User *userItem = NULL;
 
 	delete asyncExec_;
@@ -55,10 +52,10 @@ Recordsystem::~Recordsystem() {
 	delete syscall_;
 	delete vm_syscall_;
 
-	for( HookHandlersIterator i = hookHandlers_.begin(); i != hookHandlers_.end(); ) {
-		hookItem = i->first;
-		hookHandlers_.erase(i++);
-		delete hookItem;
+	while(!eventList_.empty()) {
+		eventItem = eventList_.back();
+		eventList_.pop_back();
+		delete eventItem;
 	}
 
 	while(!cvarList_.empty()) {
@@ -73,7 +70,7 @@ Recordsystem::~Recordsystem() {
 		delete userItem;
 	}
 
-	hookHandlers_.clear();
+	eventList_.clear();
 	cvarList_.clear();
 	pluginList_.clear();
 	userList_.clear();
@@ -95,22 +92,20 @@ Q3SysCall *Recordsystem::GetSyscalls() {
 	return syscall_;
 }
 
-void Recordsystem::AddHook(Q3Hook *hook) {
-	hookHandlers_.insert(std::pair<Q3Hook*, Q3Hook*>(hook, hook));
+void Recordsystem::AddEventHandler(Q3EventHandler *eventItem) {
+	eventList_.push_back(eventItem);
 }
 
-void Recordsystem::RemoveHook(Q3Hook *hook) {
-	HookHandlers::iterator it = hookHandlers_.find(hook);
-	if( it != hookHandlers_.end())
-		hookHandlers_.erase(it);
+void Recordsystem::RemoveEventHandler(Q3EventHandler *eventItem) {
+	GetSyscalls()->PrintError("Recordsystem::RemoveHook not implemented!");
 }
 
 int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11) {
 	int ret = 0;
 	PluginBase *pBase;
-	Q3Hook *hook = NULL;
-	if(hook == NULL)
-		hook = NULL; // fixed compile error because of unused...
+	Q3EventHandler *eventItem = NULL;
+	if(eventItem == NULL)
+		eventItem = NULL; // fixed compile error because of unused...
 
 
 	// ***************************************************
@@ -121,17 +116,17 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 		if(!GameInit(arg0, arg1, arg2))
 			return 0;
 
-		EXECUTE_CALLBACK_VOID_ARG12(command, EXECUTE_TYPE_BEFORE, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
+		EXECUTE_EVENT_VOID_ARG12(command, EXECUTE_TYPE_BEFORE, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
 		break;
 
 	case GAME_RUN_FRAME:
 		UpdateQuake3Cvars();
-		EXECUTE_CALLBACK_VOID_ARG12(command, EXECUTE_TYPE_BEFORE, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
+		EXECUTE_EVENT_VOID_ARG12(command, EXECUTE_TYPE_BEFORE, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
 		GetAsyncExecuter()->DoMainThreadWork();
 		break;
 
 	case GAME_SHUTDOWN:
-		EXECUTE_CALLBACK_VOID_ARG12(command, EXECUTE_TYPE_BEFORE, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
+		EXECUTE_EVENT_VOID_ARG12(command, EXECUTE_TYPE_BEFORE, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
 
 		while(!pluginList_.empty()) {
 			pBase = pluginList_.back();
@@ -151,7 +146,7 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 
 	case GAME_CLIENT_CONNECT: // return functions!
 	case BOTAI_START_FRAME:
-		EXECUTE_CALLBACK_RETURN_ARG(command, EXECUTE_TYPE_BEFORE, ret, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
+		EXECUTE_EVENT_RETURN_ARG(command, EXECUTE_TYPE_BEFORE, ret, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
 		if(ret != 0)
 			return ret;
 		break;
@@ -162,7 +157,7 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 	case GAME_CLIENT_BEGIN:
 	case GAME_CLIENT_COMMAND:
 	case GAME_CONSOLE_COMMAND:
-		EXECUTE_CALLBACK_VOID_ARG12(command, EXECUTE_TYPE_BEFORE, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
+		EXECUTE_EVENT_VOID_ARG12(command, EXECUTE_TYPE_BEFORE, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
 		break;
 	}
 
@@ -192,7 +187,7 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 	switch(command) {
 	case GAME_CLIENT_CONNECT: // return functions!
 	case BOTAI_START_FRAME:
-		EXECUTE_CALLBACK_RETURN_ARG(command, EXECUTE_TYPE_BEFORE, ret, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
+		EXECUTE_EVENT_RETURN_ARG(command, EXECUTE_TYPE_BEFORE, ret, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
 		break;
 
 	case GAME_INIT: // void functions!
@@ -203,7 +198,7 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 	case GAME_CLIENT_BEGIN:
 	case GAME_CLIENT_COMMAND:
 	case GAME_CONSOLE_COMMAND:
-		EXECUTE_CALLBACK_VOID_ARG12(command, EXECUTE_TYPE_AFTER, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
+		EXECUTE_EVENT_VOID_ARG12(command, EXECUTE_TYPE_AFTER, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
 		break;
 	}
 
@@ -267,14 +262,14 @@ bool Recordsystem::GameInit(int levelTime, int randomSeed, int restart) {
 		GetSyscalls()->Print(va("Proxy to vm/qagame.qvm is initialized.\n", rs_api_server.string, rs_api_port.integer));
 
 	GetSyscalls()->Print("Initialize users...\n");
-	vm_syscall_->addHook(new Q3Hook(G_LOCATE_GAME_DATA, EXECUTE_TYPE_BEFORE, [](Q3Hook *hook) {
+	vm_syscall_->AddEventHandler(new Q3EventHandler(G_LOCATE_GAME_DATA, EXECUTE_TYPE_BEFORE, [](Q3EventArgs *e) {
 		gRecordsystem->GetSyscalls()->Print("Locate game data from qvm...\n");
-		gRecordsystem->SetGameData(hook->getParam(4), (playerState_t *)hook->getParamPtr(3), (gentity_t *)hook->getParamPtr(0), hook->getParam(2), hook->getParam(1));
+		gRecordsystem->SetGameData(e->GetParam(4), (playerState_t *)e->GetParamVMA(3), (gentity_t *)e->GetParamVMA(0), e->GetParam(2), e->GetParam(1));
 	}));
 
-	vm_syscall_->addHook(new Q3Hook(G_PRINT, EXECUTE_TYPE_BEFORE, [](Q3Hook *hook) {
+	vm_syscall_->AddEventHandler(new Q3EventHandler(G_PRINT, EXECUTE_TYPE_BEFORE, [](Q3EventArgs *e) {
 		PrintfRequest *pRequest = new PrintfRequest();
-		pRequest->set_msg((const char *)hook->getParamPtr(0));
+		pRequest->set_msg((const char *)e->GetParamVMA(0));
 		//NullResponse *itemRes = new NullResponse();
 
 		//EXECUTE_ASYNC(&Q3dfApi_Stub::Printf, gRecordsystem->GetQ3dfApi(), pRequest, itemRes, NULL);
