@@ -158,6 +158,9 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 	case GAME_CLIENT_COMMAND:
 	case GAME_CONSOLE_COMMAND:
 		EXECUTE_EVENT_VOID_ARG12(command, EXECUTE_TYPE_BEFORE, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
+
+		if(command == GAME_CLIENT_COMMAND && eventItem && eventItem->GetHandled())
+			return 0;
 		break;
 	}
 
