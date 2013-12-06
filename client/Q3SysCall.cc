@@ -151,7 +151,7 @@ void Q3SysCall::GetConfigstring(int num, char *buffer, int bufferSize) {
 }
 
 void Q3SysCall::GetUserinfo(int num, char *buffer, int bufferSize) {
-	Q3EventHandler *eventItem;
+	Q3EventHandler *eventItem = NULL;
 	EXECUTE_EVENT_VOID_ARG3(G_GET_USERINFO, EXECUTE_TYPE_BEFORE, num, (void *)buffer, bufferSize)
 
 	if(!eventItem || (eventItem && !eventItem->GetHandled()))

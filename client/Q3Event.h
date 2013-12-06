@@ -131,11 +131,12 @@ typedef std::list<Q3EventHandler*> EventHandlers;
 				(*it)->Reset();																									\
 				(*it)->Call(e);																									\
 				eventItem = (*it);																								\
-				if(e->GetReturn() != 0) {																					\
+				if(e->GetReturn() != 0) {																						\
 					(returnValue) = e->GetReturn();																				\
 				}																												\
 			}																													\
 		}																														\
+		delete e;																												\
 	}
 
 #define EXECUTE_EVENT_RETURN_VMA(eventType, executeType, returnValue, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12)	\
@@ -165,6 +166,7 @@ typedef std::list<Q3EventHandler*> EventHandlers;
 				}																												\
 			}																													\
 		}																														\
+		delete e;																												\
 	}
 
 
@@ -195,6 +197,7 @@ typedef std::list<Q3EventHandler*> EventHandlers;
 				}																												\
 			}																													\
 		}																														\
+		delete e;																												\
 	}
 
 #define EXECUTE_EVENT_VOID_ARG1(eventType, executeType, arg1) \
