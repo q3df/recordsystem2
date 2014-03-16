@@ -7,6 +7,17 @@
 
 #include <google/protobuf/message.h>
 
+#ifdef _MSC_VER
+#  include <ws2tcpip.h>  /* send,recv,socklen_t etc */
+#  include <wspiapi.h>   /* addrinfo */
+#  include <winsock2.h>
+#  pragma comment(lib, "ws2_32.lib")
+#elif WIN32
+#  include <ws2tcpip.h>  /* send,recv,socklen_t etc */
+#  include <winsock2.h>
+typedef int socklen_t;
+#endif
+
 namespace google {
 namespace protobuf {
 namespace rpc {
@@ -20,12 +31,15 @@ bool InitSocket();
 class Conn {
  public:
 
-  Conn(int fd=0, Env* env=NULL): sock_(fd), env_(env) { InitSocket(); }
+  Conn(int fd=0, Env* env=NULL): sock_(fd), env_(env) {
+    InitSocket();
+  }
   ~Conn() {}
 
   bool IsValid() const;
   bool DialTCP(const char* host, int port);
   bool ListenTCP(int port, int backlog=5);
+  Conn* Conn::AcceptNonBlock(struct sockaddr *addr);
   void Close();
 
   Conn* Accept();
@@ -45,6 +59,7 @@ class Conn {
  private:
   void logf(const char* fmt, ...);
 
+  fd_set sockset_;
   int sock_;
   Env* env_;
 };

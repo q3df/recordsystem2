@@ -7,7 +7,19 @@
 
 #include <google/protobuf/rpc/rpc_service.h>
 #include <google/protobuf/rpc/rpc_server_conn.h>
+
 #include <map>
+#ifdef _MSC_VER
+#  include <ws2tcpip.h>  /* send,recv,socklen_t etc */
+#  include <wspiapi.h>   /* addrinfo */
+#  pragma comment(lib, "ws2_32.lib")
+#elif WIN32
+#  include <ws2tcpip.h>  /* send,recv,socklen_t etc */
+#  include <winsock2.h>
+typedef int socklen_t;
+#else
+#  include <sys/socket.h>
+#endif
 
 namespace google {
 namespace protobuf {
@@ -25,6 +37,10 @@ class Server: public Caller {
   Service* FindService(const std::string& method);
   // Find method descriptor by method name
   MethodDescriptor* FindMethodDescriptor(const std::string& method);
+
+  void Server::ListenTCP(int port, int backlog=5);
+  Conn* Server::AcceptNonBlock(struct sockaddr *addr);
+  void Server::Serve(Conn *conn);
 
   // [blocking]
   // Process client requests for the specified time

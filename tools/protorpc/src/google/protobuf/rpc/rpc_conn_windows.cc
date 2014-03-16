@@ -7,16 +7,6 @@
 
 #include <string.h>
 
-#ifdef _MSC_VER
-#  include <ws2tcpip.h>  /* send,recv,socklen_t etc */
-#  include <wspiapi.h>   /* addrinfo */
-#  pragma comment(lib, "ws2_32.lib")
-#else
-#  include <ws2tcpip.h>  /* send,recv,socklen_t etc */
-#  include <winsock2.h>
-typedef int socklen_t;
-#endif
-
 #ifndef NI_MAXSERV
 # define NI_MAXSERV 32
 #endif
@@ -101,6 +91,24 @@ bool Conn::ListenTCP(int port, int backlog) {
   int flag = 1;
   setsockopt(sock_, IPPROTO_TCP, TCP_NODELAY, (char*)&flag, sizeof(flag));
   return true;
+}
+
+Conn* Conn::AcceptNonBlock(struct sockaddr *addr) {
+  socklen_t addrlen = sizeof(struct sockaddr);
+
+  SetSocketBlockingEnabled(sock_, false);
+
+  int sock = ::accept(sock_, addr, &addrlen);
+
+  if(sock <= 0) {
+	  if(WSAGetLastError() != 10035)
+        logf("accept failed: %ld.\n", WSAGetLastError());
+  }else{
+	SetSocketBlockingEnabled(sock, true);
+    return new Conn(sock, env_);
+  }
+
+  return NULL;
 }
 
 void Conn::Close() {

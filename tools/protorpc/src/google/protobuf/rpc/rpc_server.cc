@@ -14,6 +14,7 @@ Server::Server(Env* env): env_(env) {
   if(env_ == NULL) {
     env_ = Env::Default();
   }
+  conn_ = Conn(0, env);
 }
 Server::~Server() {
   const auto& map = service_ownership_map_;
@@ -62,11 +63,27 @@ MethodDescriptor* Server::FindMethodDescriptor(const std::string& method) {
   return method_desc;
 }
 
+void Server::ListenTCP(int port, int backlog) {
+  if(!conn_.ListenTCP(port, backlog)) {
+    env_->Logf("ListenTCP fail.\n");
+    exit(-1);
+  }
+}
+
+Conn* Server::AcceptNonBlock(struct sockaddr *addr) {
+	return conn_.AcceptNonBlock(addr);
+}
+
+void Server::Serve(Conn *conn) {
+	ServerConn::Serve(this, conn, env_);
+}
+
 void Server::BindAndServe(int port, int backlog) {
   if(!conn_.ListenTCP(port, backlog)) {
     env_->Logf("ListenTCP fail.\n");
     exit(-1);
   }
+
   for(;;) {
     auto conn = conn_.Accept();
     if(conn == NULL) {

@@ -15,6 +15,12 @@
 #	define Sleep usleep
 #endif
 
+#ifdef WIN32
+#  include <WinSock.h>
+#else
+#  include <sys/socket.h>
+#endif
+
 extern "C" {
 	const char *va( const char *format, ... ) {
 		va_list		argptr;
@@ -66,33 +72,33 @@ public:
 	}
 };
 
-extern "C" {
-	void *bindAndServeApiServer(void *args) {
-		::google::protobuf::rpc::Server server;
-		server.AddService(new Q3dfApi(), true);
-		server.BindAndServe(1234);
-
-		return NULL;
-	}
-}
-
 
 int main(int argc, char **argv) {
-	pthread_t thread;
-	pthread_create(&thread, NULL, &bindAndServeApiServer, NULL);
-
 #ifdef WIN32
 	Console *con = new ConsoleWin32();
 #else
 	Console *con = new ConsoleTty();
 #endif
 
+	::google::protobuf::rpc::Server server(::google::protobuf::rpc::Env::Default());
+	server.AddService(new Q3dfApi(), true);
+	server.ListenTCP(1234);
+		
 	for(;;) {
 		char *cmd = con->Input();
 		if(cmd && !strncmp(cmd, "exit", 4)) {
 			break;
-		}else
-			Sleep(10);
+		}
+		struct sockaddr_in addr;
+		//memset(&addr, 0, sizeof(addr));
+
+		::google::protobuf::rpc::Conn *conn = server.AcceptNonBlock((sockaddr*)&addr);
+		if(conn) {
+			con->Print(va("Incoming connection from %s\n", inet_ntoa(addr.sin_addr)));
+			server.Serve(conn);
+		}
+
+		Sleep(10);
 	}
 
 	con->Print(va("Shutingdown now...\n"));

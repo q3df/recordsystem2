@@ -112,6 +112,39 @@ Conn* Conn::Accept() {
   return new Conn(sock, env_);
 }
 
+Conn* Conn::AcceptNonBlock(struct sockaddr *addr) {
+  struct timeval timeout;
+  fd_set active_fd_set, read_fd_set;
+  socklen_t addrlen = sizeof(addr);
+
+  FD_ZERO(&active_fd_set);
+  FD_SET(sock_, &active_fd_set);
+
+  read_fd_set = active_fd_set;
+
+  memset(&timeout, 0, sizeof(timeout));
+
+  timeout.tv_sec = 0;
+  timeout.tv_usec = 10;
+
+  int ret = select(FD_SETSIZE, &read_fd_set, NULL, NULL, &timeout);
+  if(ret > 0) {
+	  int sock = ::accept(sock_, addr, &addrlen);
+  
+	  if(sock == 0) {
+		logf("listen failed.\n");
+		return NULL;
+	  }
+  
+	  return new Conn(sock, env_);
+  }else if (ret < 0) {
+	  logf("accept faild!\n");
+	  exit(1);
+  }
+
+  return NULL;
+}
+
 bool Conn::Read (void* buf, int len) {
   char *cbuf = (char*)buf;
   while(len > 0) {
