@@ -1,39 +1,45 @@
 package service;
 option cc_generic_services = true;
 
+message Identifier {
+	required int32 playernum = 1;
+	required int32 uniqueId = 2;
+}
+
 message NullResponse {
 }
 
 message ClientInfoRequest {
-	optional string nickname = 1;
-	required int32 playernum = 2;
+	required Identifier identifier = 1;
+	required int32 userId = 2;
+	required string userinfostring = 3;
 }
 
 message ClientCommandRequest {
-	required int32 playernum = 1;
+	required Identifier identifier = 1;
 	required string command = 2;
 	repeated string args = 3;
 }
 
 message LoginRequest {
-	required int32 playernum = 1;
+	required Identifier identifier = 1;
 	required string username = 2;
 	required string password = 3;
 }
 
 message LoginResponse {
+	required Identifier identifier = 1;
 	enum LoginResult {
 		FAILD = 0;
 		PASSED = 1;
 	}
-	required int32 playernum = 1;
 	required LoginResult result = 2;
 	required string hash = 3;
 	required int32 userId = 4;
 }
 
 message ClientCommandResponse {
-	required int32 playernum = 1;
+	required Identifier identifier = 1;
 	optional string messageToPrint = 2;
 }
 

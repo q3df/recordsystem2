@@ -1,12 +1,5 @@
 #include <stdio.h>
 #include "Plugin.h"
-#include "../Recordsystem.h"
-#include "../Logger.h"
-
-#include <Q3dfApi.pb.h>
-
-using namespace google::protobuf;
-using namespace service;
 
 class UserCommandsPlugin : public PluginBase {
 private:
@@ -25,7 +18,6 @@ void UserCommandsPlugin::Init() {
 void UserCommandsPlugin::Destroy() {
 }
 
-
 void UserCommandsPlugin::OnGameClientCommand(Q3EventArgs *e) {
 	int i;
 	char arg[255];
@@ -36,6 +28,9 @@ void UserCommandsPlugin::OnGameClientCommand(Q3EventArgs *e) {
 
 	int playernum = e->GetParam(0);
 	int argc = gRecordsystem->GetSyscalls()->Argc();
+
+	Q3User *cl = gRecordsystem->GetUser(playernum);
+
 
 	gRecordsystem->GetSyscalls()->Argv(0, arg, sizeof(arg));
 	if(!strncmp(arg, "login", 5)) {
@@ -55,13 +50,14 @@ void UserCommandsPlugin::OnGameClientCommand(Q3EventArgs *e) {
 	}
 
 	if(isLoginCommand) {
-		gRecordsystem->GetSyscalls()->SendServerCommand(playernum, "print \"ERROR: !login is no longer supported. please read http://q3df.org/wiki?p=33\n\"");
+		gRecordsystem->GetSyscalls()->SendServerCommand(playernum, "print \"ERROR: !login is no longer supported. please read http://q3df.org/wiki?p=XX\n\"");
 		return;
 	}
 
 	if(isRsCommand) {
 		cmdReq = new ClientCommandRequest();
-		cmdReq->set_playernum(playernum);
+		cmdReq->mutable_identifier()->set_playernum(cl->GetPlayernum());
+		cmdReq->mutable_identifier()->set_uniqueid(cl->GetUniqueId());
 		cmdReq->set_command(arg);
 
 		cmdRes = new ClientCommandResponse();
@@ -80,7 +76,7 @@ void UserCommandsPlugin::OnGameClientCommand(Q3EventArgs *e) {
 				gRecordsystem->GetSyscalls()->SendServerCommand(0, va("print \"ERROR: %s\n\"", error->String().c_str()));
 				return;
 			}else{
-				gRecordsystem->GetSyscalls()->SendServerCommand(res->playernum(), va("print \"%s\n\"", res->messagetoprint().c_str()));
+				gRecordsystem->GetSyscalls()->SendServerCommand(res->identifier().playernum(), va("print \"%s\n\"", res->messagetoprint().c_str()));
 			}
 		});
 	}

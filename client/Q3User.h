@@ -6,8 +6,7 @@ class Recordsystem;
 #include "Q3SysCall.h"
 #include "Quake3.h"
 #include <string>
-
-/** !! NOT THREAD SAFE !! */
+#include <Q3dfApi.pb.h>
 
 class Q3User {
 friend class Recordsystem;
@@ -30,12 +29,16 @@ public:
 	inline int GetUserId() { return userId_; }
 	inline Q3User *SetUserId(int userId) { userId_ = userId; return this; }
 
+	inline int GetUniqueId() { return uniqueId_; }
+	inline void SetUniqueId(int uniqueId) { uniqueId_ = uniqueId; }
+
 	Q3User *Reset();
 
 private:
 	char userInfo_[MAX_INFO_STRING];
 	int playernum_;
 	int userId_;
+	int uniqueId_;
 	clientState_t state_;
 
 };

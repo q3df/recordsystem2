@@ -31,5 +31,6 @@ Q3User *Q3User::Reset() {
 	memset(&userInfo_, 0, sizeof(userInfo_));
 	state_ = CLIENT_FREE;
 	userId_ = 0;
+	uniqueId_ = 0;
 	return this;
 }

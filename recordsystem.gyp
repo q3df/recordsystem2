@@ -85,6 +85,7 @@
 		'msvs_guid': 'F3706CA9-3A31-4B33-8CF6-73EAAC40BF1E',
 		'dependencies': [
 			'qagamex86',
+			'tools/pthreads-win32/pthread.gyp:pthreads',
 			'tools/libQ3dfApi/libQ3dfApi.gyp:Q3dfApi'
 		],
 		'defines': [
@@ -97,6 +98,8 @@
 		'sources': [
 			'server/RecordsystemDaemon.cc',
 			'server/RecordsystemDaemon.h',
+			'server/Console.cc',
+			'server/Console.h',
 		],
 		'conditions': [
 			['OS=="linux"', {
@@ -113,6 +116,10 @@
 					'library_dirs': [
 					]
 				},
+				'sources': [
+					'server/ConsoleTty.cc',
+					'server/ConsoleTty.h',
+				],
 			}],
 			['OS=="win"', {
 				'defines': [
@@ -126,6 +133,10 @@
 					},
 				},
 				'include_dirs': [
+				],
+				'sources': [
+					'server/ConsoleWin32.cc',
+					'server/ConsoleWin32.h',
 				],
 			}],
 		],

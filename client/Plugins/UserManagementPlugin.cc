@@ -1,7 +1,5 @@
 #include <stdio.h>
 #include "Plugin.h"
-#include "../Recordsystem.h"
-#include "../Logger.h"
 #include <functional>
 
 class UserManagementPlugin : public PluginBase {
@@ -79,6 +77,7 @@ void UserManagementPlugin::OnClientConnected(Q3EventArgs *e) {
 
 	cl = gRecordsystem->GetUser(playernum);
 	cl->Reset();
+	cl->SetUniqueId(gRecordsystem->GetSyscalls()->Milliseconds());
 
 	OnClientUserInfoChanged(e); // we can forward because param 1 is our playernum!
 
