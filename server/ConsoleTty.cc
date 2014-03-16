@@ -1,12 +1,29 @@
 #include "ConsoleTty.h"
+#include <unistd.h>
+
+ConsoleTty *gCon = NULL;
+
+extern "C" {
+	static void SigCont(int signum) {
+		gCon->Init();
+	}
+}
 
 ConsoleTty::ConsoleTty() {
+	gCon = this;
 	ttycon_on_ = false;
 	ttycon_hide_ = 0;
 	ttycon_show_overdue_ = 0;
 	hist_current_ = -1;
 	hist_count_ = 0;
-	
+
+	const char* term = getenv("TERM");
+	stdinIsATTY_ = isatty(STDIN_FILENO) &&	!(term && (!strcmp(term, "raw") || !strcmp(term, "dumb")));
+
+	Init();
+}
+
+void ConsoleTty::Init() {
 	struct termios tc;
 
 	// If the process is backgrounded (running non interactively)
@@ -15,7 +32,7 @@ ConsoleTty::ConsoleTty() {
 	signal(SIGTTOU, SIG_IGN);
 
 	// If SIGCONT is received, reinitialize console
-	signal(SIGCONT, ConsoleTty::SigCont);
+	signal(SIGCONT, SigCont);
 
 	// Make stdin reads non-blocking
 	fcntl(STDIN_FILENO, F_SETFL, fcntl(STDIN_FILENO, F_GETFL, 0) | O_NONBLOCK );
@@ -28,10 +45,10 @@ ConsoleTty::ConsoleTty() {
 		return;
 	}
 
-	Field_Clear(&TTY_con_);
+	FieldClear(&TTY_con_);
 	tcgetattr (STDIN_FILENO, &TTY_tc_);
-	TTY_erase = TTY_tc_.c_cc[VERASE];
-	TTY_eof = TTY_tc_.c_cc[VEOF];
+	TTY_erase_ = TTY_tc_.c_cc[VERASE];
+	TTY_eof_ = TTY_tc_.c_cc[VEOF];
 	tc = TTY_tc_;
 
 	/*
@@ -73,7 +90,6 @@ char *ConsoleTty::Input() {
 	int avail;
 	char key;
 	field_t *history;
-	size_t UNUSED_VAR size;
 
 	if(ttycon_on_) {
 		avail = read(STDIN_FILENO, &key, 1);
@@ -81,7 +97,7 @@ char *ConsoleTty::Input() {
 			// we have something
 			// backspace?
 			// NOTE TTimo testing a lot of values .. seems it's the only way to get it to work everywhere
-			if ((key == TTY_erase) || (key == 127) || (key == 8)) {
+			if ((key == TTY_erase_) || (key == 127) || (key == 8)) {
 				if (TTY_con_.cursor > 0) {
 					TTY_con_.cursor--;
 					TTY_con_.buffer[TTY_con_.cursor] = '\0';
@@ -99,8 +115,8 @@ char *ConsoleTty::Input() {
 					TTY_con_.buffer[sizeof(text)-1] = 0;
 					FieldClear(&TTY_con_);
 					key = '\n';
-					size = write(STDOUT_FILENO, &key, 1);
-					size = write(STDOUT_FILENO, TTY_CONSOLE_PROMPT, strlen(TTY_CONSOLE_PROMPT));
+					write(STDOUT_FILENO, &key, 1);
+					write(STDOUT_FILENO, TTY_CONSOLE_PROMPT, strlen(TTY_CONSOLE_PROMPT));
 
 					return text;
 				}
@@ -133,10 +149,10 @@ char *ConsoleTty::Input() {
 									history = HistNext();
 									Hide();
 									if (history)
-										TTY_con = *history;
+										TTY_con_ = *history;
 									else
 										FieldClear(&TTY_con_);
-									
+
 									Show();
 									FlushIn();
 									return NULL;
@@ -155,14 +171,14 @@ char *ConsoleTty::Input() {
 				return NULL;
 			}
 
-			if (TTY_con_.cursor >= sizeof(text) - 1)
+			if (TTY_con_.cursor >= (int)(sizeof(text) - 1))
 				return NULL;
 
 			// push regular character
 			TTY_con_.buffer[TTY_con_.cursor] = key;
 			TTY_con_.cursor++; // next char will always be '\0'
 			// print the current line (this is differential)
-			size = write(STDOUT_FILENO, &key, 1);
+			write(STDOUT_FILENO, &key, 1);
 		}
 
 		return NULL;
@@ -215,22 +231,20 @@ void ConsoleTty::Print(const char *msg) {
 			ttycon_show_overdue_--;
 		}
 	} else // Defer calling CON_Show
-		ttycon_show_overdue++;
+		ttycon_show_overdue_++;
 }
 
 void ConsoleTty::Show() {
 	int i;
 
 	if( ttycon_on_ ) {
-		assert(ttycon_hide_>0);
 		ttycon_hide_--;
 
 		if (ttycon_hide_ == 0) {
-			size_t UNUSED_VAR size;
-			size = write(STDOUT_FILENO, TTY_CONSOLE_PROMPT, strlen(TTY_CONSOLE_PROMPT));
+			write(STDOUT_FILENO, TTY_CONSOLE_PROMPT, strlen(TTY_CONSOLE_PROMPT));
 			if (TTY_con_.cursor)
 				for (i=0; i<TTY_con_.cursor; i++)
-					size = write(STDOUT_FILENO, TTY_con_.buffer+i, 1);
+					write(STDOUT_FILENO, TTY_con_.buffer+i, 1);
 		}
 	}
 }
@@ -269,14 +283,13 @@ void ConsoleTty::FlushIn() {
 
 void ConsoleTty::Back() {
 	char key;
-	size_t UNUSED_VAR size;
 
 	key = '\b';
-	size = write(STDOUT_FILENO, &key, 1);
+	write(STDOUT_FILENO, &key, 1);
 	key = ' ';
-	size = write(STDOUT_FILENO, &key, 1);
+	write(STDOUT_FILENO, &key, 1);
 	key = '\b';
-	size = write(STDOUT_FILENO, &key, 1);
+	write(STDOUT_FILENO, &key, 1);
 }
 
 void ConsoleTty::HistAdd(field_t *field) {
@@ -285,11 +298,6 @@ void ConsoleTty::HistAdd(field_t *field) {
 	// Don't save blank lines in history.
 	if (!field->cursor)
 		return;
-
-	assert(hist_count_ <= CON_HISTORY);
-	assert(hist_count_ >= 0);
-	assert(hist_current_ >= -1);
-	assert(hist_current_ <= hist_count_);
 
 	// make some room
 	for (i=CON_HISTORY-1; i>0; i--)
@@ -305,10 +313,6 @@ void ConsoleTty::HistAdd(field_t *field) {
 
 field_t *ConsoleTty::HistPrev() {
 	int hist_prev;
-	assert(hist_count_ <= CON_HISTORY);
-	assert(hist_count_ >= 0);
-	assert(hist_current_ >= -1);
-	assert(hist_current_ <= hist_count_);
 	hist_prev = hist_current_ + 1;
 	if (hist_prev >= hist_count_)
 		return NULL;
@@ -318,22 +322,13 @@ field_t *ConsoleTty::HistPrev() {
 }
 
 field_t *ConsoleTty::HistNext() {
-	assert(hist_count_ <= CON_HISTORY);
-	assert(hist_count_ >= 0);
-	assert(hist_current_ >= -1);
-	assert(hist_current_ <= hist_count_);
-
-	if (hist_current >= 0)
+	if (hist_current_ >= 0)
 		hist_current_--;
 
 	if (hist_current_ == -1)
 		return NULL;
 
 	return &(ttyEditLines_[hist_current_]);
-}
-
-void ConsoleTty::SigCont(int signum) {
-	Init();
 }
 
 void ConsoleTty::AnsiColorPrint(const char *msg) {

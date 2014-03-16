@@ -10,7 +10,9 @@
 #ifdef WIN32
 #	include "ConsoleWin32.h"
 #else
+#	include <unistd.h>
 #	include "ConsoleTty.h"
+#	define Sleep usleep
 #endif
 
 extern "C" {
@@ -64,7 +66,7 @@ public:
 	}
 };
 
-extern "C" {	
+extern "C" {
 	void *bindAndServeApiServer(void *args) {
 		::google::protobuf::rpc::Server server;
 		server.AddService(new Q3dfApi(), true);

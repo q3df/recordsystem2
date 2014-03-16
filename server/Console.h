@@ -40,4 +40,4 @@ private:
 
 };
 
-#endif
+#endif // SERVER_CONSOLE_H_

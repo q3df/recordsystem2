@@ -53,4 +53,4 @@ private:
 	int qconsole_history_oldest_;
 };
 
-#endif SERVER_CONSOLEWIN32_H_
+#endif // SERVER_CONSOLEWIN32_H_
