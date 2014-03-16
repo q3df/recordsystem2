@@ -38,9 +38,9 @@ class Server: public Caller {
   // Find method descriptor by method name
   MethodDescriptor* FindMethodDescriptor(const std::string& method);
 
-  void Server::ListenTCP(int port, int backlog=5);
-  Conn* Server::AcceptNonBlock(struct sockaddr *addr);
-  void Server::Serve(Conn *conn);
+  void ListenTCP(int port, int backlog=5);
+  Conn* AcceptNonBlock(struct sockaddr *addr);
+  void Serve(Conn *conn);
 
   // [blocking]
   // Process client requests for the specified time

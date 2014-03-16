@@ -9,16 +9,14 @@
 
 #ifdef WIN32
 #	include "ConsoleWin32.h"
+#	include <WinSock.h>
 #else
 #	include <unistd.h>
 #	include "ConsoleTty.h"
+#	include <sys/socket.h>
+#	include <netinet/in.h>
+#	include <arpa/inet.h>
 #	define Sleep usleep
-#endif
-
-#ifdef WIN32
-#  include <WinSock.h>
-#else
-#  include <sys/socket.h>
 #endif
 
 extern "C" {
@@ -58,7 +56,7 @@ public:
 		reply->mutable_identifier()->set_playernum(args->identifier().playernum());
 		reply->mutable_identifier()->set_uniqueid(args->identifier().uniqueid());
 
-		reply->set_messagetoprint(va("ERROR: command '%s' not implemented", args->command().c_str()));
+		reply->set_messagetoprint(va("ERROR: command '%s' not implemented bla", args->command().c_str()));
 		return ::google::protobuf::rpc::Error::Nil();
 	}
 
@@ -74,6 +72,8 @@ public:
 
 
 int main(int argc, char **argv) {
+	struct sockaddr_in addr;
+
 #ifdef WIN32
 	Console *con = new ConsoleWin32();
 #else
@@ -83,14 +83,13 @@ int main(int argc, char **argv) {
 	::google::protobuf::rpc::Server server(::google::protobuf::rpc::Env::Default());
 	server.AddService(new Q3dfApi(), true);
 	server.ListenTCP(1234);
-		
+
 	for(;;) {
 		char *cmd = con->Input();
 		if(cmd && !strncmp(cmd, "exit", 4)) {
 			break;
 		}
-		struct sockaddr_in addr;
-		//memset(&addr, 0, sizeof(addr));
+		memset(&addr, 0, sizeof(addr));
 
 		::google::protobuf::rpc::Conn *conn = server.AcceptNonBlock((sockaddr*)&addr);
 		if(conn) {

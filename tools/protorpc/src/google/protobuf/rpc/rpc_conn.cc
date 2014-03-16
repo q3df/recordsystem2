@@ -4,8 +4,8 @@
 
 #include "google/protobuf/rpc/rpc_conn.h"
 
+#include <fcntl.h>
 extern "C" {
-
 	/** Returns true on success, or false if there was an error */
 	bool SetSocketBlockingEnabled(int fd, bool blocking) {
 	   if (fd < 0) return false;

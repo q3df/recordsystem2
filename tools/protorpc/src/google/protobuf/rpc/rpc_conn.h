@@ -16,6 +16,8 @@
 #  include <ws2tcpip.h>  /* send,recv,socklen_t etc */
 #  include <winsock2.h>
 typedef int socklen_t;
+#else
+#include <sys/socket.h>
 #endif
 
 namespace google {
@@ -31,15 +33,13 @@ bool InitSocket();
 class Conn {
  public:
 
-  Conn(int fd=0, Env* env=NULL): sock_(fd), env_(env) {
-    InitSocket();
-  }
+  Conn(int fd=0, Env* env=NULL): sock_(fd), env_(env) { InitSocket(); }
   ~Conn() {}
 
   bool IsValid() const;
   bool DialTCP(const char* host, int port);
   bool ListenTCP(int port, int backlog=5);
-  Conn* Conn::AcceptNonBlock(struct sockaddr *addr);
+  Conn* AcceptNonBlock(struct sockaddr *addr);
   void Close();
 
   Conn* Accept();
