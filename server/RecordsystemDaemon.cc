@@ -38,17 +38,20 @@ extern "C" {
 }
 
 class Q3dfApi: public service::Q3dfApi {
+private:
+	Console *con;
+
 public:
-	inline Q3dfApi() {}
+	inline Q3dfApi(Console *con) : con(con) {}
 	virtual ~Q3dfApi() {}
 
 	virtual const ::google::protobuf::rpc::Error ClientConnected(const ::service::ClientInfoRequest* args, ::service::NullResponse* reply) {
-		printf("clientConnected: pl=%i\n", args->identifier().playernum());
+		//printf("clientConnected: pl=%i\n", args->identifier().playernum());
 		return ::google::protobuf::rpc::Error::Nil();
 	}
 
 	virtual const ::google::protobuf::rpc::Error ClientDisconnected(const ::service::ClientInfoRequest* args, ::service::NullResponse* reply) {
-		printf("clientDisconnected: pl=%i\n", args->identifier().playernum());
+		//printf("clientDisconnected: pl=%i\n", args->identifier().playernum());
 		return ::google::protobuf::rpc::Error::Nil();
 	}
 
@@ -61,12 +64,17 @@ public:
 	}
 
 	virtual const ::google::protobuf::rpc::Error Printf(const ::service::PrintfRequest* args, ::service::NullResponse* reply) {
-		printf("[Q3df]: %s", args->msg().c_str());
+		this->con->Print(va("[Q3df]: %s", args->msg().c_str()));
 		return ::google::protobuf::rpc::Error::Nil();
 	}
 
-	virtual const ::google::protobuf::rpc::Error Login(const ::service::LoginRequest* args, ::service::NullResponse* reply) {
-		return ::google::protobuf::rpc::Error("not implemented!");
+	virtual const ::google::protobuf::rpc::Error Login(const ::service::LoginRequest* args, ::service::LoginResponse* reply) {
+		reply->mutable_identifier()->set_playernum(args->identifier().playernum());
+		reply->mutable_identifier()->set_uniqueid(args->identifier().uniqueid());
+		reply->set_hash("TEST");
+		reply->set_userid(11);
+		reply->set_result(::service::LoginResponse_LoginResult_PASSED);
+		return ::google::protobuf::rpc::Error::Nil();
 	}
 };
 
@@ -81,7 +89,7 @@ int main(int argc, char **argv) {
 #endif
 
 	::google::protobuf::rpc::Server server(::google::protobuf::rpc::Env::Default());
-	server.AddService(new Q3dfApi(), true);
+	server.AddService(new Q3dfApi(con), true);
 	server.ListenTCP(1234);
 
 	for(;;) {

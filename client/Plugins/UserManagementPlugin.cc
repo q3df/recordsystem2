@@ -66,9 +66,11 @@ void UserManagementPlugin::Destroy() {
  */
 void UserManagementPlugin::OnClientConnected(Q3EventArgs *e) {
 	Q3User *cl = NULL;
+	ClientInfoRequest *clReq = NULL;
+	NullResponse *nullRes = NULL;
+
 	int playernum = e->GetParam(0);
 	bool isFirstTime = e->GetParam(1) == 1 ? true : false;
-	//bool isBot = e->GetParam(2) == 1 ? true : false;
 
 	if(cvarRsNoNewClients.integer == 1) {
 		e->SetReturn((void *)"Sorry, server in latched for shutdown.");
@@ -84,6 +86,14 @@ void UserManagementPlugin::OnClientConnected(Q3EventArgs *e) {
 	if(isFirstTime) {
 		cl->SetState(CLIENT_CONNECTED);
 		gRecordsystem->GetSyscalls()->Print(va("client:%i connecting (%s)...\n", cl->GetPlayernum(), cl->GetUserInfo("name")));
+
+		nullRes = new NullResponse();
+		clReq = new ClientInfoRequest();
+		cl->WriteIdentifier(clReq->mutable_identifier());
+		clReq->set_userid(0);
+		clReq->set_userinfostring(cl->GetUserInfoString());
+
+		EXECUTE_API_ASYNC(&Q3dfApi_Stub::ClientConnected, clReq, nullRes, NULL);
 	} else {
 		// restore client
 		cl->SetState(CLIENT_ACTIVE);
@@ -94,8 +104,18 @@ void UserManagementPlugin::OnClientConnected(Q3EventArgs *e) {
 
 
 void UserManagementPlugin::OnClientDisconnected(Q3EventArgs *e) {
+	NullResponse *nullRes = new NullResponse();
+	ClientInfoRequest *clReq = new ClientInfoRequest();
+
 	int playernum = e->GetParam(0);
 	Q3User *cl = gRecordsystem->GetUser(playernum);
+
+	cl->WriteIdentifier(clReq->mutable_identifier());
+	clReq->set_userid(cl->GetUserId());
+	clReq->set_userinfostring(cl->GetUserInfoString());
+
+	EXECUTE_API_ASYNC(&Q3dfApi_Stub::ClientDisconnected, clReq, nullRes, NULL);
+	
 	cl->Reset();
 	gRecordsystem->GetSyscalls()->CvarSet(va("loginstate%i", playernum), "0");
 }
@@ -104,6 +124,8 @@ void UserManagementPlugin::OnClientDisconnected(Q3EventArgs *e) {
 void UserManagementPlugin::OnClientUserInfoChanged(Q3EventArgs *e) {
 	static char tmpBuffer[BIG_INFO_STRING];
 	Q3User *cl = NULL;
+	LoginRequest *lReq = NULL;
+	LoginResponse *lRes = NULL;
 
 	int playernum = e->GetParam(0);
 
@@ -111,9 +133,41 @@ void UserManagementPlugin::OnClientUserInfoChanged(Q3EventArgs *e) {
 
 	cl = gRecordsystem->GetUser(playernum);
 	cl->SetUserInfoString(tmpBuffer); // will be copied!
-	cl->SetUserInfo("name", va("nightmare_test_by_code_%i", playernum));
 
-	gRecordsystem->GetSyscalls()->Print(va("client:%i userinfo changed...\n", playernum));
+	const char *q3dfkey = cl->GetUserInfo("q3dfkey");
+	if((!q3dfkey || strlen(q3dfkey) <= 0) && cl->GetUserId() != 0) {
+		cl->SetUserId(0);
+		gRecordsystem->GetSyscalls()->SendServerCommand(cl->GetPlayernum(), "print \"^3INFO:^7 you're currently logged out...\n\"");
+	}else if(cl->GetUserId() == 0 || strcmp(cl->GetLastQ3dfkey(), q3dfkey)) {
+		lReq = new LoginRequest();
+		cl->WriteIdentifier(lReq->mutable_identifier());
+		lReq->set_q3dfkey(q3dfkey);
+
+		lRes = new LoginResponse();
+
+		EXECUTE_API_ASYNC(&Q3dfApi_Stub::Login, lReq, lRes, [](Message *msg, rpc::Error *error) {
+			LoginResponse *res = (LoginResponse *)msg;
+
+			if(!error->IsNil()) {
+				gRecordsystem->GetSyscalls()->SendServerCommand(
+					res->identifier().playernum(), 
+					va("print \"^7[^1Q3df::Error^7] %s\n\"", error->String().c_str())
+				);
+				gRecordsystem->GetSyscalls()->SendServerCommand(
+					res->identifier().playernum(), 
+					"print \"^7[^3Q3df::Info^7] you're currently ^1NOT^7 logged in!\n\""
+				);
+				gRecordsystem->GetUser(res->identifier().playernum())->SetUserId(0);
+				return;
+			}else{
+				gRecordsystem->GetSyscalls()->SendServerCommand(
+					res->identifier().playernum(), 
+					va("print \"^7[^3Q3df::Info^7] you're currently logged in with userid %i!\n\"", res->userid())
+				);
+				gRecordsystem->GetUser(res->identifier().playernum())->SetUserId(res->userid());
+			}
+		});
+	}
 }
 
 
@@ -132,7 +186,10 @@ void UserManagementPlugin::OnClientBegin(Q3EventArgs *e) {
 	if(strlen(cvarRsWelcome3.string) > 0)
 		gRecordsystem->GetSyscalls()->SendServerCommand(playernum, va("chat \"[Q3df] %s\"", cvarRsWelcome3.string));
 
-	gRecordsystem->GetSyscalls()->Print(va("client:%i begin...\n", playernum));
+	if(cl->GetUserId() > 0)
+		gRecordsystem->GetSyscalls()->SendServerCommand(playernum, va("print \"^7[^3Q3df::Info^7] you're currently logged in with userid ^3%i^7.\n\"", cl->GetUserId()));
+	else
+		gRecordsystem->GetSyscalls()->SendServerCommand(playernum, va("print \"^7[^3Q3df::Info^7] you're ^1NOT^7 logged in!\n\"", cl->GetUserId()));
 }
 
 

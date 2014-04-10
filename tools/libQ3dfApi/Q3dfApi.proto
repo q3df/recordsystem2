@@ -23,8 +23,7 @@ message ClientCommandRequest {
 
 message LoginRequest {
 	required Identifier identifier = 1;
-	required string username = 2;
-	required string password = 3;
+	required string q3dfkey = 2;
 }
 
 message LoginResponse {

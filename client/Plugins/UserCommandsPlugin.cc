@@ -69,7 +69,7 @@ void UserCommandsPlugin::OnGameClientCommand(Q3EventArgs *e) {
 			tmpStr->append(arg);
 		}
 
-		EXECUTE_API_ASYNC(&Q3dfApi_Stub::ClientCommand, gRecordsystem->GetQ3dfApi(), cmdReq, cmdRes, [](Message *msg, rpc::Error *error) {
+		EXECUTE_API_ASYNC(&Q3dfApi_Stub::ClientCommand, cmdReq, cmdRes, [](Message *msg, rpc::Error *error) {
 			ClientCommandResponse *res = (ClientCommandResponse *)msg;
 
 			if(!error->IsNil()) {

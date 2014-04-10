@@ -11,8 +11,8 @@
 typedef std::function<google::protobuf::rpc::Error ()> ExecuterFunction;
 typedef std::function<void(google::protobuf::Message *, google::protobuf::rpc::Error *)> ExecuterCallbackFunction;
 
-#define EXECUTE_API_ASYNC(func, instance, sentMsg, replyMsg, callback)						\
-	auto bind = std::bind((func),(instance),(sentMsg),(replyMsg));						\
+#define EXECUTE_API_ASYNC(func, sentMsg, replyMsg, callback) \
+	auto bind = std::bind((func), gRecordsystem->GetQ3dfApi(),(sentMsg),(replyMsg)); \
 	gRecordsystem->GetAsyncExecuter()->ExecuteAsync((bind), (replyMsg), (sentMsg), (callback));
 
 class ApiAsyncItem {

@@ -266,16 +266,15 @@ bool Recordsystem::GameInit(int levelTime, int randomSeed, int restart) {
 
 	GetSyscalls()->Print("Initialize users...\n");
 	vm_syscall_->AddEventHandler(new Q3EventHandler(G_LOCATE_GAME_DATA, EXECUTE_TYPE_BEFORE, [](Q3EventArgs *e) {
-		gRecordsystem->GetSyscalls()->Print("Locate game data from qvm...\n");
 		gRecordsystem->SetGameData(e->GetParam(4), (playerState_t *)e->GetParamVMA(3), (gentity_t *)e->GetParamVMA(0), e->GetParam(2), e->GetParam(1));
 	}));
 
 	vm_syscall_->AddEventHandler(new Q3EventHandler(G_PRINT, EXECUTE_TYPE_BEFORE, [](Q3EventArgs *e) {
 		PrintfRequest *pRequest = new PrintfRequest();
 		pRequest->set_msg((const char *)e->GetParamVMA(0));
-		//NullResponse *itemRes = new NullResponse();
+		NullResponse *itemRes = new NullResponse();
 
-		//EXECUTE_ASYNC(&Q3dfApi_Stub::Printf, gRecordsystem->GetQ3dfApi(), pRequest, itemRes, NULL);
+		EXECUTE_API_ASYNC(&Q3dfApi_Stub::Printf, pRequest, itemRes, NULL);
 	}));
 
 	return true;

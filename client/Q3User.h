@@ -8,6 +8,10 @@ class Recordsystem;
 #include <string>
 #include <Q3dfApi.pb.h>
 
+#ifdef WIN32
+#	define snprintf _snprintf
+#endif
+
 class Q3User {
 friend class Recordsystem;
 public:
@@ -32,6 +36,15 @@ public:
 	inline int GetUniqueId() { return uniqueId_; }
 	inline void SetUniqueId(int uniqueId) { uniqueId_ = uniqueId; }
 
+	inline const char *GetLastQ3dfkey() { return this->lastQ3dfkey_; }
+	inline Q3User *SetLastQ3dfKey(const char *q3dfkey) {
+		memset(&this->lastQ3dfkey_, 0, sizeof(this->lastQ3dfkey_));
+		snprintf(this->lastQ3dfkey_, MAX_INFO_STRING, "%s", q3dfkey);
+		this->lastQ3dfkey_[MAX_INFO_STRING-1] = '\0';
+	}
+
+	Q3User *WriteIdentifier(::service::Identifier *identity);
+
 	Q3User *Reset();
 
 private:
@@ -39,6 +52,7 @@ private:
 	int playernum_;
 	int userId_;
 	int uniqueId_;
+	char lastQ3dfkey_[MAX_INFO_STRING];
 	clientState_t state_;
 
 };
