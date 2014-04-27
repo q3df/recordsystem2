@@ -76,6 +76,11 @@ public:
 		reply->set_result(::service::LoginResponse_LoginResult_PASSED);
 		return ::google::protobuf::rpc::Error::Nil();
 	}
+
+	virtual const ::google::protobuf::rpc::Error SaveRecord(const ::service::RecordRequest* request, ::service::NullResponse* response) {
+		this->con->Print(va("RECORD: %s %s %i\n", request->mapname().c_str(), request->name().c_str(), request->mstime()));
+		return ::google::protobuf::rpc::Error::Nil();
+	}
 };
 
 

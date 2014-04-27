@@ -9,6 +9,20 @@ message Identifier {
 message NullResponse {
 }
 
+message RecordRequest {
+	required Identifier identifier = 1;
+	required string name = 2;
+	required string mapname = 3;
+	required string map_checksum = 4;
+	required int32 mstime = 5;
+	required int32 df_gametype = 6;
+	required int32 df_promode = 7;
+	required int32 df_mode = 8;
+	required int32 interference = 9;
+	required int32 obs_enabled = 10;
+	required int32 defrag_version = 11;
+}
+
 message ClientInfoRequest {
 	required Identifier identifier = 1;
 	required int32 userId = 2;
@@ -52,4 +66,5 @@ service Q3dfApi {
 	rpc ClientCommand (ClientCommandRequest) returns (ClientCommandResponse);
 	rpc Login (LoginRequest) returns (LoginResponse);
 	rpc Printf(PrintfRequest) returns (NullResponse);
+	rpc SaveRecord (RecordRequest) returns (NullResponse);
 }

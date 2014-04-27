@@ -137,7 +137,7 @@ void UserManagementPlugin::OnClientUserInfoChanged(Q3EventArgs *e) {
 	const char *q3dfkey = cl->GetUserInfo("q3dfkey");
 	if((!q3dfkey || strlen(q3dfkey) <= 0) && cl->GetUserId() != 0) {
 		cl->SetUserId(0);
-		gRecordsystem->GetSyscalls()->SendServerCommand(cl->GetPlayernum(), "print \"^3INFO:^7 you're currently logged out...\n\"");
+		gRecordsystem->GetSyscalls()->SendServerCommand(cl->GetPlayernum(), "print \"^7[^3Q3df::Info^7] you're currently logged out...\n\"");
 	}else if(cl->GetUserId() == 0 || strcmp(cl->GetLastQ3dfkey(), q3dfkey)) {
 		lReq = new LoginRequest();
 		cl->WriteIdentifier(lReq->mutable_identifier());

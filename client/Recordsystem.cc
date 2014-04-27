@@ -128,18 +128,18 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 	case GAME_SHUTDOWN:
 		EXECUTE_EVENT_VOID_ARG12(command, EXECUTE_TYPE_BEFORE, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
 
+		if(vm_->IsInitilized())
+			ret = vm_->Exec(command, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
+
+		GetSyscalls()->Print("Recordsystem shutingdown...\n");
+		vm_->~Q3Vm();
+
 		while(!pluginList_.empty()) {
 			pBase = pluginList_.back();
 			pluginList_.pop_back();
 			pBase->Destroy();
 			delete pBase;
 		}
-
-		if(vm_->IsInitilized())
-			ret = vm_->Exec(command, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
-
-		GetSyscalls()->Print("Recordsystem shutingdown...\n");
-		vm_->~Q3Vm();
 
 		return ret;
 		break;
