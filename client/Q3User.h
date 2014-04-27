@@ -41,6 +41,7 @@ public:
 		memset(&this->lastQ3dfkey_, 0, sizeof(this->lastQ3dfkey_));
 		snprintf(this->lastQ3dfkey_, MAX_INFO_STRING, "%s", q3dfkey);
 		this->lastQ3dfkey_[MAX_INFO_STRING-1] = '\0';
+		return this;
 	}
 
 	Q3User *WriteIdentifier(::service::Identifier *identity);
