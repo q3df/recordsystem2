@@ -75,7 +75,8 @@
 				'msvs_settings': {
 					'VCLinkerTool': {
 						'AdditionalDependencies': [
-							'tools/protorpc/lib/protobuf-win32.lib'
+							'tools/protorpc/lib/protobuf-win32.lib',
+							'Advapi32.lib',
 						],
 					},
 				},
