@@ -1,0 +1,4 @@
+[submodule "tools/icu"]
+	path = tools/icu
+	url = https://chromium.googlesource.com/chromium/deps/icu46.git
+	branch = master
