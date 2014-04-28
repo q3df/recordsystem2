@@ -1,4 +1,4 @@
 [submodule "tools/icu"]
 	path = tools/icu
-	url = https://chromium.googlesource.com/chromium/deps/icu46.git
+	url = https://gitlab.q3df.org/megadaddeln/icu_chrome.git
 	branch = master
