@@ -1,8 +1,8 @@
 {
-	'make_global_settings': [
-		['CXX','/usr/bin/g++'],
- 		['LINK','/usr/bin/g++'],
-	],
+#	'make_global_settings': [
+#		['CXX','/usr/bin/g++'],
+# 		['LINK','/usr/bin/g++'],
+#	],
 	'targets': [{
 		'target_name': 'qagamex86',
 		'type': 'shared_library',
@@ -67,6 +67,9 @@
 					'library_dirs': [
 					]
 				},
+				'cflags': [
+					'-std=c++0x', '-fPIC', '-fexceptions', '-fpermissive'
+				]
 			}],
 			['OS=="win"', {
 				'defines': [
@@ -125,6 +128,9 @@
 					'server/ConsoleTty.cc',
 					'server/ConsoleTty.h',
 				],
+				'cflags': [
+					'-std=c++0x', '-fPIC', '-fexceptions', '-fpermissive'
+				]
 			}],
 			['OS=="win"', {
 				'defines': [

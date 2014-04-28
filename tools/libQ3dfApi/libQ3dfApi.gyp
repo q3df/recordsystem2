@@ -1,8 +1,8 @@
 {
-	'make_global_settings': [
-		['CXX','/usr/bin/g++'],
- 		['LINK','/usr/bin/g++'],
-	],
+#	'make_global_settings': [
+#		['CXX','/usr/bin/g++'],
+#		['LINK','/usr/bin/g++'],
+#	],
 	'targets': [{
 		'target_name': 'Q3dfApi',
 		'type': 'static_library',

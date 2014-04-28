@@ -1,4 +1,8 @@
 {
+       'make_global_settings': [
+               ['CXX','/usr/bin/g++'],
+               ['LINK','/usr/bin/g++'],
+       ],
 	'variables': {
 		'variables': {
 			'conditions': [
@@ -19,7 +23,9 @@
 		'os_bsd%': '<(os_bsd)',
 		'os_posix%': '<(os_posix)',
 		'clang%': 0,
-		'component%': "static_library"
+		'component%': "static_library",
+		'target_arch%': 'ia32',
+		'host_arch%': 'ia32'
 	},
 	'target_defaults': {
 		'default_configuration': 'Debug',
@@ -141,15 +147,18 @@
 		['OS=="linux"', {
 			'target_defaults': {
 				'cflags': [
-					'-Wall', '-Werror', '-W', '-Wno-unused-parameter',
-					'-pthread', '-fno-exceptions', '-pedantic',
-					'-std=c++0x', '-fPIC', '-fexceptions', '-fpermissive',
-					'-m32', '-L/usr/lib32', '-Wno-strict-aliasing'
+					'-Wall', '-W', '-Wno-unused-parameter',
+					'-pthread', '-fno-exceptions',
+					 '-fPIC', '-fexceptions',
+					'-m32', '-Wno-strict-aliasing'
+				],
+				'cflags_cxx': [
+					'-std=c++0x', '-fpermissive'
 				],
 				'cflags_cc': [
 				],
 				'defines': [ 'LINUX' ],
-				'ldflags': [ '-std=c++0x', '-m32', '-L/usr/lib32' ],
+				'ldflags': [ '-m32', '-L/usr/lib32' ],
 			}
 		}],
 	],
