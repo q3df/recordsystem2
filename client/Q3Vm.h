@@ -9,13 +9,13 @@
 
 //handling syscalls from QVM (passing them to engine)
 //this adds the base VM address to a given value
-#define add(x)    ((x) ? (void*)((x) + (int)memoryBase) : NULL)
+#define add_q3df(x)    ((x) ? (void*)((x) + (int)memoryBase) : NULL)
 //this subtracts the base VM address from a given value
-#define sub(x)    ((x) ? (void*)((x) - (int)memoryBase) : NULL)
+#define sub_q3df(x)    ((x) ? (void*)((x) - (int)memoryBase) : NULL)
 //this gets an argument value
-#define arg(x)    (args[(x)])
+#define arg_q3df(x)    (args[(x)])
 //this adds the base VM address to an argument value
-#define ptr(x)    (add(arg(x)))
+#define ptr_q3df(x)    (add_q3df(arg_q3df(x)))
 #define	VMF(x)	((*(float*)&args[(x)]))
 
 class Q3Vm {

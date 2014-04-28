@@ -8,6 +8,7 @@
 		'type': 'shared_library',
 		'msvs_guid': '905C1895-E657-4584-B1C9-C8642BDA8523',
 		'dependencies': [
+			'tools/libxml/libxml.gyp:libxml',
 			'tools/pthreads-win32/pthread.gyp:pthreads',
 			'tools/libQ3dfApi/libQ3dfApi.gyp:Q3dfApi'
 		],

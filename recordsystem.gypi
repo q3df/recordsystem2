@@ -1,4 +1,26 @@
 {
+	'variables': {
+		'variables': {
+			'conditions': [
+				# A flag for POSIX platforms
+				['OS=="win"', { 
+					'os_posix%': 0 
+				},{ 
+					'os_posix%': 1 
+				}],
+				# A flag for BSD platforms
+				['OS=="freebsd" or OS=="openbsd"', {
+				  'os_bsd%': 1,
+				}, {
+				  'os_bsd%': 0,
+				}],
+			],
+		},
+		'os_bsd%': '<(os_bsd)',
+		'os_posix%': '<(os_posix)',
+		'clang%': 0,
+		'component%': "static_library"
+	},
 	'target_defaults': {
 		'default_configuration': 'Debug',
 		'configurations': {
@@ -86,7 +108,7 @@
 						'EnableFunctionLevelLinking': 'true',
 						'RuntimeTypeInfo': 'true',
 						'WarningLevel': '3',
-						'WarnAsError': 'true',
+						'WarnAsError': 'false',
 						'Detect64BitPortabilityProblems': 'false',
 						'AdditionalOptions': ['/MP'],
 						'ExceptionHandling': '1',  # /EHsc
