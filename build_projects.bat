@@ -24,10 +24,6 @@ set PROJECT_EXT=.vcxproj
 set MSBUILD_PATH=%SystemRoot%\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
 )
 
-cd tools\protorpc
-call build.bat
-cd ..\..\
-
 if exist "%MSBUILD_PATH%" (
 echo Building %1 target for all projects...
 "%MSBUILD_PATH%" /v:m /p:Configuration=%1;Platform=Win32 recordsystem.sln
