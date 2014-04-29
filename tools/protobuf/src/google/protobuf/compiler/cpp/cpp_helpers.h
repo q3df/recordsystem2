@@ -123,9 +123,9 @@ string EscapeTrigraphs(const string& to_escape);
 
 // Do message classes in this file keep track of unknown fields?
 inline bool HasUnknownFields(const FileDescriptor* file) {
-  return file->options().optimize_for() != FileOptions::LITE_RUNTIME ||
-         file->options().retain_unknown_fields();
+  return file->options().optimize_for() != FileOptions::LITE_RUNTIME;
 }
+
 
 // Does this file have any enum type definitions?
 bool HasEnumDefinitions(const FileDescriptor* file);
@@ -136,7 +136,7 @@ inline bool HasGeneratedMethods(const FileDescriptor* file) {
   return file->options().optimize_for() != FileOptions::CODE_SIZE;
 }
 
-// Do message classes in this file have descriptor and refelction methods?
+// Do message classes in this file have descriptor and reflection methods?
 inline bool HasDescriptorMethods(const FileDescriptor* file) {
   return file->options().optimize_for() != FileOptions::LITE_RUNTIME;
 }

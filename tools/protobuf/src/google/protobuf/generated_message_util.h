@@ -41,7 +41,6 @@
 #include <string>
 
 #include <google/protobuf/stubs/common.h>
-#include <google/protobuf/stubs/once.h>
 namespace google {
 namespace protobuf {
 namespace internal {
@@ -60,17 +59,8 @@ namespace internal {
 LIBPROTOBUF_EXPORT double Infinity();
 LIBPROTOBUF_EXPORT double NaN();
 
-// Default empty string object. Don't use the pointer directly. Instead, call
-// GetEmptyString() to get the reference.
-LIBPROTOBUF_EXPORT extern const ::std::string* empty_string_;
-LIBPROTOBUF_EXPORT extern ProtobufOnceType empty_string_once_init_;
-
-LIBPROTOBUF_EXPORT void InitEmptyString();
-
-LIBPROTOBUF_EXPORT inline const ::std::string& GetEmptyString() {
-  GoogleOnceInit(&empty_string_once_init_, &InitEmptyString);
-  return *empty_string_;
-}
+// Constant used for empty default strings.
+LIBPROTOBUF_EXPORT extern const ::std::string kEmptyString;
 
 // Defined in generated_message_reflection.cc -- not actually part of the lite
 // library.

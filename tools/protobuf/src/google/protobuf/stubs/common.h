@@ -90,33 +90,18 @@ namespace protobuf {
   TypeName(const TypeName&);                           \
   void operator=(const TypeName&)
 
-// The macros defined below are required in order to make protobuf_lite a
-// component on all platforms. See http://crbug.com/172800.
-#if defined(COMPONENT_BUILD) && defined(PROTOBUF_USE_DLLS)
-  #if defined(_MSC_VER)
-    #ifdef LIBPROTOBUF_EXPORTS
-      #define LIBPROTOBUF_EXPORT __declspec(dllexport)
-    #else
-      #define LIBPROTOBUF_EXPORT __declspec(dllimport)
-    #endif
-    #ifdef LIBPROTOC_EXPORTS
-      #define LIBPROTOC_EXPORT   __declspec(dllexport)
-    #else
-      #define LIBPROTOC_EXPORT   __declspec(dllimport)
-    #endif
-  #else  // defined(_MSC_VER)
-    #ifdef LIBPROTOBUF_EXPORTS
-      #define LIBPROTOBUF_EXPORT __attribute__((visibility("default")))
-    #else
-      #define LIBPROTOBUF_EXPORT
-    #endif
-    #ifdef LIBPROTOC_EXPORTS
-      #define LIBPROTOC_EXPORT   __attribute__((visibility("default")))
-    #else
-      #define LIBPROTOC_EXPORT
-    #endif
+#if defined(_MSC_VER) && defined(PROTOBUF_USE_DLLS)
+  #ifdef LIBPROTOBUF_EXPORTS
+    #define LIBPROTOBUF_EXPORT __declspec(dllexport)
+  #else
+    #define LIBPROTOBUF_EXPORT __declspec(dllimport)
   #endif
-#else  // defined(COMPONENT_BUILD) && defined(PROTOBUF_USE_DLLS)
+  #ifdef LIBPROTOC_EXPORTS
+    #define LIBPROTOC_EXPORT   __declspec(dllexport)
+  #else
+    #define LIBPROTOC_EXPORT   __declspec(dllimport)
+  #endif
+#else
   #define LIBPROTOBUF_EXPORT
   #define LIBPROTOC_EXPORT
 #endif
@@ -128,24 +113,24 @@ namespace internal {
 
 // The current version, represented as a single integer to make comparison
 // easier:  major * 10^6 + minor * 10^3 + micro
-#define GOOGLE_PROTOBUF_VERSION 2005000
+#define GOOGLE_PROTOBUF_VERSION 2005001
 
 // The minimum library version which works with the current version of the
 // headers.
-#define GOOGLE_PROTOBUF_MIN_LIBRARY_VERSION 2005000
+#define GOOGLE_PROTOBUF_MIN_LIBRARY_VERSION 2005001
 
 // The minimum header version which works with the current version of
 // the library.  This constant should only be used by protoc's C++ code
 // generator.
-static const int kMinHeaderVersionForLibrary = 2005000;
+static const int kMinHeaderVersionForLibrary = 2005001;
 
 // The minimum protoc version which works with the current version of the
 // headers.
-#define GOOGLE_PROTOBUF_MIN_PROTOC_VERSION 2005000
+#define GOOGLE_PROTOBUF_MIN_PROTOC_VERSION 2005001
 
 // The minimum header version which works with the current version of
 // protoc.  This constant should only be used in VerifyVersion().
-static const int kMinHeaderVersionForProtoc = 2005000;
+static const int kMinHeaderVersionForProtoc = 2005001;
 
 // Verifies that the headers and libraries are compatible.  Use the macro
 // below to call this.
@@ -439,7 +424,7 @@ struct CompileAssert {
 //   causes ((0.0) ? 1 : -1) to incorrectly evaluate to 1.
 
 // ===================================================================
-// from google3/base/memory/scoped_ptr.h
+// from google3/base/scoped_ptr.h
 
 namespace internal {
 

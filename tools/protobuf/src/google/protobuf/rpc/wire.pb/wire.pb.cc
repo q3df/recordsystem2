@@ -251,7 +251,8 @@ bool Const::MergePartialFromCodedStream(
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
           return true;
         }
-        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag, mutable_unknown_fields()));
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
         break;
       }
     }
@@ -268,7 +269,7 @@ void Const::SerializeWithCachedSizes(
   }
 
   if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormatLite::SerializeUnknownFields(
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
 }
@@ -281,7 +282,7 @@ void Const::SerializeWithCachedSizes(
   }
 
   if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormatLite::SerializeUnknownFieldsToArray(
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
   return target;
@@ -301,7 +302,7 @@ int Const::ByteSize() const {
   }
   if (!unknown_fields().empty()) {
     total_size +=
-      ::google::protobuf::internal::WireFormatLite::ComputeUnknownFieldsSize(
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         unknown_fields());
   }
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
@@ -346,6 +347,52 @@ void Const::CopyFrom(const Const& from) {
 
 bool Const::IsInitialized() const {
 
+  return true;
+}
+
+bool Const::ParseFromXmlString(const std::string& data) {
+  ::google::protobuf::xml::XmlMessage stub(*const_cast<Const*>(this));
+  if(!stub.ParseFromString(data)) {
+    GOOGLE_LOG(WARNING) << "ParseFromXmlString failed: " << stub.GetErrorText();
+    return false;
+  }
+  if (!this->IsInitialized()) {
+    GOOGLE_LOG(WARNING)
+      << "ParseFromXmlString failed: missing required fields: "
+      << this->InitializationErrorString();
+    return false;
+  }
+  return true;
+}
+
+bool Const::ParsePartialFromXmlString(const std::string& data) {
+  ::google::protobuf::xml::XmlMessage stub(*const_cast<Const*>(this));
+  if(!stub.ParseFromString(data)) {
+    GOOGLE_LOG(WARNING) << "ParsePartialFromXmlString failed: " << stub.GetErrorText();
+    return false;
+  }
+  return true;
+}
+
+bool Const::SerializeToXmlString(std::string* output) const {
+  output->clear();
+  if (!this->IsInitialized()) {
+    GOOGLE_LOG(WARNING)
+      << "SerializeToXmlString failed: missing required fields: "
+      << this->InitializationErrorString();
+    return false;
+  }
+
+  ::google::protobuf::xml::XmlMessage stub(*const_cast<Const*>(this));
+  output->assign(stub.SerializeToString());
+  return true;
+}
+
+bool Const::SerializePartialToXmlString(std::string* output) const {
+  output->clear();
+
+  ::google::protobuf::xml::XmlMessage stub(*const_cast<Const*>(this));
+  output->assign(stub.SerializeToString());
   return true;
 }
 
@@ -394,7 +441,7 @@ RequestHeader::RequestHeader(const RequestHeader& from)
 void RequestHeader::SharedCtor() {
   _cached_size_ = 0;
   id_ = GOOGLE_ULONGLONG(0);
-  method_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyString());
+  method_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   raw_request_len_ = 0u;
   snappy_compressed_request_len_ = 0u;
   checksum_ = 0u;
@@ -406,7 +453,7 @@ RequestHeader::~RequestHeader() {
 }
 
 void RequestHeader::SharedDtor() {
-  if (method_ != &::google::protobuf::internal::GetEmptyString()) {
+  if (method_ != &::google::protobuf::internal::kEmptyString) {
     delete method_;
   }
   if (this != default_instance_) {
@@ -438,7 +485,7 @@ void RequestHeader::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     id_ = GOOGLE_ULONGLONG(0);
     if (has_method()) {
-      if (method_ != &::google::protobuf::internal::GetEmptyString()) {
+      if (method_ != &::google::protobuf::internal::kEmptyString) {
         method_->clear();
       }
     }
@@ -542,7 +589,8 @@ bool RequestHeader::MergePartialFromCodedStream(
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
           return true;
         }
-        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag, mutable_unknown_fields()));
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
         break;
       }
     }
@@ -583,7 +631,7 @@ void RequestHeader::SerializeWithCachedSizes(
   }
 
   if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormatLite::SerializeUnknownFields(
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
 }
@@ -621,7 +669,7 @@ void RequestHeader::SerializeWithCachedSizes(
   }
 
   if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormatLite::SerializeUnknownFieldsToArray(
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
   return target;
@@ -669,7 +717,7 @@ int RequestHeader::ByteSize() const {
   }
   if (!unknown_fields().empty()) {
     total_size +=
-      ::google::protobuf::internal::WireFormatLite::ComputeUnknownFieldsSize(
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         unknown_fields());
   }
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
@@ -729,6 +777,52 @@ bool RequestHeader::IsInitialized() const {
   return true;
 }
 
+bool RequestHeader::ParseFromXmlString(const std::string& data) {
+  ::google::protobuf::xml::XmlMessage stub(*const_cast<RequestHeader*>(this));
+  if(!stub.ParseFromString(data)) {
+    GOOGLE_LOG(WARNING) << "ParseFromXmlString failed: " << stub.GetErrorText();
+    return false;
+  }
+  if (!this->IsInitialized()) {
+    GOOGLE_LOG(WARNING)
+      << "ParseFromXmlString failed: missing required fields: "
+      << this->InitializationErrorString();
+    return false;
+  }
+  return true;
+}
+
+bool RequestHeader::ParsePartialFromXmlString(const std::string& data) {
+  ::google::protobuf::xml::XmlMessage stub(*const_cast<RequestHeader*>(this));
+  if(!stub.ParseFromString(data)) {
+    GOOGLE_LOG(WARNING) << "ParsePartialFromXmlString failed: " << stub.GetErrorText();
+    return false;
+  }
+  return true;
+}
+
+bool RequestHeader::SerializeToXmlString(std::string* output) const {
+  output->clear();
+  if (!this->IsInitialized()) {
+    GOOGLE_LOG(WARNING)
+      << "SerializeToXmlString failed: missing required fields: "
+      << this->InitializationErrorString();
+    return false;
+  }
+
+  ::google::protobuf::xml::XmlMessage stub(*const_cast<RequestHeader*>(this));
+  output->assign(stub.SerializeToString());
+  return true;
+}
+
+bool RequestHeader::SerializePartialToXmlString(std::string* output) const {
+  output->clear();
+
+  ::google::protobuf::xml::XmlMessage stub(*const_cast<RequestHeader*>(this));
+  output->assign(stub.SerializeToString());
+  return true;
+}
+
 void RequestHeader::Swap(RequestHeader* other) {
   if (other != this) {
     std::swap(id_, other->id_);
@@ -778,7 +872,7 @@ ResponseHeader::ResponseHeader(const ResponseHeader& from)
 void ResponseHeader::SharedCtor() {
   _cached_size_ = 0;
   id_ = GOOGLE_ULONGLONG(0);
-  error_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyString());
+  error_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   raw_response_len_ = 0u;
   snappy_compressed_response_len_ = 0u;
   checksum_ = 0u;
@@ -790,7 +884,7 @@ ResponseHeader::~ResponseHeader() {
 }
 
 void ResponseHeader::SharedDtor() {
-  if (error_ != &::google::protobuf::internal::GetEmptyString()) {
+  if (error_ != &::google::protobuf::internal::kEmptyString) {
     delete error_;
   }
   if (this != default_instance_) {
@@ -822,7 +916,7 @@ void ResponseHeader::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     id_ = GOOGLE_ULONGLONG(0);
     if (has_error()) {
-      if (error_ != &::google::protobuf::internal::GetEmptyString()) {
+      if (error_ != &::google::protobuf::internal::kEmptyString) {
         error_->clear();
       }
     }
@@ -926,7 +1020,8 @@ bool ResponseHeader::MergePartialFromCodedStream(
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
           return true;
         }
-        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag, mutable_unknown_fields()));
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
         break;
       }
     }
@@ -967,7 +1062,7 @@ void ResponseHeader::SerializeWithCachedSizes(
   }
 
   if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormatLite::SerializeUnknownFields(
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
 }
@@ -1005,7 +1100,7 @@ void ResponseHeader::SerializeWithCachedSizes(
   }
 
   if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormatLite::SerializeUnknownFieldsToArray(
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
   return target;
@@ -1053,7 +1148,7 @@ int ResponseHeader::ByteSize() const {
   }
   if (!unknown_fields().empty()) {
     total_size +=
-      ::google::protobuf::internal::WireFormatLite::ComputeUnknownFieldsSize(
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         unknown_fields());
   }
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
@@ -1110,6 +1205,52 @@ void ResponseHeader::CopyFrom(const ResponseHeader& from) {
 
 bool ResponseHeader::IsInitialized() const {
 
+  return true;
+}
+
+bool ResponseHeader::ParseFromXmlString(const std::string& data) {
+  ::google::protobuf::xml::XmlMessage stub(*const_cast<ResponseHeader*>(this));
+  if(!stub.ParseFromString(data)) {
+    GOOGLE_LOG(WARNING) << "ParseFromXmlString failed: " << stub.GetErrorText();
+    return false;
+  }
+  if (!this->IsInitialized()) {
+    GOOGLE_LOG(WARNING)
+      << "ParseFromXmlString failed: missing required fields: "
+      << this->InitializationErrorString();
+    return false;
+  }
+  return true;
+}
+
+bool ResponseHeader::ParsePartialFromXmlString(const std::string& data) {
+  ::google::protobuf::xml::XmlMessage stub(*const_cast<ResponseHeader*>(this));
+  if(!stub.ParseFromString(data)) {
+    GOOGLE_LOG(WARNING) << "ParsePartialFromXmlString failed: " << stub.GetErrorText();
+    return false;
+  }
+  return true;
+}
+
+bool ResponseHeader::SerializeToXmlString(std::string* output) const {
+  output->clear();
+  if (!this->IsInitialized()) {
+    GOOGLE_LOG(WARNING)
+      << "SerializeToXmlString failed: missing required fields: "
+      << this->InitializationErrorString();
+    return false;
+  }
+
+  ::google::protobuf::xml::XmlMessage stub(*const_cast<ResponseHeader*>(this));
+  output->assign(stub.SerializeToString());
+  return true;
+}
+
+bool ResponseHeader::SerializePartialToXmlString(std::string* output) const {
+  output->clear();
+
+  ::google::protobuf::xml::XmlMessage stub(*const_cast<ResponseHeader*>(this));
+  output->assign(stub.SerializeToString());
   return true;
 }
 

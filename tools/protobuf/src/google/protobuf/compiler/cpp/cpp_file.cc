@@ -143,11 +143,6 @@ void FileGenerator::GenerateHeader(io::Printer* printer) {
     "#include <google/protobuf/repeated_field.h>\n"
     "#include <google/protobuf/extension_set.h>\n");
 
-  if (HasUnknownFields(file_)) {
-    printer->Print(
-      "#include <google/protobuf/unknown_field_set.h>\n");
-  }
-
   if (HasDescriptorMethods(file_) && HasEnumDefinitions(file_)) {
     printer->Print(
       "#include <google/protobuf/generated_enum_reflection.h>\n");
@@ -625,7 +620,7 @@ void FileGenerator::GenerateBuildDescriptors(io::Printer* printer) {
     // Without.
     "GOOGLE_PROTOBUF_DECLARE_ONCE($adddescriptorsname$_once_);\n"
     "void $adddescriptorsname$() {\n"
-    "  ::google::protobuf::GoogleOnceInit(&$adddescriptorsname$_once_,\n"
+    "  ::google::protobuf::::google::protobuf::GoogleOnceInit(&$adddescriptorsname$_once_,\n"
     "                 &$adddescriptorsname$_impl);\n"
     "}\n",
     // Vars.

@@ -6,7 +6,7 @@ class Recordsystem;
 #include "Q3SysCall.h"
 #include "Quake3.h"
 #include <string>
-#include <Q3dfApi.pb.h>
+#include <q3df_api.pb.h>
 
 #ifdef WIN32
 #	define snprintf _snprintf

@@ -10,7 +10,7 @@
 		'dependencies': [
 			'tools/libxml/libxml.gyp:libxml',
 			'tools/pthreads-win32/pthread.gyp:pthreads',
-			'tools/libQ3dfApi/libQ3dfApi.gyp:Q3dfApi'
+			'tools/q3df_api/q3df_api.gyp:q3df_api',
 			'tools/protobuf/protobuf.gyp:protobuf_full_do_not_use'
 		],
 		'defines': [
@@ -18,7 +18,7 @@
 		'include_dirs': [
 			'tools/protobuf/src/',
 			'tools/utf8/',
-			'tools/libQ3dfApi/'
+			'tools/q3df_api/'
 		],
 		'sources': [
 			'client/Q3Vm.cc',
@@ -62,7 +62,6 @@
 				],
 				'link_settings': {
 					'libraries': [
-						'tools/protorpc/lib/libprotobuf-posix32.a',
 						'-pthread'
 					],
 					'library_dirs': [
@@ -79,13 +78,10 @@
 				'msvs_settings': {
 					'VCLinkerTool': {
 						'AdditionalDependencies': [
-							'tools/protorpc/lib/protobuf-win32.lib',
 							'Advapi32.lib',
 						],
 					},
 				},
-				'include_dirs': [
-				],
 			}],
 		],
 	},{
@@ -95,13 +91,14 @@
 		'dependencies': [
 			'qagamex86',
 			'tools/pthreads-win32/pthread.gyp:pthreads',
-			'tools/libQ3dfApi/libQ3dfApi.gyp:Q3dfApi'
+			'tools/q3df_api/q3df_api.gyp:q3df_api',
+			'tools/protobuf/protobuf.gyp:protobuf_full_do_not_use',
 		],
 		'defines': [
 		],
 		'include_dirs': [
-			'tools/protorpc/src/',
-			'tools/libQ3dfApi/'
+			'tools/protobuf/src/',
+			'tools/q3df_api/'
 		],
 		'actions': [],
 		'sources': [
@@ -119,7 +116,6 @@
 				],
 				'link_settings': {
 					'libraries': [
-						'tools/protorpc/lib/libprotobuf-posix32.a',
 						'-pthread'
 					],
 					'library_dirs': [
@@ -136,15 +132,6 @@
 			['OS=="win"', {
 				'defines': [
 					'WIN32',
-				],
-				'msvs_settings': {
-					'VCLinkerTool': {
-						'AdditionalDependencies': [
-							'tools/protorpc/lib/protobuf-win32.lib'
-						],
-					},
-				},
-				'include_dirs': [
 				],
 				'sources': [
 					'server/ConsoleWin32.cc',

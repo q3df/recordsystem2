@@ -47,12 +47,7 @@ double NaN() {
   return std::numeric_limits<double>::quiet_NaN();
 }
 
-const ::std::string* empty_string_;
-ProtobufOnceType empty_string_once_init_;
-
-void InitEmptyString() {
-  empty_string_ = new std::string();
-}
+const ::std::string kEmptyString;
 
 }  // namespace internal
 }  // namespace protobuf

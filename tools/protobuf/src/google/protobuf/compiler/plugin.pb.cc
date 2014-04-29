@@ -184,7 +184,7 @@ CodeGeneratorRequest::CodeGeneratorRequest(const CodeGeneratorRequest& from)
 
 void CodeGeneratorRequest::SharedCtor() {
   _cached_size_ = 0;
-  parameter_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyString());
+  parameter_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -193,7 +193,7 @@ CodeGeneratorRequest::~CodeGeneratorRequest() {
 }
 
 void CodeGeneratorRequest::SharedDtor() {
-  if (parameter_ != &::google::protobuf::internal::GetEmptyString()) {
+  if (parameter_ != &::google::protobuf::internal::kEmptyString) {
     delete parameter_;
   }
   if (this != default_instance_) {
@@ -224,7 +224,7 @@ CodeGeneratorRequest* CodeGeneratorRequest::New() const {
 void CodeGeneratorRequest::Clear() {
   if (_has_bits_[1 / 32] & (0xffu << (1 % 32))) {
     if (has_parameter()) {
-      if (parameter_ != &::google::protobuf::internal::GetEmptyString()) {
+      if (parameter_ != &::google::protobuf::internal::kEmptyString) {
         parameter_->clear();
       }
     }
@@ -298,7 +298,7 @@ bool CodeGeneratorRequest::MergePartialFromCodedStream(
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
           return true;
         }
-        DO_(::google::protobuf::internal::WireFormatLite::SkipField(
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
               input, tag, mutable_unknown_fields()));
         break;
       }
@@ -335,7 +335,7 @@ void CodeGeneratorRequest::SerializeWithCachedSizes(
   }
 
   if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormatLite::SerializeUnknownFields(
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
 }
@@ -369,7 +369,7 @@ void CodeGeneratorRequest::SerializeWithCachedSizes(
   }
 
   if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormatLite::SerializeUnknownFieldsToArray(
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
   return target;
@@ -404,7 +404,7 @@ int CodeGeneratorRequest::ByteSize() const {
 
   if (!unknown_fields().empty()) {
     total_size +=
-      ::google::protobuf::internal::WireFormatLite::ComputeUnknownFieldsSize(
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         unknown_fields());
   }
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
@@ -501,9 +501,9 @@ CodeGeneratorResponse_File::CodeGeneratorResponse_File(const CodeGeneratorRespon
 
 void CodeGeneratorResponse_File::SharedCtor() {
   _cached_size_ = 0;
-  name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyString());
-  insertion_point_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyString());
-  content_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyString());
+  name_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  insertion_point_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  content_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -512,13 +512,13 @@ CodeGeneratorResponse_File::~CodeGeneratorResponse_File() {
 }
 
 void CodeGeneratorResponse_File::SharedDtor() {
-  if (name_ != &::google::protobuf::internal::GetEmptyString()) {
+  if (name_ != &::google::protobuf::internal::kEmptyString) {
     delete name_;
   }
-  if (insertion_point_ != &::google::protobuf::internal::GetEmptyString()) {
+  if (insertion_point_ != &::google::protobuf::internal::kEmptyString) {
     delete insertion_point_;
   }
-  if (content_ != &::google::protobuf::internal::GetEmptyString()) {
+  if (content_ != &::google::protobuf::internal::kEmptyString) {
     delete content_;
   }
   if (this != default_instance_) {
@@ -549,17 +549,17 @@ CodeGeneratorResponse_File* CodeGeneratorResponse_File::New() const {
 void CodeGeneratorResponse_File::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (has_name()) {
-      if (name_ != &::google::protobuf::internal::GetEmptyString()) {
+      if (name_ != &::google::protobuf::internal::kEmptyString) {
         name_->clear();
       }
     }
     if (has_insertion_point()) {
-      if (insertion_point_ != &::google::protobuf::internal::GetEmptyString()) {
+      if (insertion_point_ != &::google::protobuf::internal::kEmptyString) {
         insertion_point_->clear();
       }
     }
     if (has_content()) {
-      if (content_ != &::google::protobuf::internal::GetEmptyString()) {
+      if (content_ != &::google::protobuf::internal::kEmptyString) {
         content_->clear();
       }
     }
@@ -630,7 +630,7 @@ bool CodeGeneratorResponse_File::MergePartialFromCodedStream(
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
           return true;
         }
-        DO_(::google::protobuf::internal::WireFormatLite::SkipField(
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
               input, tag, mutable_unknown_fields()));
         break;
       }
@@ -670,7 +670,7 @@ void CodeGeneratorResponse_File::SerializeWithCachedSizes(
   }
 
   if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormatLite::SerializeUnknownFields(
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
 }
@@ -708,7 +708,7 @@ void CodeGeneratorResponse_File::SerializeWithCachedSizes(
   }
 
   if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormatLite::SerializeUnknownFieldsToArray(
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
   return target;
@@ -742,7 +742,7 @@ int CodeGeneratorResponse_File::ByteSize() const {
   }
   if (!unknown_fields().empty()) {
     total_size +=
-      ::google::protobuf::internal::WireFormatLite::ComputeUnknownFieldsSize(
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         unknown_fields());
   }
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
@@ -839,7 +839,7 @@ CodeGeneratorResponse::CodeGeneratorResponse(const CodeGeneratorResponse& from)
 
 void CodeGeneratorResponse::SharedCtor() {
   _cached_size_ = 0;
-  error_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyString());
+  error_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -848,7 +848,7 @@ CodeGeneratorResponse::~CodeGeneratorResponse() {
 }
 
 void CodeGeneratorResponse::SharedDtor() {
-  if (error_ != &::google::protobuf::internal::GetEmptyString()) {
+  if (error_ != &::google::protobuf::internal::kEmptyString) {
     delete error_;
   }
   if (this != default_instance_) {
@@ -879,7 +879,7 @@ CodeGeneratorResponse* CodeGeneratorResponse::New() const {
 void CodeGeneratorResponse::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (has_error()) {
-      if (error_ != &::google::protobuf::internal::GetEmptyString()) {
+      if (error_ != &::google::protobuf::internal::kEmptyString) {
         error_->clear();
       }
     }
@@ -932,7 +932,7 @@ bool CodeGeneratorResponse::MergePartialFromCodedStream(
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
           return true;
         }
-        DO_(::google::protobuf::internal::WireFormatLite::SkipField(
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
               input, tag, mutable_unknown_fields()));
         break;
       }
@@ -960,7 +960,7 @@ void CodeGeneratorResponse::SerializeWithCachedSizes(
   }
 
   if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormatLite::SerializeUnknownFields(
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
 }
@@ -985,7 +985,7 @@ void CodeGeneratorResponse::SerializeWithCachedSizes(
   }
 
   if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormatLite::SerializeUnknownFieldsToArray(
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
   return target;
@@ -1013,7 +1013,7 @@ int CodeGeneratorResponse::ByteSize() const {
 
   if (!unknown_fields().empty()) {
     total_size +=
-      ::google::protobuf::internal::WireFormatLite::ComputeUnknownFieldsSize(
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         unknown_fields());
   }
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();

@@ -4,7 +4,7 @@
 #include "../PluginProxy.h"
 #include "../Recordsystem.h"
 #include "../Logger.h"
-#include <Q3dfApi.pb.h>
+#include <q3df_api.pb.h>
 
 using namespace google::protobuf;
 using namespace service;

@@ -13,13 +13,16 @@ fi
 OLDCD=$(pwd)
 cd $1
 
-if [ -f "../protorpc/bin/protoc.exe" ]; then
-	echo ../protorpc/bin/protoc.exe --cxx_out=./ $2
-	../protorpc/bin/protoc.exe --cxx_out=./ $2
+if [ -f "../../build/Debug/protoc.exe" ]; then
+	echo ../../build/Debug/protoc.exe --cxx_out=./ $2
+	../../build/Debug/protoc.exe --cxx_out=./ $2
+else
+	echo protoc.exe not found!
+	exit 1
 fi
 
-if [ -f "../protorpc/bin/protoc" ]; then
-	../protorpc/bin/protoc --cxx_out=./ $2
+if [ -f "../../out/Debug/protoc" ]; then
+	../../out/Debug/protoc --cxx_out=./ $2
 fi
 
 cd $OLDCD

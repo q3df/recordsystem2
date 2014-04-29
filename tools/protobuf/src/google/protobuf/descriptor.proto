@@ -262,12 +262,6 @@ message FileOptions {
   // top-level extensions defined in the file.
   optional bool java_multiple_files = 10 [default=false];
 
-  // If set true, then code generators will store unknown fields so that
-  // reserializing a message will retain them. This is the default behaviour
-  // unless LITE_RUNTIME is specified. Therefore, this option only makes sense
-  // when LITE_RUNTIME is in use.
-  optional bool retain_unknown_fields = 12 [default=false];
-
   // If set true, then the Java code generator will generate equals() and
   // hashCode() methods for all messages defined in the .proto file. This is
   // purely a speed optimization, as the AbstractMessage base class includes

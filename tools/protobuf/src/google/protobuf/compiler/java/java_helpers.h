@@ -121,8 +121,7 @@ bool IsDefaultValueJavaDefault(const FieldDescriptor* field);
 // Does this message class keep track of unknown fields?
 inline bool HasUnknownFields(const Descriptor* descriptor) {
   return descriptor->file()->options().optimize_for() !=
-           FileOptions::LITE_RUNTIME ||
-         descriptor->file()->options().retain_unknown_fields();
+           FileOptions::LITE_RUNTIME;
 }
 
 // Does this message class have generated parsing, serialization, and other

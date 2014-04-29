@@ -35,6 +35,11 @@
 #include <google/protobuf/compiler/python/python_generator.h>
 #include <google/protobuf/compiler/java/java_generator.h>
 
+#if GOOGLE_PROTOBUF_MIN_LIBRARY_VERSION == 2005001
+#  include <google/protobuf/compiler/cxx25x/cxx_generator.h>
+#else
+#  include <google/protobuf/compiler/cxx24x/cxx_generator.h>
+#endif
 
 int main(int argc, char* argv[]) {
 
@@ -43,14 +48,18 @@ int main(int argc, char* argv[]) {
 
   // Proto2 C++
   google::protobuf::compiler::cpp::CppGenerator cpp_generator;
-  cli.RegisterGenerator("--cpp_out", "--cpp_opt", &cpp_generator,
+  cli.RegisterGenerator("--cpp_out", &cpp_generator,
                         "Generate C++ header and source.");
+
+  // Proto2 C++ (by chaishushan{AT}gmail.com)
+  google::protobuf::compiler::cxx::CxxGenerator cxx_generator;
+  cli.RegisterGenerator("--cxx_out", &cxx_generator,
+                        "Generate C++ header and source (RPC supported).");
 
   // Proto2 Java
   google::protobuf::compiler::java::JavaGenerator java_generator;
   cli.RegisterGenerator("--java_out", &java_generator,
                         "Generate Java source file.");
-
 
   // Proto2 Python
   google::protobuf::compiler::python::Generator py_generator;

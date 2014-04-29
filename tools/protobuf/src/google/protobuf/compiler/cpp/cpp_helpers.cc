@@ -262,9 +262,7 @@ string DefaultValue(const FieldDescriptor* field) {
       // gcc rejects the decimal form of kint32min and kint64min.
       if (field->default_value_int32() == kint32min) {
         // Make sure we are in a 2's complement system.
-        GOOGLE_COMPILE_ASSERT(
-            (uint32)kint32min == (uint32)0 - (uint32)0x80000000,
-            kint32min_value_error);
+        GOOGLE_COMPILE_ASSERT(kint32min == -0x80000000, kint32min_value_error);
         return "-0x80000000";
       }
       return SimpleItoa(field->default_value_int32());
@@ -274,10 +272,8 @@ string DefaultValue(const FieldDescriptor* field) {
       // See the comments for CPPTYPE_INT32.
       if (field->default_value_int64() == kint64min) {
         // Make sure we are in a 2's complement system.
-        GOOGLE_COMPILE_ASSERT(
-            (uint64)kint64min ==
-                (uint64)0 - (uint64)GOOGLE_LONGLONG(0x8000000000000000),
-            kint64min_value_error);
+        GOOGLE_COMPILE_ASSERT(kint64min == GOOGLE_LONGLONG(-0x8000000000000000),
+                       kint64min_value_error);
         return "GOOGLE_LONGLONG(-0x8000000000000000)";
       }
       return "GOOGLE_LONGLONG(" + SimpleItoa(field->default_value_int64()) + ")";

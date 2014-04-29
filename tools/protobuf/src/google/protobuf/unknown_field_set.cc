@@ -37,28 +37,12 @@
 #include <google/protobuf/stubs/common.h>
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/zero_copy_stream.h>
-#include <google/protobuf/io/zero_copy_stream_impl_lite.h>
-#include <google/protobuf/wire_format_lite.h>
+#include <google/protobuf/io/zero_copy_stream_impl.h>
+#include <google/protobuf/wire_format.h>
 #include <google/protobuf/stubs/stl_util.h>
 
 namespace google {
 namespace protobuf {
-
-namespace internal {
-
-int StringSpaceUsedExcludingSelf(const string& str) {
-  const void* start = &str;
-  const void* end = &str + 1;
-
-  if (start <= str.data() && str.data() <= end) {
-    // The string's data is stored inside the string object itself.
-    return 0;
-  } else {
-    return str.capacity();
-  }
-}
-
-}
 
 UnknownFieldSet::UnknownFieldSet()
   : fields_(NULL) {}
@@ -206,8 +190,8 @@ void UnknownFieldSet::DeleteByNumber(int number) {
 bool UnknownFieldSet::MergeFromCodedStream(io::CodedInputStream* input) {
 
   UnknownFieldSet other;
-  if (internal::WireFormatLite::SkipMessage(input, &other) &&
-      input->ConsumedEntireMessage()) {
+  if (internal::WireFormat::SkipMessage(input, &other) &&
+                                  input->ConsumedEntireMessage()) {
     MergeFrom(other);
     return true;
   } else {

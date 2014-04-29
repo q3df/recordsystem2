@@ -45,6 +45,18 @@ namespace google {
 namespace protobuf {
 namespace internal {
 
+int StringSpaceUsedExcludingSelf(const string& str) {
+  const void* start = &str;
+  const void* end = &str + 1;
+
+  if (start <= str.data() && str.data() <= end) {
+    // The string's data is stored inside the string object itself.
+    return 0;
+  } else {
+    return str.capacity();
+  }
+}
+
 bool ParseNamedEnum(const EnumDescriptor* descriptor,
                     const string& name,
                     int* value) {
@@ -56,7 +68,7 @@ bool ParseNamedEnum(const EnumDescriptor* descriptor,
 
 const string& NameOfEnum(const EnumDescriptor* descriptor, int value) {
   const EnumValueDescriptor* d = descriptor->FindValueByNumber(value);
-  return (d == NULL ? GetEmptyString() : d->name());
+  return (d == NULL ? kEmptyString : d->name());
 }
 
 // ===================================================================
@@ -759,7 +771,7 @@ string GeneratedMessageReflection::GetString(
     }
 
     GOOGLE_LOG(FATAL) << "Can't get here.";
-    return GetEmptyString();  // Make compiler happy.
+    return kEmptyString;  // Make compiler happy.
   }
 }
 
@@ -778,7 +790,7 @@ const string& GeneratedMessageReflection::GetStringReference(
     }
 
     GOOGLE_LOG(FATAL) << "Can't get here.";
-    return GetEmptyString();  // Make compiler happy.
+    return kEmptyString;  // Make compiler happy.
   }
 }
 
@@ -820,7 +832,7 @@ string GeneratedMessageReflection::GetRepeatedString(
     }
 
     GOOGLE_LOG(FATAL) << "Can't get here.";
-    return GetEmptyString();  // Make compiler happy.
+    return kEmptyString;  // Make compiler happy.
   }
 }
 
@@ -838,7 +850,7 @@ const string& GeneratedMessageReflection::GetRepeatedStringReference(
     }
 
     GOOGLE_LOG(FATAL) << "Can't get here.";
-    return GetEmptyString();  // Make compiler happy.
+    return kEmptyString;  // Make compiler happy.
   }
 }
 
