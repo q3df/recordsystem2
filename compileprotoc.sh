@@ -18,11 +18,12 @@ if [ -f "../../build/Debug/protoc.exe" ]; then
 	../../build/Debug/protoc.exe --cxx_out=./ $2
 else
 	echo protoc.exe not found!
-	exit 1
 fi
 
 if [ -f "../../out/Debug/protoc" ]; then
 	../../out/Debug/protoc --cxx_out=./ $2
+else
+	echo protoc not found!
 fi
 
 cd $OLDCD

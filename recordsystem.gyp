@@ -1,8 +1,4 @@
 {
-#	'make_global_settings': [
-#		['CXX','/usr/bin/g++'],
-# 		['LINK','/usr/bin/g++'],
-#	],
 	'targets': [{
 		'target_name': 'qagamex86',
 		'type': 'shared_library',

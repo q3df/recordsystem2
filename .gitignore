@@ -40,3 +40,5 @@ Makefile
 tools/python_26/Lib/*.pyc
 tools/q3df_api/q3df_api.pb.cc
 tools/q3df_api/q3df_api.pb.h
+*.host.mk
+

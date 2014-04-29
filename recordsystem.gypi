@@ -149,7 +149,7 @@
 		['OS=="linux"', {
 			'target_defaults': {
 				'cflags': [
-					'-Wall', '-W', '-Wno-unused-parameter',
+					'-W', '-Wno-unused-parameter',
 					'-pthread', '-fno-exceptions',
 					 '-fPIC', '-fexceptions',
 					'-m32', '-Wno-strict-aliasing'
