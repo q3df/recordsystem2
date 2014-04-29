@@ -1,8 +1,8 @@
 {
-       'make_global_settings': [
-               ['CXX','/usr/bin/g++'],
-               ['LINK','/usr/bin/g++'],
-       ],
+	'make_global_settings': [
+		['CXX','/usr/bin/g++'],
+		['LINK','/usr/bin/g++'],
+	],
 	'variables': {
 		'variables': {
 			'conditions': [
@@ -28,6 +28,8 @@
 		'host_arch%': 'ia32'
 	},
 	'target_defaults': {
+		'sources': [
+		],
 		'default_configuration': 'Debug',
 		'configurations': {
 			# ------------------------------------------------------------------

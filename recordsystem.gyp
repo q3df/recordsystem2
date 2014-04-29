@@ -11,11 +11,12 @@
 			'tools/libxml/libxml.gyp:libxml',
 			'tools/pthreads-win32/pthread.gyp:pthreads',
 			'tools/libQ3dfApi/libQ3dfApi.gyp:Q3dfApi'
+			'tools/protobuf/protobuf.gyp:protobuf_full_do_not_use'
 		],
 		'defines': [
 		],
 		'include_dirs': [
-			'tools/protorpc/src/',
+			'tools/protobuf/src/',
 			'tools/utf8/',
 			'tools/libQ3dfApi/'
 		],
