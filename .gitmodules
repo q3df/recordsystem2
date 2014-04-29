@@ -2,3 +2,7 @@
 	path = tools/icu
 	url = https://gitlab.q3df.org/megadaddeln/icu_chrome.git
 	branch = master
+[submodule "tools/gyp"]
+	path = tools/gyp
+	url = https://gitlab.q3df.org/megadaddeln/gyp.git
+	branch = master
