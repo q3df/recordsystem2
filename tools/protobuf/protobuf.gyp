@@ -43,7 +43,7 @@
 	{
 	  'target_name': 'protobuf_lite',
 	  'type': '<(component)',
-	  'toolsets': ['host', 'target'],
+	  #'toolsets': ['host', 'target'],
 	  'includes': [
 		'protobuf_lite.gypi',
 	  ],
@@ -66,7 +66,7 @@
 	{
 	  'target_name': 'protobuf_full_do_not_use',
 	  'type': 'static_library',
-	  'toolsets': ['host','target'],
+	  #'toolsets': ['host','target'],
 	  'dependencies': [
 			'../pthreads-win32/pthread.gyp:pthreads',
 	  ],

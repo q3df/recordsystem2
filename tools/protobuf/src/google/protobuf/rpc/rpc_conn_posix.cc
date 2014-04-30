@@ -102,14 +102,15 @@ void Conn::Close() {
 }
 
 Conn* Conn::Accept() {
-  struct sockaddr_in addr;
-  socklen_t addrlen = sizeof(addr);
-  int sock = ::accept(sock_, (struct sockaddr*)&addr, &addrlen);
+  struct sockaddr_in *addr = (struct sockaddr_in *)malloc(sizeof(struct sockaddr_in));
+  socklen_t addrlen = sizeof(struct sockaddr_in);
+  int sock = ::accept(sock_, (struct sockaddr*)addr, &addrlen);
   if(sock == 0) {
+    free(addr);
     logf("listen failed.\n");
     return NULL;
   }
-  return new Conn(sock, env_);
+  return new Conn(sock, (struct sockaddr*)addr, env_);
 }
 
 Conn* Conn::AcceptNonBlock() {
@@ -131,13 +132,13 @@ Conn* Conn::AcceptNonBlock() {
   int ret = select(FD_SETSIZE, &read_fd_set, NULL, NULL, &timeout);
   if(ret > 0) {
 	  int sock = ::accept(sock_, (struct sockaddr*)addr, &addrlen);
-  
+
 	  if(sock == 0) {
         free(addr);
 		logf("listen failed.\n");
 		return NULL;
 	  }
-  
+
 	  return new Conn(sock, (struct sockaddr*)addr, env_);
   }else if (ret < 0) {
 	  free(addr);

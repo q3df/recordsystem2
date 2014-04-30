@@ -1,8 +1,4 @@
 {
-#	'make_global_settings': [
-#		['CXX','/usr/bin/g++'],
-# 		['LINK','/usr/bin/g++'],
-#	],
 	'targets': [{
 		'target_name': 'pthreads',
 		'msvs_guid': '39B03BBB-062B-431E-B4A6-49B7406B102D',
