@@ -39,7 +39,7 @@ class Server: public Caller {
   MethodDescriptor* FindMethodDescriptor(const std::string& method);
 
   void ListenTCP(int port, int backlog=5);
-  Conn* AcceptNonBlock(struct sockaddr *addr);
+  Conn* AcceptNonBlock();
   void Serve(Conn *conn);
 
   // [blocking]

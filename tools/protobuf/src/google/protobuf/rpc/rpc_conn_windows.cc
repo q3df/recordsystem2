@@ -93,19 +93,21 @@ bool Conn::ListenTCP(int port, int backlog) {
   return true;
 }
 
-Conn* Conn::AcceptNonBlock(struct sockaddr *addr) {
-  socklen_t addrlen = sizeof(struct sockaddr);
+Conn* Conn::AcceptNonBlock() {
+  struct sockaddr_in *addr = (struct sockaddr_in *)malloc(sizeof(struct sockaddr_in));
+  socklen_t addrlen = sizeof(struct sockaddr_in);
 
   SetSocketBlockingEnabled(sock_, false);
 
-  int sock = ::accept(sock_, addr, &addrlen);
+  int sock = ::accept(sock_, (struct sockaddr*)addr, &addrlen);
 
   if(sock <= 0) {
+	  free(addr);
 	  if(WSAGetLastError() != 10035)
         logf("accept failed: %ld.\n", WSAGetLastError());
   }else{
 	SetSocketBlockingEnabled(sock, true);
-    return new Conn(sock, env_);
+    return new Conn(sock, (struct sockaddr*)addr, env_);
   }
 
   return NULL;
@@ -119,14 +121,15 @@ void Conn::Close() {
 }
 
 Conn* Conn::Accept() {
-  struct sockaddr_in addr;
+  struct sockaddr_in *addr = (struct sockaddr_in *)malloc(sizeof(sockaddr_in));
   int addrlen = sizeof(addr);
-  int sock = ::accept(sock_, (struct sockaddr*)&addr, &addrlen);
+  int sock = ::accept(sock_, (struct sockaddr*)addr, &addrlen);
   if(sock == 0) {
+	free(addr);
     logf("listen failed.\n");
     return NULL;
   }
-  return new Conn(sock, env_);
+  return new Conn(sock, (struct sockaddr*)addr, env_);
 }
 
 bool Conn::Read (void* buf, int len) {

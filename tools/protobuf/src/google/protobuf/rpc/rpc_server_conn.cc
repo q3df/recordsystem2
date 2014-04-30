@@ -31,6 +31,8 @@ void ServerConn::ServeProc(void* p) {
   for(;;) {
     auto err = self->ProcessOneCall(self->conn_);
     if(!err.IsNil()) {
+	  self->env_->Logf("%s\n", err.String().c_str());
+	  self->env_->ClientDisconnect(self->conn_);
       break;
     }
   }

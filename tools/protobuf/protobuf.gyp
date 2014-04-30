@@ -67,6 +67,9 @@
 	  'target_name': 'protobuf_full_do_not_use',
 	  'type': 'static_library',
 	  'toolsets': ['host','target'],
+	  'dependencies': [
+			'../pthreads-win32/pthread.gyp:pthreads',
+	  ],
 	  'includes': [
 		'protobuf_lite.gypi',
 	  ],

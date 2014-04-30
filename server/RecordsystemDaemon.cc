@@ -9,15 +9,15 @@
 
 #ifdef WIN32
 #	include "ConsoleWin32.h"
-#	include <WinSock.h>
 #else
 #	include <unistd.h>
 #	include "ConsoleTty.h"
-#	include <sys/socket.h>
-#	include <netinet/in.h>
-#	include <arpa/inet.h>
 #	define Sleep usleep
 #endif
+
+using namespace ::google::protobuf;
+using namespace ::google::protobuf::rpc;
+using namespace ::service;
 
 extern "C" {
 	const char *va( const char *format, ... ) {
@@ -37,64 +37,100 @@ extern "C" {
 	}
 }
 
-class Q3dfApi: public service::Q3dfApi {
+class Q3dfApiImpl : public service::Q3dfApi {
 private:
 	Console *con;
 
 public:
-	inline Q3dfApi(Console *con) : con(con) {}
-	virtual ~Q3dfApi() {}
+	inline Q3dfApiImpl(Console *con) : con(con) {}
+	virtual ~Q3dfApiImpl() {}
 
-	virtual const ::google::protobuf::rpc::Error ClientConnected(const ::service::ClientInfoRequest* args, ::service::NullResponse* reply) {
+	virtual const Error ClientConnected(const ClientInfoRequest* args, NullResponse* reply) {
 		//printf("clientConnected: pl=%i\n", args->identifier().playernum());
-		return ::google::protobuf::rpc::Error::Nil();
+		return Error::Nil();
 	}
 
-	virtual const ::google::protobuf::rpc::Error ClientDisconnected(const ::service::ClientInfoRequest* args, ::service::NullResponse* reply) {
+	virtual const Error ClientDisconnected(const ClientInfoRequest* args, NullResponse* reply) {
 		//printf("clientDisconnected: pl=%i\n", args->identifier().playernum());
-		return ::google::protobuf::rpc::Error::Nil();
+		return Error::Nil();
 	}
 
-	virtual const ::google::protobuf::rpc::Error ClientCommand(const ::service::ClientCommandRequest* args, ::service::ClientCommandResponse* reply) {
+	virtual const Error ClientCommand(const ClientCommandRequest* args, ClientCommandResponse* reply) {
 		reply->mutable_identifier()->set_playernum(args->identifier().playernum());
 		reply->mutable_identifier()->set_uniqueid(args->identifier().uniqueid());
 
-		reply->set_messagetoprint(va("ERROR: command '%s' not implemented bla", args->command().c_str()));
-		return ::google::protobuf::rpc::Error::Nil();
+		reply->set_messagetoprint(va("^7[^1Q3df::Error^7]: command '%s' not implemented bla", args->command().c_str()));
+		return Error::Nil();
 	}
 
-	virtual const ::google::protobuf::rpc::Error Printf(const ::service::PrintfRequest* args, ::service::NullResponse* reply) {
-		this->con->Print(va("[Q3df]: %s", args->msg().c_str()));
-		return ::google::protobuf::rpc::Error::Nil();
+	virtual const Error Printf(const PrintfRequest* args, NullResponse* reply) {
+		this->con->Print(va("^7[^3Q3df^7]: %s", args->msg().c_str()));
+		return Error::Nil();
 	}
 
-	virtual const ::google::protobuf::rpc::Error Login(const ::service::LoginRequest* args, ::service::LoginResponse* reply) {
+	virtual const Error Login(const LoginRequest* args, LoginResponse* reply) {
 		reply->mutable_identifier()->set_playernum(args->identifier().playernum());
 		reply->mutable_identifier()->set_uniqueid(args->identifier().uniqueid());
 		reply->set_hash("TEST");
 		reply->set_userid(11);
-		reply->set_result(::service::LoginResponse_LoginResult_PASSED);
-		return ::google::protobuf::rpc::Error::Nil();
+		reply->set_result(LoginResponse_LoginResult_PASSED);
+		return Error::Nil();
 	}
 
-	virtual const ::google::protobuf::rpc::Error SaveRecord(const ::service::RecordRequest* request, ::service::NullResponse* response) {
-		this->con->Print(va("RECORD: %s %s %i\n", request->mapname().c_str(), request->name().c_str(), request->mstime()));
-		return ::google::protobuf::rpc::Error::Nil();
+	virtual const Error SaveRecord(const RecordRequest* request, NullResponse* response) {
+		this->con->Print(
+			va("^7[^3Q3df::Info^7]: RECORD %s %s %i\n",
+				request->mapname().c_str(),
+				request->name().c_str(),
+				request->mstime()
+			)
+		);
+		return Error::Nil();
 	}
 };
 
+Console *con;
+
+static ProtobufOnceType g_env_q3df_init_once;
+static Env* g_env_q3df;
+
+class Q3dfEnv : public Env {
+private:
+	Console *con_;
+
+public:
+	Q3dfEnv(Console *con) { con_ = con; }
+	~Q3dfEnv() { exit(1); }
+
+	// Write an entry to the log file with the specified format.
+	virtual void Logv(const char* format, va_list ap) {
+		const size_t kBufSize = 4096;
+		char buffer[kBufSize+1];
+		int written = vsnprintf(buffer, kBufSize, format, ap);
+		buffer[kBufSize] = '\0';
+		con_->Print(va("^1ERROR^7 Q3dfEnv: %s", buffer));
+	}
+
+	virtual void ClientDisconnect(Conn *con) {
+		con_->Print(va("^3INFO^7 Q3dfEnv: client %s disconnected\n", con->RemoteIpAdress()));
+	}
+};
+
+static void InitQ3dfEnv() {
+  g_env_q3df = new Q3dfEnv(con);
+}
 
 int main(int argc, char **argv) {
-	struct sockaddr_in addr;
-
 #ifdef WIN32
-	Console *con = new ConsoleWin32();
+	con = new ConsoleWin32();
 #else
-	Console *con = new ConsoleTty();
+	con = new ConsoleTty();
 #endif
 
-	::google::protobuf::rpc::Server server(::google::protobuf::rpc::Env::Default());
-	server.AddService(new Q3dfApi(con), true);
+	GoogleOnceInit(&g_env_q3df_init_once, InitQ3dfEnv);
+
+	Server server(g_env_q3df);
+	server.AddService(new Q3dfApiImpl(con), true);
 	server.ListenTCP(1234);
 
 	for(;;) {
@@ -102,11 +138,10 @@ int main(int argc, char **argv) {
 		if(cmd && !strncmp(cmd, "exit", 4)) {
 			break;
 		}
-		memset(&addr, 0, sizeof(addr));
 
-		::google::protobuf::rpc::Conn *conn = server.AcceptNonBlock((sockaddr*)&addr);
+		Conn *conn = server.AcceptNonBlock();
 		if(conn) {
-			con->Print(va("Incoming connection from %s\n", inet_ntoa(addr.sin_addr)));
+			con->Print(va("^7[^3Q3df^7]: Incoming connection from %s\n", conn->RemoteIpAdress()));
 			server.Serve(conn);
 		}
 

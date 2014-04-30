@@ -14,7 +14,7 @@ Server::Server(Env* env): env_(env) {
   if(env_ == NULL) {
     env_ = Env::Default();
   }
-  conn_ = Conn(0, env);
+  conn_ = Conn(0, NULL, env);
 }
 Server::~Server() {
   const auto& map = service_ownership_map_;
@@ -70,8 +70,8 @@ void Server::ListenTCP(int port, int backlog) {
   }
 }
 
-Conn* Server::AcceptNonBlock(struct sockaddr *addr) {
-	return conn_.AcceptNonBlock(addr);
+Conn* Server::AcceptNonBlock() {
+	return conn_.AcceptNonBlock();
 }
 
 void Server::Serve(Conn *conn) {

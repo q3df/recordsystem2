@@ -10,7 +10,7 @@ namespace protobuf {
 namespace rpc {
 
 Client::Client(const char* host, int port, Env* env):
-  conn_(0,env), host_(host), port_(port), seq_(0) {
+  conn_(0,NULL,env), host_(host), port_(port), seq_(0) {
   //
 }
 Client::~Client() {

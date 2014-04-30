@@ -17,7 +17,10 @@
 #  include <winsock2.h>
 typedef int socklen_t;
 #else
-#include <sys/socket.h>
+#  include <sys/socket.h>
+#  include <unistd.h>
+#  include <netinet/in.h>
+#  include <arpa/inet.h>
 #endif
 
 namespace google {
@@ -32,14 +35,19 @@ bool InitSocket();
 // Stream-oriented network connection.
 class Conn {
  public:
-
-  Conn(int fd=0, Env* env=NULL): sock_(fd), env_(env) { InitSocket(); }
-  ~Conn() {}
+  Conn(int fd=0, struct sockaddr*addr=NULL, Env* env=NULL): sock_(fd), addr_(addr), env_(env) { 
+	  InitSocket();
+  }
+  ~Conn() {
+	  if(addr_ != NULL) {
+		  free(addr_);
+	  }
+  }
 
   bool IsValid() const;
   bool DialTCP(const char* host, int port);
   bool ListenTCP(int port, int backlog=5);
-  Conn* AcceptNonBlock(struct sockaddr *addr);
+  Conn* AcceptNonBlock();
   void Close();
 
   Conn* Accept();
@@ -56,9 +64,13 @@ class Conn {
   bool RecvFrame(::std::string* data);
   bool SendFrame(const ::std::string* data);
 
+  char *RemoteIpAdress() {
+	  return inet_ntoa(((struct sockaddr_in*)addr_)->sin_addr);
+  }
  private:
   void logf(const char* fmt, ...);
 
+  struct sockaddr* addr_;
   fd_set sockset_;
   int sock_;
   Env* env_;

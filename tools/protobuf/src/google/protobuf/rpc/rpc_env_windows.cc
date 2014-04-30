@@ -37,7 +37,7 @@ DWORD WINAPI ThreadProc(LPVOID lpParameter) {
 }
 }  // namespace
 
-class WindowsEnv : public Env {
+class LIBPROTOBUF_EXPORT WindowsEnv : public Env {
  public:
   WindowsEnv() {
   }

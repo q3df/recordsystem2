@@ -126,6 +126,7 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 		break;
 
 	case GAME_SHUTDOWN:
+		GetSyscalls()->SendServerCommand(-1, "chat \"^7[^3Q3df::Info^7]: selfupdate in progress...\n\"");
 		EXECUTE_EVENT_VOID_ARG12(command, EXECUTE_TYPE_BEFORE, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
 
 		if(vm_->IsInitilized())
