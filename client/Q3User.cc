@@ -30,7 +30,7 @@ Q3User *Q3User::SetUserInfo(const char *key, const char *value) {
 
 Q3User *Q3User::WriteIdentifier(::service::Identifier *identity) {
 	identity->set_playernum(this->GetPlayernum());
-	identity->set_uniqueid(this->GetUniqueId());
+	identity->set_serverid(1);
 	return this;
 }
 

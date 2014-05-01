@@ -57,7 +57,7 @@ public:
 
 	virtual const Error ClientCommand(const ClientCommandRequest* args, ClientCommandResponse* reply) {
 		reply->mutable_identifier()->set_playernum(args->identifier().playernum());
-		reply->mutable_identifier()->set_uniqueid(args->identifier().uniqueid());
+		reply->mutable_identifier()->set_serverid(args->identifier().serverid());
 
 		reply->set_messagetoprint(va("^7[^1Q3df::Error^7]: command '%s' not implemented bla", args->command().c_str()));
 		return Error::Nil();
@@ -70,7 +70,7 @@ public:
 
 	virtual const Error Login(const LoginRequest* args, LoginResponse* reply) {
 		reply->mutable_identifier()->set_playernum(args->identifier().playernum());
-		reply->mutable_identifier()->set_uniqueid(args->identifier().uniqueid());
+		reply->mutable_identifier()->set_serverid(args->identifier().serverid());
 		reply->set_hash("TEST");
 		reply->set_userid(11);
 		reply->set_result(LoginResponse_LoginResult_PASSED);

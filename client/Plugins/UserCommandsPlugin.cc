@@ -56,8 +56,7 @@ void UserCommandsPlugin::OnGameClientCommand(Q3EventArgs *e) {
 
 	if(isRsCommand) {
 		cmdReq = new ClientCommandRequest();
-		cmdReq->mutable_identifier()->set_playernum(cl->GetPlayernum());
-		cmdReq->mutable_identifier()->set_uniqueid(cl->GetUniqueId());
+		cl->WriteIdentifier(cmdReq->mutable_identifier());
 		cmdReq->set_command(arg);
 
 		cmdRes = new ClientCommandResponse();

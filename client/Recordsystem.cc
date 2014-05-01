@@ -284,15 +284,15 @@ bool Recordsystem::GameInit(int levelTime, int randomSeed, int restart) {
 
 
 		/* TODO: remove TEST SQLITE */
-		/*sqlite3_stmt *stmt = gRecordsystem->DB()->QueryStmt("INSERT INTO serverdemos (mapname, mode, physic, userid, mstime) VALUES (?, 1, 1, 1, 1000)");
-		gRecordsystem->DB()->BindString(stmt, (const char *)e->GetParamVMA(0), strlen((const char *)e->GetParamVMA(0)));
+		//sqlite3_stmt *stmt = gRecordsystem->DB()->QueryStmt("INSERT INTO serverdemos (mapname, mode, physic, userid, mstime) VALUES (?, 1, 1, 1, 1000)");
+		//gRecordsystem->DB()->BindString(stmt, (const char *)e->GetParamVMA(0), strlen((const char *)e->GetParamVMA(0)));
+		//
+		//if(gRecordsystem->DB()->StmtStep(stmt) != SQLITE_DONE)
+		//	gRecordsystem->GetSyscalls()->Print("QueryFehler!!!!!!!!!!\n");
 
-		if(gRecordsystem->DB()->StmtStep(stmt) != SQLITE_DONE)
-			gRecordsystem->GetSyscalls()->Print("QueryFehler!!!!!!!!!!\n");
-		
-		EXECUTE_API_ASYNC(&Q3dfApi_Stub::Printf, pRequest, itemRes, NULL);*/
+		EXECUTE_API_ASYNC(&Q3dfApi_Stub::Printf, pRequest, itemRes, NULL);
 	}));
-	
+
 	return true;
 }
 

@@ -13,7 +13,6 @@ message ServerRegisterRequest {
 	required int32 serverId = 1;
 	required int32 serverKey = 2;
 	required string serverInfoString = 3;
-	required string serverInfoString = 3;
 }
 
 message ServerRegisterResponse {
