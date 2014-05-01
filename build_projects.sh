@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cp ./rbnf.cpp.patched tools/icu/source/i18n/rbnf.cpp
+
 if [ -z "$1" ]; then
   echo "ERROR: Please specify a build target: Debug or Release"
 else
