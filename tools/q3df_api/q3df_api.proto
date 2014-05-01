@@ -1,12 +1,23 @@
 package service;
 option cc_generic_services = true;
 
-message Identifier {
-	required int32 playernum = 1;
-	required int32 uniqueId = 2;
+message NullResponse {
 }
 
-message NullResponse {
+message Identifier {
+	required int32 serverId = 1;
+	required int32 playernum = 2;
+}
+
+message ServerRegisterRequest {
+	required int32 serverId = 1;
+	required int32 serverKey = 2;
+	required string serverInfoString = 3;
+	required string serverInfoString = 3;
+}
+
+message ServerRegisterResponse {
+
 }
 
 message RecordRequest {

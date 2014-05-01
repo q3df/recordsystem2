@@ -4,7 +4,7 @@
 		'type': 'shared_library',
 		'msvs_guid': '905C1895-E657-4584-B1C9-C8642BDA8523',
 		'dependencies': [
-			'tools/libxml/libxml.gyp:libxml',
+			'tools/sqlite/sqlite.gyp:sqlite',
 			'tools/pthreads-win32/pthread.gyp:pthreads',
 			'tools/q3df_api/q3df_api.gyp:q3df_api',
 			'tools/protobuf/protobuf.gyp:protobuf_full_do_not_use'
@@ -14,7 +14,9 @@
 		'include_dirs': [
 			'tools/protobuf/src/',
 			'tools/utf8/',
-			'tools/q3df_api/'
+			'tools/q3df_api/',
+			'tools/protobuf/third_party/snappy/',
+			'tools/protobuf/third_party/tinyxml/include/'
 		],
 		'sources': [
 			'client/Q3Vm.cc',
@@ -48,6 +50,8 @@
 			'client/Plugins/ServerDemosPlugin.cc',
 			'client/Plugins/ServerRecordsPlugin.cc',
 			'client/Plugins/UserCommandsPlugin.cc',
+			'client/SqliteDatabase.cc',
+			'client/SqliteDatabase.h',
 		],
 		'conditions': [
 			['OS=="linux"', {
@@ -89,6 +93,7 @@
 			'tools/pthreads-win32/pthread.gyp:pthreads',
 			'tools/q3df_api/q3df_api.gyp:q3df_api',
 			'tools/protobuf/protobuf.gyp:protobuf_full_do_not_use',
+			'tools/sqlite/sqlite.gyp:sqlite',
 		],
 		'defines': [
 		],

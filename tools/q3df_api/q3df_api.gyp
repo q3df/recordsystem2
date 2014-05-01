@@ -4,7 +4,7 @@
 		'type': 'static_library',
 		'msvs_guid': 'EEE489A6-F54C-4A20-945F-326EAB9654E0',
 		'dependencies': [
-			'../protobuf/protobuf.gyp:protoc'
+			'../protobuf/protobuf.gyp:protoc',
 		],
 		'defines': [
 		],

@@ -74,10 +74,16 @@ Recordsystem::~Recordsystem() {
 	cvarList_.clear();
 	pluginList_.clear();
 	userList_.clear();
+
+	delete db_;
 }
 
 ApiAsyncExecuter *Recordsystem::GetAsyncExecuter() {
 	return asyncExec_;
+}
+
+SqliteDatabase *Recordsystem::DB() {
+	return this->db_;
 }
 
 Q3dfApi_Stub *Recordsystem::GetQ3dfApi() {
@@ -240,6 +246,7 @@ bool Recordsystem::GameInit(int levelTime, int randomSeed, int restart) {
 	PluginBase *pBase;
 	int i;
 
+	db_ = new SqliteDatabase("template.db");
 	GetSyscalls()->Print("------- Recordsystem initilizing -------\n");
 
 	for(i = 0; i<gPluginStore.GetCount(); i++) {
@@ -275,9 +282,17 @@ bool Recordsystem::GameInit(int levelTime, int randomSeed, int restart) {
 		pRequest->set_msg((const char *)e->GetParamVMA(0));
 		NullResponse *itemRes = new NullResponse();
 
-		EXECUTE_API_ASYNC(&Q3dfApi_Stub::Printf, pRequest, itemRes, NULL);
-	}));
 
+		/* TODO: remove TEST SQLITE */
+		/*sqlite3_stmt *stmt = gRecordsystem->DB()->QueryStmt("INSERT INTO serverdemos (mapname, mode, physic, userid, mstime) VALUES (?, 1, 1, 1, 1000)");
+		gRecordsystem->DB()->BindString(stmt, (const char *)e->GetParamVMA(0), strlen((const char *)e->GetParamVMA(0)));
+
+		if(gRecordsystem->DB()->StmtStep(stmt) != SQLITE_DONE)
+			gRecordsystem->GetSyscalls()->Print("QueryFehler!!!!!!!!!!\n");
+		
+		EXECUTE_API_ASYNC(&Q3dfApi_Stub::Printf, pRequest, itemRes, NULL);*/
+	}));
+	
 	return true;
 }
 
