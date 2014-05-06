@@ -32,9 +32,11 @@ extern "C" {
 
 int main(int argc, char **argv) {
 #ifdef WIN32
-	gConsole = new ConsoleWin32();
+	ConsoleWin32 *con = new ConsoleWin32();
+	gConsole = con;
 #else
-	gConsole = new ConsoleTty();
+	ConsoleTty *con = new ConsoleTty();
+	gConsole = con;
 #endif
 
 	GoogleOnceInit(&gEnvQ3dfInitOnce, InitQ3dfEnv);
@@ -67,6 +69,6 @@ int main(int argc, char **argv) {
 	gConsole->PrintInfo(va("Shutingdown now...\n"));
 	Sleep(1000);
 
-	delete gConsole;
+	delete con;
 	return 0;
 }
