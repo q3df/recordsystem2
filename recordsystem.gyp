@@ -107,6 +107,10 @@
 			'server/RecordsystemDaemon.h',
 			'server/Console.cc',
 			'server/Console.h',
+			'server/Q3dfEnv.cc',
+			'server/Q3dfEnv.h',
+			'server/Q3dfApiImpl.cc',
+			'server/Q3dfApiImpl.h',
 		],
 		'conditions': [
 			['OS=="linux"', {

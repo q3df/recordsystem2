@@ -4,6 +4,7 @@
 ConsoleTty *gCon = NULL;
 
 extern "C" {
+	const char *va( const char *format, ... );
 	static void SigCont(int signum) {
 		gCon->Init();
 	}
@@ -215,7 +216,55 @@ void ConsoleTty::Print(const char *msg) {
 		return;
 
 	Hide();
-	AnsiColorPrint(msg);
+	AnsiColorPrint(va("^7[^5Q3df^7]: %s", msg));
+
+	if (!ttycon_on_)
+		return;
+
+	// Only print prompt when msg ends with a newline, otherwise the console
+	//   might get garbled when output does not fit on one line.
+	if (msg[strlen(msg) - 1] == '\n') {
+		Show();
+
+		// Run CON_Show the number of times it was deferred.
+		while (ttycon_show_overdue_ > 0) {
+			Show();
+			ttycon_show_overdue_--;
+		}
+	} else // Defer calling CON_Show
+		ttycon_show_overdue_++;
+}
+
+void ConsoleTty::PrintInfo(const char *msg) {
+	if (!msg[0])
+		return;
+
+	Hide();
+	AnsiColorPrint(va("^7[^3Q3df::Info^7]: %s", msg));
+
+	if (!ttycon_on_)
+		return;
+
+	// Only print prompt when msg ends with a newline, otherwise the console
+	//   might get garbled when output does not fit on one line.
+	if (msg[strlen(msg) - 1] == '\n') {
+		Show();
+
+		// Run CON_Show the number of times it was deferred.
+		while (ttycon_show_overdue_ > 0) {
+			Show();
+			ttycon_show_overdue_--;
+		}
+	} else // Defer calling CON_Show
+		ttycon_show_overdue_++;
+}
+
+void ConsoleTty::PrintError(const char *msg) {
+	if (!msg[0])
+		return;
+
+	Hide();
+	AnsiColorPrint(va("^7[^1Q3df::Error^7]: %s", msg));
 
 	if (!ttycon_on_)
 		return;

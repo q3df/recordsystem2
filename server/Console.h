@@ -31,6 +31,9 @@ public:
 
 	virtual char *Input() = 0;
 	virtual void Print(const char *msg) = 0;
+	virtual void PrintInfo(const char *msg) = 0;
+	virtual void PrintError(const char *msg) = 0;
+
 
 protected:
 	virtual void Show() = 0;

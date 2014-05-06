@@ -21,7 +21,7 @@ typedef struct {
 // This is somewhat of aduplicate of the graphical console history
 // but it's safer more modular to have our own here
 #define CON_HISTORY 32
-#define TTY_CONSOLE_PROMPT "tty]"
+#define TTY_CONSOLE_PROMPT "> "
 
 extern "C" {
 	const char *va( const char *format, ... );
@@ -34,6 +34,9 @@ public:
 
 	virtual char *Input();
 	virtual void Print(const char *msg);
+	virtual void PrintInfo(const char *msg);
+	virtual void PrintError(const char *msg);
+
 	void Init();
 
 protected:

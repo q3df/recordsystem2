@@ -13,7 +13,7 @@ ConsoleWin32::ConsoleWin32() {
 	CONSOLE_SCREEN_BUFFER_INFO info;
 
 	// handle Ctrl-C or other console termination
-	//SetConsoleCtrlHandler(CtrlHandler, TRUE);
+	// SetConsoleCtrlHandler(CtrlHandler, TRUE);
 
 	qconsole_hin_ = GetStdHandle(STD_INPUT_HANDLE);
 	if(qconsole_hin_ == INVALID_HANDLE_VALUE)
@@ -46,6 +46,8 @@ ConsoleWin32::ConsoleWin32() {
 
 	// set text color to white
 	SetConsoleTextAttribute(qconsole_hout_, ColorCharToAttrib(COLOR_WHITE));
+
+	Show();
 }
 	
 ConsoleWin32::~ConsoleWin32() {
@@ -147,7 +149,7 @@ char *ConsoleWin32::Input() {
 
 		if( qconsole_linelen_ < sizeof(qconsole_line_) - 1 ) {
 			char c = buff[ i ].Event.KeyEvent.uChar.AsciiChar;
-
+			
 			if( key == VK_BACK) {
 				int pos = (qconsole_linelen_ > 0) ? qconsole_linelen_ - 1 : 0;
 
@@ -164,8 +166,21 @@ char *ConsoleWin32::Input() {
 					qconsole_linelen_ = pos;
 				}
 			} else if(c) {
-				qconsole_line_[qconsole_linelen_++] = c;
-				qconsole_line_[qconsole_linelen_] = '\0'; 
+				if(qconsole_cursor_pos_offset_ > 0) {
+					int pos = qconsole_linelen_ > 0 ? qconsole_linelen_ : 0;
+
+					if( (qconsole_linelen_ - qconsole_cursor_pos_offset_) >= 0) {
+						for(z=pos; z >= (pos-qconsole_cursor_pos_offset_); z--)
+							qconsole_line_[z+1] = qconsole_line_[z];
+
+						qconsole_line_[pos-qconsole_cursor_pos_offset_] = c;
+						qconsole_linelen_++;
+						qconsole_line_[qconsole_linelen_] = '\0';
+					}
+				}else{
+					qconsole_line_[qconsole_linelen_++] = c;
+					qconsole_line_[qconsole_linelen_] = '\0';
+				}
 			}
 		}
 	}
@@ -177,7 +192,7 @@ char *ConsoleWin32::Input() {
 
 	if(!qconsole_linelen_) {
 		Show();
-		Print( "\n" );
+		PrintInput( "\n" );
 		return NULL;
 	}
 
@@ -186,14 +201,32 @@ char *ConsoleWin32::Input() {
 	Show();
 
 	HistAdd();
-	Print(va("%s\n", qconsole_line_));
+	PrintInput(va("%s\n", qconsole_line_));
 
 	return qconsole_line_;
 }
 	
 void ConsoleWin32::Print(const char *msg) {
 	this->Hide();
-	this->WindowsColorPrint( msg );
+	this->WindowsColorPrint( va("^7[^5Q3df ^7]: %s", msg) );
+	this->Show();
+}
+
+void ConsoleWin32::PrintInput(const char *msg) {
+	this->Hide();
+	this->WindowsColorPrint( va("^5>^7 %s", msg) );
+	this->Show();
+}
+
+void ConsoleWin32::PrintInfo(const char *msg) {
+	this->Hide();
+	this->WindowsColorPrint( va("^7[^3Info ^7]^7: %s", msg) );
+	this->Show();
+}
+
+void ConsoleWin32::PrintError(const char *msg) {
+	this->Hide();
+	this->WindowsColorPrint( va("^7[^1Error^7]^7: %s", msg) );
 	this->Show();
 }
 
@@ -206,6 +239,7 @@ void ConsoleWin32::Show() {
 	int i;
 	CHAR_INFO line[MAX_EDIT_LINE];
 	WORD attrib;
+	int realI = 0;
 
 	GetConsoleScreenBufferInfo(qconsole_hout_, &binfo);
 
@@ -223,11 +257,26 @@ void ConsoleWin32::Show() {
 
 	// build a space-padded CHAR_INFO array
 	for( i = 0; i < MAX_EDIT_LINE; i++ ) {
-		if(i < qconsole_linelen_) {
-			if(Q_IsColorString(qconsole_line_ + i))
-				attrib = ColorCharToAttrib( *(qconsole_line_ + i + 1) );
+		if(this->printPrompt_)
+			realI = i-2;
+		else
+			realI = i;
 
-			line[i].Char.AsciiChar = qconsole_line_[i];
+		if( (i == 0 || i == 1) && this->printPrompt_ ) {
+			if(i == 0) {
+				const char *tmp = "5";
+				attrib = ColorCharToAttrib(*tmp);
+				line[i].Char.AsciiChar = '>';
+			}else{
+				const char *tmp = "7";
+				attrib = ColorCharToAttrib(*tmp);
+				line[i].Char.AsciiChar = ' ';
+			}
+		}else if(realI < qconsole_linelen_) {
+			if(Q_IsColorString(qconsole_line_ + realI))
+				attrib = ColorCharToAttrib( *(qconsole_line_ + realI + 1) );
+
+			line[i].Char.AsciiChar = qconsole_line_[realI];
 		} else
 			line[i].Char.AsciiChar = ' ';
 
@@ -242,6 +291,8 @@ void ConsoleWin32::Show() {
 	// set curor position
 	cursorPos.Y = binfo.dwCursorPosition.Y;
 	cursorPos.X = qconsole_linelen_ > binfo.srWindow.Right ? binfo.srWindow.Right : qconsole_linelen_-qconsole_cursor_pos_offset_;
+	if(this->printPrompt_)
+		cursorPos.X += 2;
 
 	SetConsoleCursorPosition(qconsole_hout_, cursorPos);
 }
@@ -249,11 +300,12 @@ void ConsoleWin32::Show() {
 void ConsoleWin32::Hide() {
 	int realLen;
 	realLen = qconsole_linelen_;
-
+	printPrompt_ = false;
 	// remove input line from console output buffer
 	qconsole_linelen_ = 0;
 	Show();
 
+	this->printPrompt_ = true;
 	qconsole_linelen_ = realLen;
 }
 

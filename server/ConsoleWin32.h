@@ -16,7 +16,11 @@ public:
 
 	virtual char *Input();
 	virtual void Print(const char *msg);
+	virtual void PrintInfo(const char *msg);
+	virtual void PrintError(const char *msg);
+	
 protected:
+	virtual void PrintInput(const char *msg);
 	virtual void Show();
 	virtual void Hide();
 
@@ -42,6 +46,7 @@ private:
 	int qconsole_linelen_;
 	bool qconsole_drawinput_;
 	int qconsole_cursor_pos_offset_;
+	bool printPrompt_;
 
 	HANDLE qconsole_hout_;
 	HANDLE qconsole_hin_;
