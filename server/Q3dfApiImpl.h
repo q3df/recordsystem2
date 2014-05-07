@@ -31,12 +31,12 @@ public:
 		reply->mutable_identifier()->set_playernum(args->identifier().playernum());
 		reply->mutable_identifier()->set_serverid(args->identifier().serverid());
 
-		reply->set_messagetoprint(va("^7[^1Q3df::Error^7]: command '%s' not implemented bla", args->command().c_str()));
+		reply->set_messagetoprint(va("command '%s' not implemented bla", args->command().c_str()));
 		return Error::Nil();
 	}
 
 	virtual const Error Printf(const PrintfRequest* args, NullResponse* reply) {
-		this->con->Print(va("^7[^3Q3df^7]: %s", args->msg().c_str()));
+		this->con->Print(va("CL(%s): %s", ((Conn *)args->TagObj)->RemoteIpAdress(), args->msg().c_str()));
 		return Error::Nil();
 	}
 
@@ -50,8 +50,8 @@ public:
 	}
 
 	virtual const Error SaveRecord(const RecordRequest* request, NullResponse* response) {
-		this->con->Print(
-			va("^7[^3Q3df::Info^7]: RECORD %s %s %i\n",
+		this->con->PrintInfo(
+			va("RECORD %s %s %i\n",
 				request->mapname().c_str(),
 				request->name().c_str(),
 				request->mstime()

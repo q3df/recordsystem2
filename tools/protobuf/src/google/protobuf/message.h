@@ -168,7 +168,7 @@ struct Metadata {
 // the optimize_for option in descriptor.proto.
 class LIBPROTOBUF_EXPORT Message : public MessageLite {
  public:
-  inline Message() {}
+  inline Message() { TagObj = NULL; }
   virtual ~Message();
 
   // Basic Operations ------------------------------------------------
@@ -284,6 +284,8 @@ class LIBPROTOBUF_EXPORT Message : public MessageLite {
   virtual void SetCachedSize(int size) const;
 
  public:
+  // tag obj.
+  void *TagObj;
 
   // Introspection ---------------------------------------------------
 

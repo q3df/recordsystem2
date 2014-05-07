@@ -6,4 +6,5 @@ using namespace ::service;
 
 void InitQ3dfEnv() {
 	gEnvQ3df = new Q3dfEnv(gConsole);
+
 }

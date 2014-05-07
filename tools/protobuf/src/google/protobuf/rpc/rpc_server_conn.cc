@@ -80,7 +80,11 @@ Error ServerConn::ProcessOneCall(Conn* receiver) {
   }
 
   // 5. call method
+  request->TagObj = receiver;
+  response->TagObj = receiver;
   auto rv = service->CallMethod(method, request, response);
+  request->TagObj = NULL;
+  response->TagObj = NULL;
 
   // 6. send response
   err = wire::SendResponse(receiver, reqHeader.id(), rv.String(), response);

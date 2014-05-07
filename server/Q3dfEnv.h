@@ -16,9 +16,10 @@ void InitQ3dfEnv();
 class Q3dfEnv : public Env {
 private:
 	Console *con_;
+	void (*callbackDisconnect_)(Conn *con);
 
 public:
-	Q3dfEnv(Console *con) { con_ = con; }
+	Q3dfEnv(Console *con) { con_ = con; callbackDisconnect_ = NULL; }
 	~Q3dfEnv() { exit(1); }
 
 	// Write an entry to the log file with the specified format.
@@ -27,11 +28,16 @@ public:
 		char buffer[kBufSize+1];
 		int written = vsnprintf(buffer, kBufSize, format, ap);
 		buffer[kBufSize] = '\0';
-		con_->Print(va("^1ERROR^7 Q3dfEnv: %s", buffer));
+		con_->PrintError(va("Q3dfEnv: %s", buffer));
+	}
+
+	virtual void SetDisconnectCallback(void (*callbackDisconnect)(Conn *con)) {
+		this->callbackDisconnect_ = callbackDisconnect;
 	}
 
 	virtual void ClientDisconnect(Conn *con) {
-		con_->Print(va("^3INFO^7 Q3dfEnv: client %s disconnected\n", con->RemoteIpAdress()));
+		con_->PrintInfo(va("Q3dfEnv: client %s disconnected\n", con->RemoteIpAdress()));
+		if(callbackDisconnect_ != NULL) callbackDisconnect_(con);
 	}
 };
 

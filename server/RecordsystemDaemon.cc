@@ -3,10 +3,13 @@
 #include "Q3dfApiImpl.h"
 #include <google/protobuf/rpc/rpc_server.h>
 #include <google/protobuf/rpc/rpc_client.h>
+#include <list>
 
 using namespace ::google::protobuf;
 using namespace ::google::protobuf::rpc;
 using namespace ::service;
+
+std::list<Conn *> clientList;
 
 Console *gConsole;
 Env *gEnvQ3df;
@@ -30,6 +33,10 @@ extern "C" {
 	}
 }
 
+void clientDisconnected(Conn *con) {
+	clientList.remove(con);
+}
+
 int main(int argc, char **argv) {
 #ifdef WIN32
 	ConsoleWin32 *con = new ConsoleWin32();
@@ -41,6 +48,8 @@ int main(int argc, char **argv) {
 
 	GoogleOnceInit(&gEnvQ3dfInitOnce, InitQ3dfEnv);
 
+	((Q3dfEnv *)gEnvQ3df)->SetDisconnectCallback(clientDisconnected);
+
 	Server server(gEnvQ3df);
 	server.AddService(new Q3dfApiImpl(gConsole), true);
 	server.ListenTCP(1234);
@@ -50,17 +59,19 @@ int main(int argc, char **argv) {
 		if(cmd && !strncmp(cmd, "exit", 4)) {
 			break;
 		} else if(cmd && !strncmp(cmd, "status", 5)) {
-			gConsole->Print("connected clients:\n");
-			gConsole->Print("^3------------------------------\n");
-			gConsole->PrintInfo("huhuhuhuhuhuhuhuhuh\n");
-			gConsole->PrintError("could not read from file xyz...\n");
+			gConsole->Print(va("%i client(s) connected:\n", clientList.size()));
+			gConsole->Print("^3------------------------------^7\n");
+			for (std::list<Conn *>::iterator it=clientList.begin(); it != clientList.end(); ++it)
+				gConsole->Print(va("    * %s\n", (*it)->RemoteIpAdress()));
 		}
 
 
 		Conn *conn = server.AcceptNonBlock();
 		if(conn) {
+			clientList.push_back(conn);
 			gConsole->Print(va("^7[^3Q3df^7]: Incoming connection from %s\n", conn->RemoteIpAdress()));
 			server.Serve(conn);
+			
 		}
 
 		Sleep(10);
