@@ -22,6 +22,8 @@ ConsoleTty::ConsoleTty() {
 	stdinIsATTY_ = isatty(STDIN_FILENO) &&	!(term && (!strcmp(term, "raw") || !strcmp(term, "dumb")));
 
 	Init();
+
+	this->Print("Console initialized...\n");
 }
 
 void ConsoleTty::Init() {
@@ -76,6 +78,7 @@ void ConsoleTty::Init() {
 }
 
 ConsoleTty::~ConsoleTty() {
+	this->Print("Shuting down console...\n");
 	if (ttycon_on_) {
 		Hide();
 		tcsetattr (STDIN_FILENO, TCSADRAIN, &TTY_tc_);
@@ -216,7 +219,7 @@ void ConsoleTty::Print(const char *msg) {
 		return;
 
 	Hide();
-	AnsiColorPrint(va("^7[^5Q3df^7]: %s", msg));
+	AnsiColorPrint(va("^7[^5Q3df ^7]: %s", msg));
 
 	if (!ttycon_on_)
 		return;
@@ -240,7 +243,7 @@ void ConsoleTty::PrintInfo(const char *msg) {
 		return;
 
 	Hide();
-	AnsiColorPrint(va("^7[^3Q3df::Info^7]: %s", msg));
+	AnsiColorPrint(va("^7[^3Info ^7]: %s", msg));
 
 	if (!ttycon_on_)
 		return;
@@ -264,7 +267,7 @@ void ConsoleTty::PrintError(const char *msg) {
 		return;
 
 	Hide();
-	AnsiColorPrint(va("^7[^1Q3df::Error^7]: %s", msg));
+	AnsiColorPrint(va("^7[^1Error^7]: %s", msg));
 
 	if (!ttycon_on_)
 		return;

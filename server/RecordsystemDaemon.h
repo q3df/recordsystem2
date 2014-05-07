@@ -17,7 +17,7 @@ using namespace ::service;
 #else
 #	include <unistd.h>
 #	include "ConsoleTty.h"
-#	define Sleep usleep
+#	define Sleep(x) usleep(x*1000)
 #endif
 
 extern Console *gConsole;
