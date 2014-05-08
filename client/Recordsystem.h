@@ -90,7 +90,7 @@ extern Recordsystem *gRecordsystem;
 
 #define RS_BEFORE_AddEventHandler(type, instance, func) \
 	{ \
-		auto tmpFunc = std::bind(& ## func, instance, std::placeholders::_1); \
+		auto tmpFunc = std::bind(&func, instance, std::placeholders::_1); \
 		gRecordsystem->AddEventHandler(new Q3EventHandler(type, EXECUTE_TYPE_BEFORE, tmpFunc)); \
 	}
 
@@ -101,7 +101,7 @@ extern Recordsystem *gRecordsystem;
 
 #define RS_AFTER_AddEventHandler(type, instance, func) \
 	{ \
-		auto tmpFunc = std::bind(& ## func, instance, std::placeholders::_1); \
+		auto tmpFunc = std::bind(&func, instance, std::placeholders::_1); \
 		gRecordsystem->AddEventHandler(new Q3EventHandler(type, EXECUTE_TYPE_AFTER, tmpFunc)); \
 	}
 
@@ -112,7 +112,7 @@ extern Recordsystem *gRecordsystem;
 
 #define VM_BEFORE_AddEventHandler(type, instance, func) \
 	{ \
-		auto tmpFunc = std::bind(& ## func, instance, std::placeholders::_1); \
+		auto tmpFunc = std::bind(&func, instance, std::placeholders::_1); \
 		gRecordsystem->GetVmSyscalls()->AddEventHandler(new Q3EventHandler(type, EXECUTE_TYPE_BEFORE, tmpFunc)); \
 	}
 
@@ -123,7 +123,7 @@ extern Recordsystem *gRecordsystem;
 
 #define VM_AFTER_AddEventHandler(type, instance, func) \
 	{ \
-		auto tmpFunc = std::bind(& ## func, instance, std::placeholders::_1); \
+		auto tmpFunc = std::bind(&func, instance, std::placeholders::_1); \
 		gRecordsystem->GetVmSyscalls()->AddEventHandler(new Q3EventHandler(type, EXECUTE_TYPE_AFTER, tmpFunc)); \
 	}
 
