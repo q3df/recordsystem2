@@ -112,7 +112,7 @@ void Env::BGThread() {
 		queue_.pop_front();
   
 		PthreadCall("unlock", pthread_mutex_unlock(&mu_));
-		(*function)(arg);
+		this->StartThread(function, arg);
 	}
 }
 

@@ -33,9 +33,9 @@ public:
 	~ConsoleTty();
 
 	virtual char *Input();
-	virtual void Print(const char *msg);
-	virtual void PrintInfo(const char *msg);
-	virtual void PrintError(const char *msg);
+	virtual void Print(const char *msg, ...);
+	virtual void PrintInfo(const char *msg, ...);
+	virtual void PrintError(const char *msg, ...);
 
 	void Init();
 

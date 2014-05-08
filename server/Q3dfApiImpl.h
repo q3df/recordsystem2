@@ -15,7 +15,7 @@ private:
 
 public:
 	inline Q3dfApiImpl(Console *con) : con(con) {}
-	virtual ~Q3dfApiImpl() {}
+	virtual ~Q3dfApiImpl() { con = NULL; }
 
 	virtual const Error ClientConnected(const ClientInfoRequest* args, NullResponse* reply) {
 		//printf("clientConnected: pl=%i\n", args->identifier().playernum());

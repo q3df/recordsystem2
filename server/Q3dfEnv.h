@@ -28,7 +28,7 @@ public:
 		char buffer[kBufSize+1];
 		int written = vsnprintf(buffer, kBufSize, format, ap);
 		buffer[kBufSize] = '\0';
-		con_->PrintError(va("Q3dfEnv: %s", buffer));
+		con_->PrintError("Q3dfEnv: %s", buffer);
 	}
 
 	virtual void SetDisconnectCallback(void (*callbackDisconnect)(Conn *con)) {
@@ -36,7 +36,7 @@ public:
 	}
 
 	virtual void ClientDisconnect(Conn *con) {
-		con_->PrintInfo(va("Q3dfEnv: client %s disconnected\n", con->RemoteIpAdress()));
+		con_->PrintInfo("Q3dfEnv: client %s disconnected\n", con->RemoteIpAdress());
 		if(callbackDisconnect_ != NULL) callbackDisconnect_(con);
 	}
 };

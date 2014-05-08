@@ -3,6 +3,8 @@
 
 #include <string>
 #include <stdarg.h>
+#include <pthread.h>
+#include <cstdarg>
 
 #define	MAXPRINTMSG	4096
 #define QCONSOLE_HISTORY 32
@@ -30,14 +32,18 @@ public:
 	~Console();
 
 	virtual char *Input() = 0;
-	virtual void Print(const char *msg) = 0;
-	virtual void PrintInfo(const char *msg) = 0;
-	virtual void PrintError(const char *msg) = 0;
+	virtual void Print(const char *msg, ...) = 0;
+	virtual void PrintInfo(const char *msg, ...) = 0;
+	virtual void PrintError(const char *msg, ...) = 0;
 
 
 protected:
+	pthread_mutex_t mtx_;
 	virtual void Show() = 0;
 	virtual void Hide() = 0;
+	virtual void Lock();
+	virtual void Unlock();
+	virtual const char *va(const char *msg, ...);
 
 private:
 

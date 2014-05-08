@@ -4,7 +4,6 @@
 ConsoleTty *gCon = NULL;
 
 extern "C" {
-	const char *va( const char *format, ... );
 	static void SigCont(int signum) {
 		gCon->Init();
 	}
@@ -214,12 +213,23 @@ char *ConsoleTty::Input() {
 	return NULL;
 }
 
-void ConsoleTty::Print(const char *msg) {
+void ConsoleTty::Print(const char *msg, ...) {
 	if (!msg[0])
 		return;
 
+	this->Lock();
+
+	va_list argptr;
+	static char	string[32000];
+	static int index = 0;
+
+	memset(&string, 0, sizeof(string));
+	va_start (argptr, msg);
+	vsprintf (string, msg, argptr);
+	va_end (argptr);
+
 	Hide();
-	AnsiColorPrint(va("^7[^5Q3df ^7]: %s", msg));
+	AnsiColorPrint(va("^7[^5Q3df ^7]: %s", string));
 
 	if (!ttycon_on_)
 		return;
@@ -236,14 +246,26 @@ void ConsoleTty::Print(const char *msg) {
 		}
 	} else // Defer calling CON_Show
 		ttycon_show_overdue_++;
+
+	this->Unlock();
 }
 
-void ConsoleTty::PrintInfo(const char *msg) {
+void ConsoleTty::PrintInfo(const char *msg, ...) {
 	if (!msg[0])
 		return;
+	this->Lock();
+
+	va_list argptr;
+	static char	string[32000];
+	static int index = 0;
+
+	memset(&string, 0, sizeof(string));
+	va_start (argptr, msg);
+	vsprintf (string, msg, argptr);
+	va_end (argptr);
 
 	Hide();
-	AnsiColorPrint(va("^7[^3Info ^7]: %s", msg));
+	AnsiColorPrint(va("^7[^3Info ^7]: %s", string));
 
 	if (!ttycon_on_)
 		return;
@@ -260,14 +282,27 @@ void ConsoleTty::PrintInfo(const char *msg) {
 		}
 	} else // Defer calling CON_Show
 		ttycon_show_overdue_++;
+
+	this->Unlock();
 }
 
-void ConsoleTty::PrintError(const char *msg) {
+void ConsoleTty::PrintError(const char *msg, ...) {
 	if (!msg[0])
 		return;
 
+	this->Lock();
+
+	va_list argptr;
+	static char	string[32000];
+	static int index = 0;
+
+	memset(&string, 0, sizeof(string));
+	va_start (argptr, msg);
+	vsprintf (string, msg, argptr);
+	va_end (argptr);
+
 	Hide();
-	AnsiColorPrint(va("^7[^1Error^7]: %s", msg));
+	AnsiColorPrint(va("^7[^1Error^7]: %s", string));
 
 	if (!ttycon_on_)
 		return;
@@ -284,6 +319,8 @@ void ConsoleTty::PrintError(const char *msg) {
 		}
 	} else // Defer calling CON_Show
 		ttycon_show_overdue_++;
+
+	this->Unlock();
 }
 
 void ConsoleTty::Show() {

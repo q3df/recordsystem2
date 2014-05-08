@@ -2,7 +2,6 @@
 #include <Windows.h>
 #include <stdio.h>
 
-
 ConsoleWin32::ConsoleWin32() {
 	int i = 0;
 
@@ -201,33 +200,78 @@ char *ConsoleWin32::Input() {
 	Show();
 
 	HistAdd();
-	PrintInput(va("%s\n", qconsole_line_));
+	PrintInput("%s\n", qconsole_line_);
 
 	return qconsole_line_;
 }
-	
-void ConsoleWin32::Print(const char *msg) {
+
+void ConsoleWin32::Print(const char *msg, ...) {
+	this->Lock();
+	va_list argptr;
+	static char	string[32000];
+	static int index = 0;
+
+	memset(&string, 0, sizeof(string));
+	va_start (argptr, msg);
+	vsprintf (string, msg, argptr);
+	va_end (argptr);
+
 	this->Hide();
-	this->WindowsColorPrint( va("^7[^5Q3df ^7]: %s", msg) );
+	this->WindowsColorPrint( this->va("^7[^5Q3df ^7]: %s", string) );
 	this->Show();
+
+	this->Unlock();
 }
 
-void ConsoleWin32::PrintInput(const char *msg) {
+void ConsoleWin32::PrintInput(const char *msg, ...) {
+	this->Lock();
+	va_list argptr;
+	static char	string[32000];
+	static int index = 0;
+
+	memset(&string, 0, sizeof(string));
+	va_start (argptr, msg);
+	vsprintf (string, msg, argptr);
+	va_end (argptr);
+
 	this->Hide();
-	this->WindowsColorPrint( va("^5>^7 %s", msg) );
+	this->WindowsColorPrint( this->va("^5>^7 %s", string) );
 	this->Show();
+	this->Unlock();
 }
 
-void ConsoleWin32::PrintInfo(const char *msg) {
+void ConsoleWin32::PrintInfo(const char *msg, ...) {
+	this->Lock();
+	va_list argptr;
+	static char	string[32000];
+	static int index = 0;
+
+	memset(&string, 0, sizeof(string));
+	va_start (argptr, msg);
+	vsprintf (string, msg, argptr);
+	va_end (argptr);
+
 	this->Hide();
-	this->WindowsColorPrint( va("^7[^3Info ^7]^7: %s", msg) );
+	this->WindowsColorPrint( this->va("^7[^3Info ^7]^7: %s", string) );
 	this->Show();
+	this->Unlock();
 }
 
-void ConsoleWin32::PrintError(const char *msg) {
+void ConsoleWin32::PrintError(const char *msg, ...) {
+	this->Lock();
+	va_list argptr;
+	static char	string[32000];
+	static int index = 0;
+
+	memset(&string, 0, sizeof(string));
+	va_start (argptr, msg);
+	vsprintf (string, msg, argptr);
+	va_end (argptr);
+
 	this->Hide();
-	this->WindowsColorPrint( va("^7[^1Error^7]^7: %s", msg) );
+	this->WindowsColorPrint( this->va("^7[^1Error^7]^7: %s", string) );
 	this->Show();
+	this->Unlock();
 }
 
 void ConsoleWin32::Show() {

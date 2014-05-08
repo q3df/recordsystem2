@@ -15,12 +15,12 @@ public:
 	~ConsoleWin32();
 
 	virtual char *Input();
-	virtual void Print(const char *msg);
-	virtual void PrintInfo(const char *msg);
-	virtual void PrintError(const char *msg);
+	virtual void Print(const char *msg, ...);
+	virtual void PrintInfo(const char *msg, ...);
+	virtual void PrintError(const char *msg, ...);
 	
 protected:
-	virtual void PrintInput(const char *msg);
+	virtual void PrintInput(const char *msg, ...);
 	virtual void Show();
 	virtual void Hide();
 
