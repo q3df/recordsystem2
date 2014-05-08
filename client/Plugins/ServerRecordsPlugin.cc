@@ -10,14 +10,14 @@ private:
 
 public:
 	virtual void Init() {
+		VM_BEFORE_AddEventHandler(G_PRINT, this, ServerRecordsPlugin::OnGamePrint);
 		gRecordsystem->RegisterCvar((vmCvar_t *)&this->cvarRsEnabled, "rs_enabled", "0", 0, qfalse);
-
-		auto onGamePrintHandler = std::bind(&ServerRecordsPlugin::OnGamePrint, this, std::placeholders::_1);
-		gRecordsystem->GetVmSyscalls()->AddEventHandler(new Q3EventHandler(G_PRINT, EXECUTE_TYPE_BEFORE, onGamePrintHandler));
 	}
 
 	virtual void Destroy() {
 	}
+
+	virtual const char *Name() { return "ServerRecordsPlugin"; }
 
 	virtual void OnGamePrint(Q3EventArgs *e) {
 		char checksum[1024];
@@ -29,20 +29,20 @@ public:
 		const char *msg = (const char *)e->GetParamVMA(0);
 
 		if(!strncmp("ClientTimerStop:", msg, 16) && cvarRsEnabled.integer == 1) {
-			int check_interferenceoff =  gRecordsystem->GetSyscalls()->CvarVariableIntegerValue("df_mp_interferenceOff");
-			int check_msec = gRecordsystem->GetSyscalls()->CvarVariableIntegerValue("pmove_msec");
-			int check_fixed = gRecordsystem->GetSyscalls()->CvarVariableIntegerValue("pmove_fixed");
-			int check_timescale = gRecordsystem->GetSyscalls()->CvarVariableIntegerValue("timescale");
-			int check_speed = gRecordsystem->GetSyscalls()->CvarVariableIntegerValue("g_speed");
-			int check_gravity = gRecordsystem->GetSyscalls()->CvarVariableIntegerValue("g_gravity");
-			int check_knockback = gRecordsystem->GetSyscalls()->CvarVariableIntegerValue("g_knockback");
+			int check_interferenceoff =  RS_Syscall->CvarVariableIntegerValue("df_mp_interferenceOff");
+			int check_msec = RS_Syscall->CvarVariableIntegerValue("pmove_msec");
+			int check_fixed = RS_Syscall->CvarVariableIntegerValue("pmove_fixed");
+			int check_timescale = RS_Syscall->CvarVariableIntegerValue("timescale");
+			int check_speed = RS_Syscall->CvarVariableIntegerValue("g_speed");
+			int check_gravity = RS_Syscall->CvarVariableIntegerValue("g_gravity");
+			int check_knockback = RS_Syscall->CvarVariableIntegerValue("g_knockback");
 
 			if(check_knockback != 1000 || check_gravity != 800 || check_speed != 320 || check_timescale != 1 || check_fixed != 1 || check_msec != 8 || check_interferenceoff != 3) {
-				gRecordsystem->GetSyscalls()->SendServerCommand(-1, "chat \"^7[^1Q3df::Error^7]: --------- Recordsystem ^1DISABLED^7! ----------\"");
-				gRecordsystem->GetSyscalls()->SendServerCommand(-1, "chat \"^7[^1Q3df::Error^7]: ---------- CHECK SERVER SETTINGS -------------\"");
-				gRecordsystem->GetSyscalls()->SendServerCommand(-1, "chat \"^7[^1Q3df::Error^7]: pmove_msec=8, pmove_fixed=1, timescale=1\"");
-				gRecordsystem->GetSyscalls()->SendServerCommand(-1, "chat \"^7[^1Q3df::Error^7]: g_speed=320, g_gravity=800, g_knockback=1000\"");
-				gRecordsystem->GetSyscalls()->SendServerCommand(-1, "chat \"^7[^1Q3df::Error^7]: df_mp_interferenceOff=3, sv_cheats=0\"");
+				RS_Syscall->SendServerCommand(-1, "chat \"^7[^1Q3df::Error^7]: --------- Recordsystem ^1DISABLED^7! ----------\"");
+				RS_Syscall->SendServerCommand(-1, "chat \"^7[^1Q3df::Error^7]: ---------- CHECK SERVER SETTINGS -------------\"");
+				RS_Syscall->SendServerCommand(-1, "chat \"^7[^1Q3df::Error^7]: pmove_msec=8, pmove_fixed=1, timescale=1\"");
+				RS_Syscall->SendServerCommand(-1, "chat \"^7[^1Q3df::Error^7]: g_speed=320, g_gravity=800, g_knockback=1000\"");
+				RS_Syscall->SendServerCommand(-1, "chat \"^7[^1Q3df::Error^7]: df_mp_interferenceOff=3, sv_cheats=0\"");
 			}else{
 				req = new RecordRequest();
 				nullRes = new NullResponse();
@@ -61,17 +61,18 @@ public:
 				req->set_obs_enabled(atoi(tokenizer->Argv(9)));
 				req->set_defrag_version(atoi(tokenizer->Argv(10)));
 
-				gRecordsystem->GetSyscalls()->CvarVariableStringBuffer("sv_mapChecksum", checksum, sizeof(checksum));
+				RS_Syscall->CvarVariableStringBuffer("sv_mapChecksum", checksum, sizeof(checksum));
 				req->set_map_checksum(checksum);
 
 				EXECUTE_API_ASYNC(&Q3dfApi_Stub::SaveRecord, req, nullRes, NULL);
 				delete tokenizer;
 			}
 		}else if(!strncmp("ClientTimerStop:", msg, 16) && cvarRsEnabled.integer == 0) {
-			gRecordsystem->GetSyscalls()->SendServerCommand(-1, "chat \"^7[^3Q3df::Info^7]: Recordsystem ^1DISABLED^7! (rs_enabled = 0)\"");
+			RS_Syscall->SendServerCommand(-1, "chat \"^7[^3Q3df::Info^7]: Recordsystem ^1DISABLED^7! (rs_enabled = 0)\"");
 		}
 	}
 };
 
+
 // Register plugin!
-static PluginProxy<ServerRecordsPlugin> gServerRecordsPlugin;
+RegisterPlugin(ServerRecordsPlugin);

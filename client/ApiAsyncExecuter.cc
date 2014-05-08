@@ -5,7 +5,7 @@ void ApiAsyncItem::ExecuteCallback() {
 	if(callback_)
 		callback_(replyMsg_, &error);
 	else if(!error.IsNil())
-		gRecordsystem->GetSyscalls()->PrintError(va("%s\n", error.String().c_str()));
+		RS_PrintError(va("%s\n", error.String().c_str()));
 }
 
 ApiAsyncExecuter::ApiAsyncExecuter() : stoppingThread_(false) {
@@ -28,10 +28,10 @@ ApiAsyncExecuter::~ApiAsyncExecuter() {
 	pthread_mutex_destroy(&mutex2_);
 
 	if(!itemsThread_.empty())
-		gRecordsystem->GetSyscalls()->PrintWarning("ApiAsyncExecuter.~ApiAsyncExecuter.itemsThread is not empty!\n");
+		RS_PrintWarning("ApiAsyncExecuter.~ApiAsyncExecuter.itemsThread is not empty!\n");
 
 	if(!itemsMainThread_.empty())
-		gRecordsystem->GetSyscalls()->PrintWarning("ApiAsyncExecuter.~ApiAsyncExecuter.itemsMainThread is not empty!\n");
+		RS_PrintWarning("ApiAsyncExecuter.~ApiAsyncExecuter.itemsMainThread is not empty!\n");
 }
 
 void ApiAsyncExecuter::ExecuteAsync(ExecuterFunction item, ::google::protobuf::Message *replyMsg, ::google::protobuf::Message *sentMsg, ExecuterCallbackFunction callback) {

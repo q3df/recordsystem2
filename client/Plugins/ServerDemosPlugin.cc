@@ -28,7 +28,10 @@ public:
 
 	virtual void Destroy() {
 	}
+
+	virtual const char *Name() { return "ServerDemosPlugin"; }
 };
 
 // Register plugin!
-static PluginProxy<ServerDemosPlugin> gServerDemosPlugin;
+RegisterPlugin(ServerDemosPlugin);
+

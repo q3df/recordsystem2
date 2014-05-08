@@ -33,7 +33,7 @@ void Q3SysCall::AddEventHandler(Q3EventHandler *eventItem) {
 }
 
 void Q3SysCall::RemoveEventHandler(Q3EventHandler *eventItem) {
-	gRecordsystem->GetSyscalls()->PrintError("Q3SysCall::RemoveEvent not implemented\n");
+	RS_PrintError("Q3SysCall::RemoveEvent not implemented\n");
 }
 
 

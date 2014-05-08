@@ -22,38 +22,22 @@ private:
 public:
 	virtual void Init();
 	virtual void Destroy();
+	virtual const char *Name() { return "UserManagementPlugin"; }
 };
 
 void UserManagementPlugin::Init() {
+	RS_BEFORE_AddEventHandler(GAME_CLIENT_CONNECT, this, UserManagementPlugin::OnClientConnected);
+	RS_BEFORE_AddEventHandler(GAME_CLIENT_DISCONNECT, this, UserManagementPlugin::OnClientDisconnected);
+	RS_BEFORE_AddEventHandler(GAME_CLIENT_USERINFO_CHANGED, this, UserManagementPlugin::OnClientUserInfoChanged);
+	RS_BEFORE_AddEventHandler(GAME_CLIENT_BEGIN, this, UserManagementPlugin::OnClientBegin);
+	RS_BEFORE_AddEventHandler(G_GET_USERINFO, this, UserManagementPlugin::OnSyscallGetUserInfo);
+	RS_BEFORE_AddEventHandler(G_SET_USERINFO, this, UserManagementPlugin::OnSyscallSetUserInfo);
+	RS_BEFORE_AddEventHandler(GAME_SHUTDOWN, this, UserManagementPlugin::OnVmMainShutdown);
 
-	auto clientConnectedHook = std::bind(&UserManagementPlugin::OnClientConnected, this, std::placeholders::_1);
-	gRecordsystem->AddEventHandler(new Q3EventHandler(GAME_CLIENT_CONNECT, EXECUTE_TYPE_BEFORE, clientConnectedHook));
-	
-	auto clientDisconnectedHook = std::bind(&UserManagementPlugin::OnClientDisconnected, this, std::placeholders::_1);
-	gRecordsystem->AddEventHandler(new Q3EventHandler(GAME_CLIENT_DISCONNECT, EXECUTE_TYPE_BEFORE, clientDisconnectedHook));
-	
-	auto clientUserInfoChangedHook = std::bind(&UserManagementPlugin::OnClientUserInfoChanged, this, std::placeholders::_1);
-	gRecordsystem->AddEventHandler(new Q3EventHandler(GAME_CLIENT_USERINFO_CHANGED, EXECUTE_TYPE_BEFORE, clientUserInfoChangedHook));
-	
-	auto clientBeginHook = std::bind(&UserManagementPlugin::OnClientBegin, this, std::placeholders::_1);
-	gRecordsystem->AddEventHandler(new Q3EventHandler(GAME_CLIENT_BEGIN, EXECUTE_TYPE_BEFORE, clientBeginHook));
-	
-	// defrag hook to hide defrag the original userinfostring
-	auto gGetUserInfoHook = std::bind(&UserManagementPlugin::OnSyscallGetUserInfo, this, std::placeholders::_1);
-	gRecordsystem->GetVmSyscalls()->AddEventHandler(new Q3EventHandler(G_GET_USERINFO, EXECUTE_TYPE_BEFORE, gGetUserInfoHook));
-
-	// grep the userinfostring if defrag change them.
-	auto gSetUserInfoHook = std::bind(&UserManagementPlugin::OnSyscallSetUserInfo, this, std::placeholders::_1);
-	gRecordsystem->GetVmSyscalls()->AddEventHandler(new Q3EventHandler(G_SET_USERINFO, EXECUTE_TYPE_BEFORE, gSetUserInfoHook));
-
-	// save userid if proxymod is shutingdown...
-	auto gameShutdownHook = std::bind(&UserManagementPlugin::OnVmMainShutdown, this, std::placeholders::_1);
-	gRecordsystem->AddEventHandler(new Q3EventHandler(GAME_SHUTDOWN, EXECUTE_TYPE_BEFORE, gameShutdownHook));
-
-	gRecordsystem->RegisterCvar((vmCvar_t *)&cvarRsNoNewClients, "rs_no_new_clients", "0", 0, qfalse);
-	gRecordsystem->RegisterCvar((vmCvar_t *)&cvarRsWelcome1, "rs_welcome1", "q3df - recordsystem - v0.1 (alpha)", 0, qfalse);
-	gRecordsystem->RegisterCvar((vmCvar_t *)&cvarRsWelcome2, "rs_welcome2", "", 0, qfalse);
-	gRecordsystem->RegisterCvar((vmCvar_t *)&cvarRsWelcome3, "rs_welcome3", "", 0, qfalse);
+	gRecordsystem->RegisterCvar(&cvarRsNoNewClients, "rs_no_new_clients", "0", 0, qfalse);
+	gRecordsystem->RegisterCvar(&cvarRsWelcome1, "rs_welcome1", "q3df - recordsystem - v0.1 (alpha)", 0, qfalse);
+	gRecordsystem->RegisterCvar(&cvarRsWelcome2, "rs_welcome2", "", 0, qfalse);
+	gRecordsystem->RegisterCvar(&cvarRsWelcome3, "rs_welcome3", "", 0, qfalse);
 }
 
 void UserManagementPlugin::Destroy() {
@@ -79,13 +63,13 @@ void UserManagementPlugin::OnClientConnected(Q3EventArgs *e) {
 
 	cl = gRecordsystem->GetUser(playernum);
 	cl->Reset();
-	cl->SetUniqueId(gRecordsystem->GetSyscalls()->Milliseconds());
+	cl->SetUniqueId(RS_Syscall->Milliseconds());
 
 	OnClientUserInfoChanged(e); // we can forward because param 1 is our playernum!
 
 	if(isFirstTime) {
 		cl->SetState(CLIENT_CONNECTED);
-		gRecordsystem->GetSyscalls()->Print(va("client:%i connecting (%s)...\n", cl->GetPlayernum(), cl->GetUserInfo("name")));
+		RS_Print(va("client:%i connecting (%s)...\n", cl->GetPlayernum(), cl->GetUserInfo("name")));
 
 		nullRes = new NullResponse();
 		clReq = new ClientInfoRequest();
@@ -97,8 +81,8 @@ void UserManagementPlugin::OnClientConnected(Q3EventArgs *e) {
 	} else {
 		// restore client
 		cl->SetState(CLIENT_ACTIVE);
-		cl->SetUserId(gRecordsystem->GetSyscalls()->CvarVariableIntegerValue(va("loginstate%i", playernum)));
-		gRecordsystem->GetSyscalls()->Print(va("client:%i restoring (%s)...\n", cl->GetPlayernum(), cl->GetUserInfo("name")));
+		cl->SetUserId(RS_Syscall->CvarVariableIntegerValue(va("loginstate%i", playernum)));
+		RS_Print(va("client:%i restoring (%s)...\n", cl->GetPlayernum(), cl->GetUserInfo("name")));
 	}
 }
 
@@ -117,7 +101,8 @@ void UserManagementPlugin::OnClientDisconnected(Q3EventArgs *e) {
 	EXECUTE_API_ASYNC(&Q3dfApi_Stub::ClientDisconnected, clReq, nullRes, NULL);
 	
 	cl->Reset();
-	gRecordsystem->GetSyscalls()->CvarSet(va("loginstate%i", playernum), "0");
+
+	RS_Syscall->CvarSet(va("loginstate%i", playernum), "0");
 }
 
 
@@ -129,7 +114,7 @@ void UserManagementPlugin::OnClientUserInfoChanged(Q3EventArgs *e) {
 
 	int playernum = e->GetParam(0);
 
-	gRecordsystem->GetSyscalls()->GetUserinfo(playernum, tmpBuffer, sizeof(tmpBuffer));
+	RS_Syscall->GetUserinfo(playernum, tmpBuffer, sizeof(tmpBuffer));
 
 	cl = gRecordsystem->GetUser(playernum);
 	cl->SetUserInfoString(tmpBuffer); // will be copied!
@@ -137,7 +122,7 @@ void UserManagementPlugin::OnClientUserInfoChanged(Q3EventArgs *e) {
 	const char *q3dfkey = cl->GetUserInfo("q3dfkey");
 	if((!q3dfkey || strlen(q3dfkey) <= 0) && cl->GetUserId() != 0) {
 		cl->SetUserId(0);
-		gRecordsystem->GetSyscalls()->SendServerCommand(cl->GetPlayernum(), "print \"^7[^3Q3df::Info^7] you're currently logged out...\n\"");
+		RS_Syscall->SendServerCommand(cl->GetPlayernum(), "print \"^7[^3Q3df::Info^7] you're currently logged out...\n\"");
 	}else if(cl->GetUserId() == 0 || strcmp(cl->GetLastQ3dfkey(), q3dfkey)) {
 		lReq = new LoginRequest();
 		cl->WriteIdentifier(lReq->mutable_identifier());
@@ -149,18 +134,18 @@ void UserManagementPlugin::OnClientUserInfoChanged(Q3EventArgs *e) {
 			LoginResponse *res = (LoginResponse *)msg;
 
 			if(!error->IsNil()) {
-				gRecordsystem->GetSyscalls()->SendServerCommand(
+				RS_Syscall->SendServerCommand(
 					res->identifier().playernum(), 
 					va("print \"^7[^1Q3df::Error^7] %s\n\"", error->String().c_str())
 				);
-				gRecordsystem->GetSyscalls()->SendServerCommand(
+				RS_Syscall->SendServerCommand(
 					res->identifier().playernum(), 
 					"print \"^7[^3Q3df::Info^7] you're currently ^1NOT^7 logged in!\n\""
 				);
 				gRecordsystem->GetUser(res->identifier().playernum())->SetUserId(0);
 				return;
 			}else{
-				gRecordsystem->GetSyscalls()->SendServerCommand(
+				RS_Syscall->SendServerCommand(
 					res->identifier().playernum(), 
 					va("print \"^7[^3Q3df::Info^7] you're currently logged in with userid %i!\n\"", res->userid())
 				);
@@ -178,18 +163,18 @@ void UserManagementPlugin::OnClientBegin(Q3EventArgs *e) {
 	cl->SetState(CLIENT_ACTIVE);
 
 	if(strlen(cvarRsWelcome1.string) > 0)
-		gRecordsystem->GetSyscalls()->SendServerCommand(playernum, va("chat \"[Q3df] %s\"", cvarRsWelcome1.string));
+		RS_Syscall->SendServerCommand(playernum, va("chat \"[Q3df] %s\"", cvarRsWelcome1.string));
 
 	if(strlen(cvarRsWelcome2.string) > 0)
-		gRecordsystem->GetSyscalls()->SendServerCommand(playernum, va("chat \"[Q3df] %s\"", cvarRsWelcome2.string));
+		RS_Syscall->SendServerCommand(playernum, va("chat \"[Q3df] %s\"", cvarRsWelcome2.string));
 
 	if(strlen(cvarRsWelcome3.string) > 0)
-		gRecordsystem->GetSyscalls()->SendServerCommand(playernum, va("chat \"[Q3df] %s\"", cvarRsWelcome3.string));
+		RS_Syscall->SendServerCommand(playernum, va("chat \"[Q3df] %s\"", cvarRsWelcome3.string));
 
 	if(cl->GetUserId() > 0)
-		gRecordsystem->GetSyscalls()->SendServerCommand(playernum, va("print \"^7[^3Q3df::Info^7] you're currently logged in with userid ^3%i^7.\n\"", cl->GetUserId()));
+		RS_Syscall->SendServerCommand(playernum, va("print \"^7[^3Q3df::Info^7] you're currently logged in with userid ^3%i^7.\n\"", cl->GetUserId()));
 	else
-		gRecordsystem->GetSyscalls()->SendServerCommand(playernum, va("print \"^7[^3Q3df::Info^7] you're ^1NOT^7 logged in!\n\"", cl->GetUserId()));
+		RS_Syscall->SendServerCommand(playernum, va("print \"^7[^3Q3df::Info^7] you're ^1NOT^7 logged in!\n\"", cl->GetUserId()));
 }
 
 
@@ -222,10 +207,9 @@ void UserManagementPlugin::OnVmMainShutdown(Q3EventArgs *e) {
 	for(i = 0; i<gRecordsystem->GetUserCount(); i++) {
 		cl = gRecordsystem->GetUser(i);
 		if(cl->GetState() != CLIENT_FREE)
-			gRecordsystem->GetSyscalls()->CvarSet(va("loginstate%i", i), va("%i", cl->GetUserId()));
+			RS_Syscall->CvarSet(va("loginstate%i", i), va("%i", cl->GetUserId()));
 	}
 }
 
-
 // Register plugin!
-static PluginProxy<UserManagementPlugin> gUserManagementPlugin;
+RegisterPlugin(UserManagementPlugin);

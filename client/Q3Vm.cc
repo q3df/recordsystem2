@@ -57,6 +57,8 @@ Q3Vm::~Q3Vm() {
 		free(vm_.memory);
 
 	memset(&vm_, 0, sizeof(vm_t));
+
+	this->initialized_ = qfalse;
 }
 
 

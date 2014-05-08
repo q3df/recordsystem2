@@ -8,11 +8,11 @@ private:
 public:
 	virtual void Init();
 	virtual void Destroy();
+	virtual const char *Name() { return "UserCommandsPlugin"; }
 };
 
 void UserCommandsPlugin::Init() {
-	auto clientCommandEvent = std::bind(&UserCommandsPlugin::OnGameClientCommand, this, std::placeholders::_1);
-	gRecordsystem->AddEventHandler(new Q3EventHandler(GAME_CLIENT_COMMAND, EXECUTE_TYPE_BEFORE, clientCommandEvent));
+	RS_BEFORE_AddEventHandler(GAME_CLIENT_COMMAND, this, UserCommandsPlugin::OnGameClientCommand);
 }
 
 void UserCommandsPlugin::Destroy() {
@@ -27,18 +27,18 @@ void UserCommandsPlugin::OnGameClientCommand(Q3EventArgs *e) {
 	ClientCommandResponse *cmdRes = NULL;
 
 	int playernum = e->GetParam(0);
-	int argc = gRecordsystem->GetSyscalls()->Argc();
+	int argc = RS_Syscall->Argc();
 
 	Q3User *cl = gRecordsystem->GetUser(playernum);
 
 
-	gRecordsystem->GetSyscalls()->Argv(0, arg, sizeof(arg));
+	RS_Syscall->Argv(0, arg, sizeof(arg));
 	if(!strncmp(arg, "login", 5)) {
 		isLoginCommand = true;
 		e->SetHandled(true);
 	}
 
-	gRecordsystem->GetSyscalls()->Argv(1, arg, sizeof(arg));
+	RS_Syscall->Argv(1, arg, sizeof(arg));
 	if(!strncmp(arg, "!login", 6)) {
 		isLoginCommand = true;
 		e->SetHandled(true);
@@ -50,7 +50,7 @@ void UserCommandsPlugin::OnGameClientCommand(Q3EventArgs *e) {
 	}
 
 	if(isLoginCommand) {
-		gRecordsystem->GetSyscalls()->SendServerCommand(playernum, "print \"ERROR: !login is no longer supported. please read http://q3df.org/wiki?p=XX\n\"");
+		RS_Syscall->SendServerCommand(playernum, "print \"ERROR: !login is no longer supported. please read http://q3df.org/wiki?p=XX\n\"");
 		return;
 	}
 
@@ -62,7 +62,7 @@ void UserCommandsPlugin::OnGameClientCommand(Q3EventArgs *e) {
 		cmdRes = new ClientCommandResponse();
 
 		for(i=2; i<argc; i++) {
-			gRecordsystem->GetSyscalls()->Argv(i, arg, sizeof(arg));
+			RS_Syscall->Argv(i, arg, sizeof(arg));
 
 			std::string *tmpStr = cmdReq->add_args();
 			tmpStr->append(arg);
@@ -72,14 +72,14 @@ void UserCommandsPlugin::OnGameClientCommand(Q3EventArgs *e) {
 			ClientCommandResponse *res = (ClientCommandResponse *)msg;
 
 			if(!error->IsNil()) {
-				gRecordsystem->GetSyscalls()->SendServerCommand(0, va("print \"ERROR: %s\n\"", error->String().c_str()));
+				RS_Syscall->SendServerCommand(0, va("print \"ERROR: %s\n\"", error->String().c_str()));
 				return;
 			}else{
-				gRecordsystem->GetSyscalls()->SendServerCommand(res->identifier().playernum(), va("print \"%s\n\"", res->messagetoprint().c_str()));
+				RS_Syscall->SendServerCommand(res->identifier().playernum(), va("print \"%s\n\"", res->messagetoprint().c_str()));
 			}
 		});
 	}
 }
 
 // Register plugin!
-static PluginProxy<UserCommandsPlugin> gUserCommandsPlugin;
+RegisterPlugin(UserCommandsPlugin);

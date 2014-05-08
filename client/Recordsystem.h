@@ -81,5 +81,56 @@ private:
 
 extern Recordsystem *gRecordsystem;
 
+#define RS_Syscall gRecordsystem->GetSyscalls()
+#define RS_VmSyscall gRecordsystem->GetVmSyscalls()
+#define RS_Print(x) RS_Syscall->Print(x);
+#define RS_Error(x) RS_Syscall->Error(x);
+#define RS_PrintWarning(x) RS_Syscall->PrintWarning(x);
+#define RS_PrintError(x) RS_Syscall->PrintError(x);
+
+#define RS_BEFORE_AddEventHandler(type, instance, func) \
+	{ \
+		auto tmpFunc = std::bind(& ## func, instance, std::placeholders::_1); \
+		gRecordsystem->AddEventHandler(new Q3EventHandler(type, EXECUTE_TYPE_BEFORE, tmpFunc)); \
+	}
+
+#define RS_BEFORE_AddEventHandlerLambda(type, func) \
+	{ \
+		gRecordsystem->AddEventHandler(new Q3EventHandler(type, EXECUTE_TYPE_BEFORE, func)); \
+	}
+
+#define RS_AFTER_AddEventHandler(type, instance, func) \
+	{ \
+		auto tmpFunc = std::bind(& ## func, instance, std::placeholders::_1); \
+		gRecordsystem->AddEventHandler(new Q3EventHandler(type, EXECUTE_TYPE_AFTER, tmpFunc)); \
+	}
+
+#define RS_AFTER_AddEventHandlerLambda(type, func) \
+	{ \
+		gRecordsystem->AddEventHandler(new Q3EventHandler(type, EXECUTE_TYPE_AFTER, func)); \
+	}
+
+#define VM_BEFORE_AddEventHandler(type, instance, func) \
+	{ \
+		auto tmpFunc = std::bind(& ## func, instance, std::placeholders::_1); \
+		gRecordsystem->GetVmSyscalls()->AddEventHandler(new Q3EventHandler(type, EXECUTE_TYPE_BEFORE, tmpFunc)); \
+	}
+
+#define VM_BEFORE_AddEventHandlerLambda(type, func) \
+	{ \
+		gRecordsystem->GetVmSyscalls()->AddEventHandler(new Q3EventHandler(type, EXECUTE_TYPE_BEFORE, func)); \
+	}
+
+#define VM_AFTER_AddEventHandler(type, instance, func) \
+	{ \
+		auto tmpFunc = std::bind(& ## func, instance, std::placeholders::_1); \
+		gRecordsystem->GetVmSyscalls()->AddEventHandler(new Q3EventHandler(type, EXECUTE_TYPE_AFTER, tmpFunc)); \
+	}
+
+#define VM_AFTER_AddEventHandlerLambda(type, func) \
+	{ \
+		gRecordsystem->GetVmSyscalls()->AddEventHandler(new Q3EventHandler(type, EXECUTE_TYPE_AFTER, func)); \
+	}
+
 #endif // CLIENT_RECORDSYSTEM_H_
 

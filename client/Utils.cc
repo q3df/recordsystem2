@@ -22,7 +22,7 @@ const char *Utils::InfoValueForKey(const char *infoString, const char *key) {
 	}
 
 	if ( strlen(s) >= BIG_INFO_STRING ) {
-		gRecordsystem->GetSyscalls()->PrintWarning(va("Utils::InfoValueForKey: strlen(userInfo_) >= %i | key = %s", BIG_INFO_STRING, key));
+		RS_PrintWarning(va("Utils::InfoValueForKey: strlen(userInfo_) >= %i | key = %s", BIG_INFO_STRING, key));
 		return "";
 	}
 
@@ -65,12 +65,12 @@ void Utils::InfoSetValueForKey(char *infoString, const char *key, const char *va
 	const char* blacklist = "\\;\"";
 
 	if ( strlen( infoString ) >= BIG_INFO_STRING ) {
-		gRecordsystem->GetSyscalls()->PrintWarning("Utils::InfoSetValueForKey: oversize infostring\n");
+		RS_PrintWarning("Utils::InfoSetValueForKey: oversize infostring\n");
 	}
 
 	for(; *blacklist; ++blacklist) {
 		if (strchr (key, *blacklist) || strchr (value, *blacklist)) {
-			gRecordsystem->GetSyscalls()->PrintWarning(va("Utils::InfoSetValueForKey: Can't use keys or values with a '%c': %s = %s\n", *blacklist, key, value));
+			RS_PrintWarning(va("Utils::InfoSetValueForKey: Can't use keys or values with a '%c': %s = %s\n", *blacklist, key, value));
 			return;
 		}
 	}
@@ -82,7 +82,7 @@ void Utils::InfoSetValueForKey(char *infoString, const char *key, const char *va
 	snprintf(newi, sizeof(newi), "\\%s\\%s", key, value);
 
 	if (strlen(newi) + strlen(infoString) >= BIG_INFO_STRING) {
-		gRecordsystem->GetSyscalls()->PrintWarning("Utils::InfoSetValueForKey: Info string length exceeded\n");
+		RS_PrintWarning("Utils::InfoSetValueForKey: Info string length exceeded\n");
 		return;
 	}
 
@@ -97,7 +97,7 @@ void Utils::InfoRemoveKey(char *infoString, const char *key) {
 	char  *o;
 
 	if ( strlen( infoString ) >= BIG_INFO_STRING ) {
-		gRecordsystem->GetSyscalls()->PrintWarning("Utils::InfoRemoveKey: oversize infostring\n");
+		RS_PrintWarning("Utils::InfoRemoveKey: oversize infostring\n");
 	}
 
 	if (strchr (key, '\\')) {

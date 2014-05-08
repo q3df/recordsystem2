@@ -22,22 +22,22 @@ public:
 	Logger *Log(LogType type, const char *file, int line, const char *fmt, ...);
 
 	Logger *operator <<(std::string const& value) {
-		gRecordsystem->GetSyscalls()->Print(va("%s", value.c_str()));
+		RS_Print(va("%s", value.c_str()));
 		return this;
 	}
 
 	Logger *operator <<(char const& value) {
-		gRecordsystem->GetSyscalls()->Print(va("%s", value));
+		RS_Print(va("%s", value));
 		return this;
 	}
 
 	Logger *operator <<(int value) {
-		gRecordsystem->GetSyscalls()->Print(va("%i", value));
+		RS_Print(va("%i", value));
 		return this;
 	}
 
 	Logger *operator <<(float value) {
-		gRecordsystem->GetSyscalls()->Print(va("%f", value));
+		RS_Print(va("%f", value));
 		return this;
 	}
 

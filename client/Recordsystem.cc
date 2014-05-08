@@ -103,7 +103,7 @@ void Recordsystem::AddEventHandler(Q3EventHandler *eventItem) {
 }
 
 void Recordsystem::RemoveEventHandler(Q3EventHandler *eventItem) {
-	GetSyscalls()->PrintError("Recordsystem::RemoveHook not implemented!");
+	RS_PrintError("Recordsystem::RemoveHook not implemented!");
 }
 
 int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11) {
@@ -138,7 +138,7 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 		if(vm_->IsInitilized())
 			ret = vm_->Exec(command, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
 
-		GetSyscalls()->Print("Recordsystem shutingdown...\n");
+		RS_Print("Recordsystem shutingdown...\n");
 		vm_->~Q3Vm();
 
 		while(!pluginList_.empty()) {
@@ -247,11 +247,11 @@ bool Recordsystem::GameInit(int levelTime, int randomSeed, int restart) {
 	int i;
 
 	db_ = new SqliteDatabase("template.db");
-	GetSyscalls()->Print("------- Recordsystem initilizing -------\n");
+	RS_Print("------- Recordsystem initilizing -------\n");
 
 	for(i = 0; i<gPluginStore.GetCount(); i++) {
-		GetSyscalls()->Print(va("Init Plugin %i\n", i));
 		pBase = gPluginStore.GetAt(i)->Create();
+		RS_Print(va("Init Plugin %s\n", pBase->Name()));
 		pBase->Init();
 		pluginList_.push_back(pBase);
 	}
@@ -260,24 +260,33 @@ bool Recordsystem::GameInit(int levelTime, int randomSeed, int restart) {
 	RegisterCvar(&rs_api_port, "rs_api_port", "1234", CVAR_ARCHIVE | CVAR_NORESTART, qfalse);
 	RegisterCvar(&rs_api_key, "rs_api_key", "-", CVAR_ARCHIVE | CVAR_NORESTART, qfalse);
 
-	GetSyscalls()->Print(va("API-Server is %s:%i ...\n", rs_api_server.string, rs_api_port.integer));
+	RS_Print(va("API-Server is %s:%i ...\n", rs_api_server.string, rs_api_port.integer));
+
 	apiClient_ = new rpc::Client(rs_api_server.string, rs_api_port.integer);
 	Q3dfApi_ = new Q3dfApi_Stub(apiClient_);
 
-	GetSyscalls()->Print(va("Loading vm/qagame.qvm ...\n", rs_api_server.string, rs_api_port.integer));
+	RS_Print(va("Loading vm/qagame.qvm ...\n", rs_api_server.string, rs_api_port.integer));
 	vm_ = new Q3Vm("vm/qagame.qvm", vm_syscall_);
+	
 	if(!vm_->IsInitilized()) {
-		GetSyscalls()->Error("Faild initializing vm/qagame.qvm!\n");
+		RS_Error("Faild initializing vm/qagame.qvm!\n");
 		return false;
 	}else
-		GetSyscalls()->Print(va("Proxy to vm/qagame.qvm is initialized.\n", rs_api_server.string, rs_api_port.integer));
+		RS_Print(va("Proxy to vm/qagame.qvm is initialized.\n", rs_api_server.string, rs_api_port.integer));
 
-	GetSyscalls()->Print("Initialize users...\n");
-	vm_syscall_->AddEventHandler(new Q3EventHandler(G_LOCATE_GAME_DATA, EXECUTE_TYPE_BEFORE, [](Q3EventArgs *e) {
-		gRecordsystem->SetGameData(e->GetParam(4), (playerState_t *)e->GetParamVMA(3), (gentity_t *)e->GetParamVMA(0), e->GetParam(2), e->GetParam(1));
-	}));
+	RS_Print("Initialize users...\n");
 
-	vm_syscall_->AddEventHandler(new Q3EventHandler(G_PRINT, EXECUTE_TYPE_BEFORE, [](Q3EventArgs *e) {
+	VM_BEFORE_AddEventHandlerLambda(G_LOCATE_GAME_DATA, [](Q3EventArgs *e) {
+		gRecordsystem->SetGameData(
+			e->GetParam(4),
+			(playerState_t *)e->GetParamVMA(3),
+			(gentity_t *)e->GetParamVMA(0),
+			e->GetParam(2),
+			e->GetParam(1)
+		);
+	});
+
+	VM_BEFORE_AddEventHandlerLambda(G_PRINT, [](Q3EventArgs *e) {
 		PrintfRequest *pRequest = new PrintfRequest();
 		pRequest->set_msg((const char *)e->GetParamVMA(0));
 		NullResponse *itemRes = new NullResponse();
@@ -288,10 +297,10 @@ bool Recordsystem::GameInit(int levelTime, int randomSeed, int restart) {
 		//gRecordsystem->DB()->BindString(stmt, (const char *)e->GetParamVMA(0), strlen((const char *)e->GetParamVMA(0)));
 		//
 		//if(gRecordsystem->DB()->StmtStep(stmt) != SQLITE_DONE)
-		//	gRecordsystem->GetSyscalls()->Print("QueryFehler!!!!!!!!!!\n");
+		//	RS_Print("QueryFehler!!!!!!!!!!\n");
 
 		EXECUTE_API_ASYNC(&Q3dfApi_Stub::Printf, pRequest, itemRes, NULL);
-	}));
+	});
 
 	return true;
 }

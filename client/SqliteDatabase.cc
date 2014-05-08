@@ -6,7 +6,7 @@
         int i;                                                  \
         i = sqlite3_ ## f;                                      \
         if (i != SQLITE_OK) {                                   \
-            gRecordsystem->GetSyscalls()->Print(                \
+            RS_Print(                                  \
 				va("%s failed with status %d: %s\n",            \
                      #f, i, sqlite3_errmsg (this->db_)));       \
             return NULL;                                        \
@@ -18,7 +18,7 @@
         int i;                                                  \
         i = sqlite3_ ## f;                                      \
         if (i != SQLITE_ ## x) {                                \
-            gRecordsystem->GetSyscalls()->Print(va(	            \
+            RS_Print(va(	                            \
 				"%s failed with status %d: %s\n",               \
                      #f, i, sqlite3_errmsg (this->db_)));       \
             return NULL;                                        \
@@ -31,9 +31,9 @@ SqliteDatabase::SqliteDatabase(const char *dbfile) : initialized_(false) {
 	
 	rc = sqlite3_open(dbfile, &this->db_);
 	if(rc) {
-		gRecordsystem->GetSyscalls()->Print(va("Can't open sqlite database: %s\n", sqlite3_errmsg(this->db_)));
+		RS_Print(va("Can't open sqlite database: %s\n", sqlite3_errmsg(this->db_)));
 	} else {
-		gRecordsystem->GetSyscalls()->Print(va("Open sqlite database: %s\n", dbfile));
+		RS_Print(va("Open sqlite database: %s\n", dbfile));
 		initialized_ = true;
 	}
 }

@@ -20,4 +20,6 @@ public:
 	}
 };
 
+#define RegisterPlugin(className) static PluginProxy<className> g##className
+
 #endif // CLIENT_PLUGINPROXY_H_

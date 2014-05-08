@@ -6,6 +6,7 @@ public:
 	PluginBase() {}
 	virtual void Init() = 0;
 	virtual void Destroy() = 0;
+	virtual const char *Name() = 0;
 };
 
 #endif // CLIENT_PLUGINBASE_H_

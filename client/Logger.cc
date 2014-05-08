@@ -30,19 +30,19 @@ Logger *Logger::Log(LogType type, const char *file, int line, const char *fmt, .
 
 	switch(type) {
 	case LOG_INFO:
-		gRecordsystem->GetSyscalls()->Print(va("%s:%i|INFO: %s\n", file, line, input));
+		RS_Print(va("%s:%i|INFO: %s\n", file, line, input));
 		break;
 	case LOG_TRACE:
-		gRecordsystem->GetSyscalls()->Print(va("%s:%i|TRACE: %s\n", file, line, input));
+		RS_Print(va("%s:%i|TRACE: %s\n", file, line, input));
 		break;
 	case LOG_WARNING:
-		gRecordsystem->GetSyscalls()->Print(va("%s:%i|WARNING: %s\n", file, line, input));
+		RS_Print(va("%s:%i|WARNING: %s\n", file, line, input));
 		break;
 	case LOG_ERROR:
-		gRecordsystem->GetSyscalls()->Print(va("%s:%i|ERROR: %s\n", file, line, input));
+		RS_Print(va("%s:%i|ERROR: %s\n", file, line, input));
 		break;
 	case LOG_DEBUG:
-		gRecordsystem->GetSyscalls()->Print(va("%s:%i|DEBUG: %s\n", file, line, input));
+		RS_Print(va("%s:%i|DEBUG: %s\n", file, line, input));
 		break;
 	}
 
