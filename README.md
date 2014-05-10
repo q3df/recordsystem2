@@ -4,10 +4,13 @@ Dependency
 > ```
 > apt-get install build-essential
 > apt-get install gcc-multilib
-> apt-get install cmake
 > apt-get install libstdc++6-4.4-dev gcc-4.4-multilib g++-4.4-multilib
 > apt-get install g++-multilib
 > apt-get install ia32-libs
+> ```
+> #### Mac OS X 10.9.2
+> ```
+> xcode 5.1 and console utils have to installed on the system
 > ```
 > #### Windows
 > ```
@@ -32,6 +35,12 @@ Build (command line)
 > > ./create_projects.sh
 > > ./build_projects.sh <Debug|Release>
 > > ```
+> > #### Mac OS X 10.9.2 (bash shell)
+> > ```
+> > ./create_projects.sh
+> > ./build_projects.sh <Debug|Release>
+> > # or you can open the xcode project and build from there
+> > ```
 
 Build (windows vs2010 / vs2012)
 -------------------------------
@@ -41,4 +50,4 @@ Build (windows vs2010 / vs2012)
 > git submodule update --init
 > create_projects.bat
 > ```
-> now you can open the generated recordsystem.sln solution!> 
+> now you can open the generated recordsystem.sln solution!>
