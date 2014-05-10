@@ -51,6 +51,7 @@ std::string binaryToXml() const
 #define GOOGLE_PROTOBUF_XML_BASE64_H__
 
 #include <iterator>
+#include <ios>
 
 namespace google {
 namespace protobuf {

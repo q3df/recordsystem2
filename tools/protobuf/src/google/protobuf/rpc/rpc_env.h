@@ -11,6 +11,7 @@
 #include <pthread.h>
 #include <google/protobuf/stubs/once.h>
 #include <pthread.h>
+#include <unistd.h>
 
 namespace google {
 namespace protobuf {

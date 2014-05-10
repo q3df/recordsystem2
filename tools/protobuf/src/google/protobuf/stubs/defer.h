@@ -57,46 +57,42 @@
 
 // auto _defer_action_line???_ = DeferredActionCtor([&](){ ... })
 #define _GOOGLE_PROTOBUF_DEFER_ACTION_MAKE auto \
-  _GOOGLE_PROTOBUF_DEFER_ACTION_VAR(_defer_action_line, __LINE__, _) = google::protobuf::DeferredActionCtor
+_GOOGLE_PROTOBUF_DEFER_ACTION_VAR(_defer_action_line, __LINE__, _) = google::protobuf::DeferredActionCtor
 #define _GOOGLE_PROTOBUF_DEFER_ACTION_VAR(a, b, c) _GOOGLE_PROTOBUF_DEFER_TOKEN_CONNECT(a, b, c)
 #define _GOOGLE_PROTOBUF_DEFER_TOKEN_CONNECT(a, b, c) a ## b ## c
 
 namespace google {
-namespace protobuf {
-
-// Hold defered func
-class DeferredAction {
- private:
-  std::function<void()> func_;
-
-  template<typename T>
-  friend DeferredAction DeferredActionCtor(T&& p);
-
-  template<typename T>
-  DeferredAction(T&& p): func_(std::bind(std::forward<T>(p))) {}
-
-  DeferredAction();
-  DeferredAction(DeferredAction const&);
-  DeferredAction& operator=(DeferredAction const&);
-  DeferredAction& operator=(DeferredAction&&);
-
- public:
-  DeferredAction(DeferredAction&& other):
-    func_(std::forward<std::function<void()>>(other.func_)) {
-    other.func_ = nullptr;
-  }
-  ~DeferredAction() {
-    if(func_) { func_(); }
-  }
-};
-
-template<typename T>
-DeferredAction DeferredActionCtor(T&& p) {
-  return DeferredAction(std::forward<T>(p));
-}
-
-}  // namespace protobuf
+    namespace protobuf {
+        
+        // Hold defered func
+        class DeferredAction {
+        private:
+            std::function<void()> func_;
+            
+            template<typename T>
+            friend DeferredAction DeferredActionCtor(T&& p);
+            
+            template<typename T>
+            DeferredAction(T&& p): func_(bind(std::forward<T>(p))) {}
+            
+            DeferredAction();
+            DeferredAction(DeferredAction const&);
+            DeferredAction& operator=(DeferredAction const&);
+            DeferredAction& operator=(DeferredAction&&);
+            
+        public:
+            ~DeferredAction() {
+                if(func_) { func_(); }
+            }
+        };
+        
+        template<typename T>
+        DeferredAction DeferredActionCtor(T&& p) {
+            return DeferredAction(std::forward<T>(p));
+        }
+        
+    }  // namespace protobuf
 }  // namespace google
-
+//#endif
 #endif  // GOOGLE_PROTOBUF_STUBS_DEFER_H__
 

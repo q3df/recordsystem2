@@ -1,4 +1,4 @@
-#!/bin/bash
+##!/bin/bash
 
 if [ ! -d "$1" ]; then
 	echo "$1 is not a directory"
@@ -23,6 +23,16 @@ else
 	fi
 fi
 
+if [ -f "../../tools/protobuf/build/Debug/protoc" ]; then
+	echo ../../tools/protobuf/build/Debug/protoc --cxx_out=./ $2
+	../../tools/protobuf/build/Debug/protoc --cxx_out=./ $2
+else
+	if [ -f "../../tools/protobuf/build/Release/protoc" ]; then
+		echo ../../tools/protobuf/build/Release/protoc --cxx_out=./ $2
+		../../tools/protobuf/build/Release/protoc --cxx_out=./ $2
+	fi
+fi
+
 if [ -f "../../out/Debug/protoc" ]; then
 	../../out/Debug/protoc --cxx_out=./ $2
 else
@@ -30,6 +40,8 @@ else
 		../../out/Release/protoc --cxx_out=./ $2
 	fi
 fi
+
+
 
 cd $OLDCD
 

@@ -65,7 +65,7 @@ bool Conn::ReadUvarint(uint64* rx) {
       return false;
     }
     if(b < 0x80) {
-      if(i > 9 || i == 9 && b > 1){
+      if((i > 9 || i == 9) && b > 1){
         logf("varint overflows a 64-bit integer\n");
         return false;
       }

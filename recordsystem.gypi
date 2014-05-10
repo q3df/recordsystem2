@@ -39,6 +39,9 @@
 				'defines': [
 					'DEBUG',
 				],
+				'xcode_settings': {
+					'ARCHS': ['$(ARCHS_STANDARD_32_BIT)'],
+				},
 				'conditions': [
 					['OS=="linux"', {
 					}],
@@ -66,6 +69,9 @@
 				'defines': [
 					'NDEBUG',
 				],
+				'xcode_settings': {
+					'ARCHS': ['$(ARCHS_STANDARD_32_BIT)'],
+				},
 				'conditions': [
 					['OS=="linux"', {
 						'cflags!': [
@@ -157,6 +163,11 @@
 						'SubSystem': '1',
 					},
 				},
+			},
+		}],
+		['OS=="mac"', {
+			'xcode_settings': {
+				'ARCHS': ['$(ARCHS_STANDARD_32_BIT)'],
 			},
 		}],
 		['OS=="linux"', {
