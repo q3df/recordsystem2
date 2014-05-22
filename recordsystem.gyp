@@ -94,12 +94,14 @@
 			'tools/q3df_api/q3df_api.gyp:q3df_api',
 			'tools/protobuf/protobuf.gyp:protobuf_full_do_not_use',
 			'tools/sqlite/sqlite.gyp:sqlite',
+			'modules/modules.gyp:modules',
 		],
 		'defines': [
 		],
 		'include_dirs': [
 			'tools/protobuf/src/',
-			'tools/q3df_api/'
+			'tools/q3df_api/',
+			'tools/mysql/',
 		],
 		'actions': [],
 		'sources': [
@@ -111,6 +113,10 @@
 			'server/Q3dfEnv.h',
 			'server/Q3dfApiImpl.cc',
 			'server/Q3dfApiImpl.h',
+			'server/CompatibilityManager.cc',
+			'server/CompatibilityManager.h',
+			'client/StringTokenizer.cc',
+			'client/StringTokenizer.h',
 		],
 		'conditions': [
 			['OS=="linux"', {
@@ -138,6 +144,16 @@
 				'defines': [
 					'WIN32',
 				],
+				'msvs_settings': {
+					'VCLinkerTool': {
+						'AdditionalDependencies': [
+							'Advapi32.lib',
+							'tools/mysql/libmysql.lib'
+						],
+						'AdditionalOptions': [
+						]
+					},
+				},
 				'sources': [
 					'server/ConsoleWin32.cc',
 					'server/ConsoleWin32.h',

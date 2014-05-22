@@ -207,9 +207,10 @@ char *ConsoleWin32::Input() {
 
 void ConsoleWin32::Print(const char *msg, ...) {
 	this->Lock();
+
 	va_list argptr;
-	static char	string[32000];
-	static int index = 0;
+	static char string[32000];
+	int index = 0;
 
 	memset(&string, 0, sizeof(string));
 	va_start (argptr, msg);
@@ -217,7 +218,21 @@ void ConsoleWin32::Print(const char *msg, ...) {
 	va_end (argptr);
 
 	this->Hide();
-	this->WindowsColorPrint( this->va("^7[^5Q3df ^7]: %s", string) );
+
+	std::string *str = new std::string();
+	for(index = 0; index < strlen(string); index++) {
+		if(string[index] == '\n' && index == 0 && index < strlen(string)-1) {
+			str->append("\n^7[^5Q3df ^7]: ");
+		}else if(string[index] == '\n' && index > 0 && index < strlen(string)-1) {
+			str->append("\n^7[^5Q3df ^7]: ");
+		}else{
+			str->append(&string[index], 1);
+		}
+	}
+
+
+	this->WindowsColorPrint( this->va("^7[^5Q3df ^7]: %s", str->c_str()) );
+	delete str;
 	this->Show();
 
 	this->Unlock();

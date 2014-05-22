@@ -49,4 +49,6 @@ private:
 
 };
 
+extern Console *gConsole;
+
 #endif // SERVER_CONSOLE_H_

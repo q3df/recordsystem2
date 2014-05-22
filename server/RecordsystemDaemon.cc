@@ -6,6 +6,8 @@
 #include <list>
 #include <pthread.h>
 
+#include "CompatibilityManager.h"
+
 using namespace ::google::protobuf;
 using namespace ::google::protobuf::rpc;
 using namespace ::service;
@@ -39,7 +41,6 @@ extern "C" {
 void clientDisconnected(Conn *con) {
 	pthread_mutex_lock( &gClientListMtx );
 	gClientList.remove(con);
-	Sleep(10000);
 	pthread_mutex_unlock( &gClientListMtx );
 }
 
@@ -60,6 +61,9 @@ int main(int argc, char **argv) {
 	server.AddService(new Q3dfApiImpl(gConsole), true);
 	server.ListenTCP(1234);
 
+	OldLoadHelpCommand();
+	OldLoadModule();
+
 	for(;;) {
 		char *cmd = gConsole->Input();
 		if(cmd && !strncmp(cmd, "exit", 4)) {
@@ -72,6 +76,9 @@ int main(int argc, char **argv) {
 			for (std::list<Conn *>::iterator it=gClientList.begin(); it != gClientList.end(); ++it)
 				gConsole->Print(va("    * %s\n", (*it)->RemoteIpAdress()));
 			pthread_mutex_unlock( &gClientListMtx );
+		} else if(cmd) {
+			StringTokenizer *cmdline = new StringTokenizer(cmd, false);
+			_OldModuleFindCommand(0, cmdline);
 		}
 
 		Conn *conn = server.AcceptNonBlock();
@@ -85,6 +92,7 @@ int main(int argc, char **argv) {
 	}
 
 	gConsole->PrintInfo(va("Shutingdown now...\n"));
+	OldUnloadModule();
 	Sleep(1000);
 
 	delete con;
