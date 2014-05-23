@@ -1,5 +1,0 @@
-apt-get install build-essential
-apt-get install gcc-multilib
-apt-get install libstdc++6-4.4-dev gcc-4.4-multilib g++-4.4-multilib
-apt-get install g++-multilib
-apt-get install ia32-libs
