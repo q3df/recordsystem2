@@ -1,6 +1,28 @@
 #include "Recordsystem.h"
 #include <cstdarg>
 
+#include <iostream>
+#include <fstream>
+#include <cstdlib>
+
+#ifndef Q3DF_VERSION
+#	define Q3DF_VERSION "0.0"
+#endif
+
+#ifndef Q3DF_BUILD
+#	define Q3DF_BUILD "00-00-0000 00:00:00 CET (unknown-x86)"
+#endif
+
+#ifdef WIN32
+#	define UPDATE_COMMAND1 "cmd.exe /c \"mkdir defrag\\q3df_proxymod\""
+#	define UPDATE_COMMAND2 "cmd.exe /c \"del defrag\\qagamex86.dll\""
+#   define UPDATE_COMMAND3 "cmd.exe /c \"mklink defrag\\qagamex86.dll q3df_proxymod\\qagamex86_%s.dll\""
+#else
+#	define UPDATE_COMMAND1 "mkdir defrag/q3df_proxymod"
+#	define UPDATE_COMMAND2 "rm defrag/qagamex86.dll"
+#   define UPDATE_COMMAND3 "ln -l defrag/qagamex86.dll q3df_proxymod/qagamex86_%s.dll"
+#endif
+
 using namespace google::protobuf;
 using namespace service;
 using namespace std::placeholders;
@@ -10,6 +32,8 @@ PluginStore gPluginStore;
 vmCvar_t rs_api_server;
 vmCvar_t rs_api_port;
 vmCvar_t rs_api_key;
+vmCvar_t rs_auto_update;
+
 
 extern "C" {
 	void fix_utf8_string(std::string& str) {
@@ -42,40 +66,6 @@ Recordsystem::Recordsystem(syscall_t syscall)
 }
 
 Recordsystem::~Recordsystem() {
-	VmCvarItem *cvarItem = NULL;
-	Q3EventHandler *eventItem = NULL;
-	Q3User *userItem = NULL;
-
-	delete asyncExec_;
-	apiClient_->Close();
-	delete Q3dfApi_;
-	delete syscall_;
-	delete vm_syscall_;
-
-	while(!eventList_.empty()) {
-		eventItem = eventList_.back();
-		eventList_.pop_back();
-		delete eventItem;
-	}
-
-	while(!cvarList_.empty()) {
-		cvarItem = cvarList_.back();
-		cvarList_.pop_back();
-		delete cvarItem;
-	}
-
-	while(!userList_.empty()) {
-		userItem = userList_.back();
-		userList_.pop_back();
-		delete userItem;
-	}
-
-	eventList_.clear();
-	cvarList_.clear();
-	pluginList_.clear();
-	userList_.clear();
-
-	delete db_;
 }
 
 ApiAsyncExecuter *Recordsystem::GetAsyncExecuter() {
@@ -132,20 +122,86 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 		break;
 
 	case GAME_SHUTDOWN:
-		GetSyscalls()->SendServerCommand(-1, "chat \"^7[^3Q3df::Info^7]: selfupdate in progress...\n\"");
-		EXECUTE_EVENT_VOID_ARG12(command, EXECUTE_TYPE_BEFORE, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
+		{
+			VmCvarItem *cvarItem = NULL;
+			Q3EventHandler *eventItem = NULL;
+			Q3User *userItem = NULL;
+			UpdateRequest *upReq = NULL;
+			UpdateResponse *upRes = NULL;
 
-		if(vm_->IsInitilized())
-			ret = vm_->Exec(command, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
+			if(rs_auto_update.integer == 1) {
+				GetSyscalls()->SendServerCommand(-1, "chat \"^7[^3Q3df::Info^7]: selfupdate in progress...\n\"");
+				RS_Print("UPDATE: check for update...\n");
 
-		RS_Print("Recordsystem shutingdown...\n");
-		vm_->~Q3Vm();
+				{
+					upRes = new UpdateResponse();
+					upReq = new UpdateRequest();
 
-		while(!pluginList_.empty()) {
-			pBase = pluginList_.back();
-			pluginList_.pop_back();
-			pBase->Destroy();
-			delete pBase;
+					upReq->set_version(Q3DF_VERSION);
+					EXECUTE_API_ASYNC(&Q3dfApi_Stub::CheckForUpdates, upReq, upRes, [](Message *msg, rpc::Error *error) {
+						UpdateResponse *uRes = (UpdateResponse *)msg;
+
+						if(uRes->available()) {
+							RS_Print(va("UPDATE: updating to version '%s' [^3OK^7].\n", uRes->version().c_str()));
+							ofstream outfile (va("defrag/q3df_proxymod/qagamex86_%s.dll", uRes->version().c_str()), ios::binary | ios::out);
+							if(outfile.is_open()) {
+								outfile.write(uRes->data().c_str(), uRes->data().length());
+								outfile.close();
+								system(UPDATE_COMMAND1);
+								system(UPDATE_COMMAND2);
+								system(va(UPDATE_COMMAND3, uRes->version().c_str()));
+							}
+						}else
+							RS_Print("UPDATE: no update available...\n");
+					});
+				}
+			}
+
+			EXECUTE_EVENT_VOID_ARG12(command, EXECUTE_TYPE_BEFORE, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
+
+			if(vm_->IsInitilized())
+				ret = vm_->Exec(command, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
+
+			RS_Print("Recordsystem shutingdown...\n");
+
+			while(!pluginList_.empty()) {
+				pBase = pluginList_.back();
+				pluginList_.pop_back();
+				pBase->Destroy();
+				delete pBase;
+			}
+
+			delete asyncExec_;
+			apiClient_->Close();
+			delete Q3dfApi_;
+			delete syscall_;
+			delete vm_syscall_;
+
+			while(!eventList_.empty()) {
+				eventItem = eventList_.back();
+				eventList_.pop_back();
+				delete eventItem;
+			}
+
+			while(!cvarList_.empty()) {
+				cvarItem = cvarList_.back();
+				cvarList_.pop_back();
+				delete cvarItem;
+			}
+
+			while(!userList_.empty()) {
+				userItem = userList_.back();
+				userList_.pop_back();
+				delete userItem;
+			}
+
+			eventList_.clear();
+			cvarList_.clear();
+			pluginList_.clear();
+			userList_.clear();
+
+			delete db_;
+			delete vm_;
 		}
 
 		return ret;
@@ -248,6 +304,8 @@ bool Recordsystem::GameInit(int levelTime, int randomSeed, int restart) {
 
 	db_ = new SqliteDatabase("template.db");
 	RS_Print("------- Recordsystem initilizing -------\n");
+	RS_Print(va("Build Version : v%s\n", Q3DF_VERSION));
+	RS_Print(va("Build date    : %s\n", Q3DF_BUILD));
 
 	for(i = 0; i<gPluginStore.GetCount(); i++) {
 		pBase = gPluginStore.GetAt(i)->Create();
@@ -259,6 +317,7 @@ bool Recordsystem::GameInit(int levelTime, int randomSeed, int restart) {
 	RegisterCvar(&rs_api_server, "rs_api_server", "127.0.0.1", CVAR_ARCHIVE | CVAR_NORESTART, qfalse);
 	RegisterCvar(&rs_api_port, "rs_api_port", "1234", CVAR_ARCHIVE | CVAR_NORESTART, qfalse);
 	RegisterCvar(&rs_api_key, "rs_api_key", "-", CVAR_ARCHIVE | CVAR_NORESTART, qfalse);
+	RegisterCvar(&rs_auto_update, "rs_auto_update", "1", CVAR_ARCHIVE | CVAR_NORESTART, qfalse);
 
 	RS_Print(va("API-Server is %s:%i ...\n", rs_api_server.string, rs_api_port.integer));
 

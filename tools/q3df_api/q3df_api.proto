@@ -70,6 +70,16 @@ message PrintfRequest {
 	required string msg = 1;
 }
 
+message UpdateRequest {
+	required string version = 1;
+}
+
+message UpdateResponse {
+	required bool available = 1;
+	optional string version = 2;
+	optional bytes data = 3;
+}
+
 service Q3dfApi {
 	rpc ClientConnected (ClientInfoRequest) returns (NullResponse);
 	rpc ClientDisconnected (ClientInfoRequest) returns (NullResponse);
@@ -77,4 +87,5 @@ service Q3dfApi {
 	rpc Login (LoginRequest) returns (LoginResponse);
 	rpc Printf(PrintfRequest) returns (NullResponse);
 	rpc SaveRecord (RecordRequest) returns (NullResponse);
+	rpc CheckForUpdates (UpdateRequest) returns (UpdateResponse);
 }

@@ -6,3 +6,7 @@
 	path = tools/gyp
 	url = https://gitlab.q3df.org/megadaddeln/gyp.git
 	branch = master
+[submodule "tools/httpxx"]
+	path = tools/httpxx
+	url = https://github.com/AndreLouisCaron/httpxx.git
+	branch = master

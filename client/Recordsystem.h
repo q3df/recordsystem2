@@ -13,9 +13,10 @@
 #include <list>
 #include <vector>
 
-#include <q3df_api.pb.h>
 #include <google/protobuf/rpc/rpc_server.h>
 #include <google/protobuf/rpc/rpc_client.h>
+
+#include <q3df_api.pb.h>
 
 #include "PluginStore.h"
 #include "PluginBase.h"

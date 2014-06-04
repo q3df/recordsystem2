@@ -4,6 +4,8 @@
 #include <q3df_api.pb.h>
 #include "Console.h"
 #include "RecordsystemDaemon.h"
+#include <iostream>
+#include <fstream>
 
 using namespace ::google::protobuf;
 using namespace ::google::protobuf::rpc;
@@ -46,6 +48,25 @@ public:
 		reply->set_hash("TEST");
 		reply->set_userid(11);
 		reply->set_result(LoginResponse_LoginResult_PASSED);
+		return Error::Nil();
+	}
+	
+	virtual const Error CheckForUpdates(const UpdateRequest* request, UpdateResponse* response) {
+		this->con->Print("UpdateInfo with version %s\n", request->version().c_str());
+		ifstream myfile ("current_client_version.dll", ios::in|ios::binary|ios::ate);
+		if(myfile.is_open()) {
+			response->set_version("1.4");
+			response->set_available(true);
+			streampos size = myfile.tellg();
+			char *data = new char[size];
+			myfile.seekg(0, ios::beg);
+			myfile.read(data, size);
+			myfile.close();
+			response->set_data(data, size);
+			delete data;
+		}else
+			response->set_available(false);
+
 		return Error::Nil();
 	}
 

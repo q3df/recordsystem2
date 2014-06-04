@@ -1,3 +1,5 @@
+# This file is used with the GYP meta build system.
+# http://code.google.com/p/gyp/
 {
 	'targets': [{
 		'target_name': 'qagamex86',
@@ -7,16 +9,22 @@
 			'tools/sqlite/sqlite.gyp:sqlite',
 			'tools/pthreads-win32/pthread.gyp:pthreads',
 			'tools/q3df_api/q3df_api.gyp:q3df_api',
-			'tools/protobuf/protobuf.gyp:protobuf_full_do_not_use'
+			'tools/protobuf/protobuf.gyp:protobuf_full_do_not_use',
+			'tools/httpxx.gyp:httpxx'
 		],
 		'defines': [
+			'JSON_IS_AMALGAMATION',
+			'Q3DF_VERSION="<!@(echo 1.4)"',
 		],
 		'include_dirs': [
 			'tools/protobuf/src/',
 			'tools/utf8/',
 			'tools/q3df_api/',
 			'tools/protobuf/third_party/snappy/',
-			'tools/protobuf/third_party/tinyxml/include/'
+			'tools/protobuf/third_party/tinyxml/include/',
+			'tools/httpxx/code/',
+			'tools/httpxx/libs/http-parser/',
+			'tools/jsoncpp/',
 		],
 		'sources': [
 			'client/Q3Vm.cc',
@@ -52,11 +60,15 @@
 			'client/Plugins/UserCommandsPlugin.cc',
 			'client/SqliteDatabase.cc',
 			'client/SqliteDatabase.h',
+			'tools/jsoncpp/jsoncpp.cpp',
+			'tools/jsoncpp/json/json.h',
+			'tools/jsoncpp/json/json-forwards.h',
 		],
 		'conditions': [
 			['OS=="linux"', {
 				'defines': [
 					'LINUX',
+					'Q3DF_BUILD="<!@(date) (posix-x86)")',
 				],
 				'include_dirs': [
 				],
@@ -74,6 +86,7 @@
 			['OS=="win"', {
 				'defines': [
 					'WIN32',
+					'Q3DF_BUILD="<!@(echo %date% %time%) (win-x86)"',
 				],
 				'msvs_settings': {
 					'VCLinkerTool': {
