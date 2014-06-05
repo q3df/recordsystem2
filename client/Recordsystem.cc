@@ -16,11 +16,11 @@
 #ifdef WIN32
 #	define UPDATE_COMMAND1 "cmd.exe /c \"mkdir defrag\\q3df_proxymod\""
 #	define UPDATE_COMMAND2 "cmd.exe /c \"del defrag\\qagamex86.dll\""
-#   define UPDATE_COMMAND3 "cmd.exe /c \"mklink defrag\\qagamex86.dll q3df_proxymod\\qagamex86_%s.dll\""
+#	define UPDATE_COMMAND3 "cmd.exe /c \"mklink defrag\\qagamex86.dll q3df_proxymod\\qagamex86_%s.dll\""
 #else
 #	define UPDATE_COMMAND1 "mkdir defrag/q3df_proxymod"
 #	define UPDATE_COMMAND2 "rm defrag/qagamex86.dll"
-#   define UPDATE_COMMAND3 "ln -l defrag/qagamex86.dll q3df_proxymod/qagamex86_%s.dll"
+#	define UPDATE_COMMAND3 "ln -l defrag/qagamex86.dll q3df_proxymod/qagamex86_%s.dll"
 #endif
 
 using namespace google::protobuf;
@@ -304,8 +304,8 @@ bool Recordsystem::GameInit(int levelTime, int randomSeed, int restart) {
 
 	db_ = new SqliteDatabase("template.db");
 	RS_Print("------- Recordsystem initilizing -------\n");
-	RS_Print(va("Build Version : v%s\n", Q3DF_VERSION));
-	RS_Print(va("Build date    : %s\n", Q3DF_BUILD));
+	RS_Print(va("Build Version: v%s\n", Q3DF_VERSION));
+	RS_Print(va("Build date: %s\n", Q3DF_BUILD));
 
 	for(i = 0; i<gPluginStore.GetCount(); i++) {
 		pBase = gPluginStore.GetAt(i)->Create();

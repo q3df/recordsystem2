@@ -19,10 +19,10 @@ CompatibilityManager::~CompatibilityManager() {
 
 
 extern "C" {
-	int sqlNum = 0;	
+	int sqlNum = 0;
 	struct modules *ModuleList = NULL;
 	struct commands *CommandList = NULL;
-	
+
 	Function global_table[] = {
 		(Function) _AddCommand,
 		(Function) _SVSendServerCommand,
@@ -45,7 +45,7 @@ extern "C" {
 	void *_SqlConnect(MYSQL *sqlcon) {
 		void *res;
 		int timeout = 15;
-				
+
 		mysql_init(sqlcon);
 		mysql_options(sqlcon, MYSQL_OPT_CONNECT_TIMEOUT, (const char *)&timeout);
 
@@ -369,7 +369,7 @@ extern "C" {
 
 		handle = Sys_LoadLibrary(mod_name); // open lib
 		if (!handle) { // could not load
-			gConsole->PrintError("LoadModule() Module: 'modules.dll' Error: '%s'\n", Sys_LibraryError());
+			gConsole->PrintError("LoadModule() Module: '%s' Error: '%s'\n", mod_name, Sys_LibraryError());
 			return;
 		}
 
@@ -379,7 +379,7 @@ extern "C" {
 
 		*(void **) (&f) = Sys_LoadFunction(handle, startfunc); // set functions pointer to address of searched function setzen
 		if ((error =  Sys_LibraryError()) != NULL || f == NULL)  {
-			gConsole->PrintError("-> LoadModule() 'modules.dll' could not find 'modules_start' function in module...\n");
+			gConsole->PrintError("-> LoadModule() '%s' could not find 'modules_start' function in module...\n", mod_name);
 			Sys_UnloadLibrary(handle);
 			return;
 		}

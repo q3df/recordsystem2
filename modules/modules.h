@@ -24,10 +24,11 @@
 #	define C_DLLEXPORT
 #endif
 
+#ifdef WIN32
 extern "C" {
-//#include <q_shared.h>
-#include <mysql.h>
+#endif
 
+#include <mysql.h>
 #include "interface.h"
 
 typedef void (*Function)();
@@ -64,4 +65,6 @@ char* mstime_to_dftime (int mstime, int opt);
 int cleanup(rs_client *cl);
 int GetELOEnabled(void);
 char * str_clean(char * str);
+#ifdef WIN32
 }
+#endif

@@ -3,12 +3,14 @@
 typedef int		fileHandle_t;
 typedef enum {qfalse, qtrue}	qboolean;
 
-
+#ifndef WIN32
+typedef char byte;
+#endif
 typedef struct usercmd_s {
 	int				serverTime;
 	int				angles[3];
 	int 			buttons;
-	byte			weapon;           // weapon 
+	byte			weapon;           // weapon
 	signed char	forwardmove, rightmove, upmove;
 } usercmd_t;
 

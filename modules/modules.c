@@ -1,6 +1,9 @@
 #include "modules.h"
 
+#ifdef WIN32
 extern "C" {
+#endif
+
 extern Function *global;
 static ModuleInfo ModInfo;
 
@@ -308,4 +311,7 @@ char * str_clean(char * str)
 	return string;
 }
 
+#ifdef WIN32
 }
+#endif
+

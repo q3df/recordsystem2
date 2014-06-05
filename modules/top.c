@@ -1,6 +1,9 @@
 #include "modules.h"
 
+#ifdef WIN32
 extern "C" {
+#endif
+
 char RS_MYSQL_CONNECTION_ERROR[] = "print \"^1-> ^2can't connect to database.^7\n^1-> ^2Contact an admin, please!^7\n\"";
 char RS_CMD_TOP_LINE1[] = "print \"\n^3  Rankings on %s (^1%s^3)^7\n\"";
 char RS_CMD_TOP_LINE2[] = "print \"^5-----------------------------------------------------^7\n\"";
@@ -471,4 +474,7 @@ LIMIT %i,%i", escaped_map, physic, mode, escaped_map, physic, mode, startat, MAX
 	cl->cmd_progress = 0;
 	return;
 }
+
+#ifdef WIN32
 }
+#endif

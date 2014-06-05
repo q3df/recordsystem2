@@ -68,7 +68,7 @@
 			['OS=="linux"', {
 				'defines': [
 					'LINUX',
-					'Q3DF_BUILD="<!@(date) (posix-x86)")',
+					#'Q3DF_BUILD="<!@(date) (posix-x86)")',
 				],
 				'include_dirs': [
 				],
@@ -140,7 +140,7 @@
 				],
 				'link_settings': {
 					'libraries': [
-						'-pthread'
+						'-L/usr/lib/i386-linux-gnu <!@(mysql_config --libs)'
 					],
 					'library_dirs': [
 					]
@@ -150,7 +150,7 @@
 					'server/ConsoleTty.h',
 				],
 				'cflags': [
-					'-std=c++0x', '-fPIC', '-fexceptions', '-fpermissive'
+					'-std=c++0x', '-fPIC', '-fexceptions', '-fpermissive', '<!@(mysql_config --cflags)'
 				]
 			}],
 			['OS=="win"', {
