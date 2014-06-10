@@ -1,5 +1,6 @@
 #include "Recordsystem.h"
 #include <cstdarg>
+#include "Q3Env.h"
 
 #include <iostream>
 #include <fstream>
@@ -33,7 +34,7 @@ vmCvar_t rs_api_server;
 vmCvar_t rs_api_port;
 vmCvar_t rs_api_key;
 vmCvar_t rs_auto_update;
-
+vmCvar_t rs_forward_console;
 
 extern "C" {
 	void fix_utf8_string(std::string& str) {
@@ -239,11 +240,35 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 	}
 
 	if(command == GAME_INIT) {
+		static char configString[8192*2];
+		ServerRegisterRequest *srReq = new ServerRegisterRequest();
+		NullResponse *srRes = new NullResponse();
+		string *sCfg = new string();
+		int i;
+
 		// initialize clients
-		for(int i = 0; i<MAX_CLIENTS; i++) {
+		for(i=0; i < MAX_CLIENTS; i++) {
 			userList_.push_back(new Q3User(i));
 			userList_[i]->Reset();
 		}
+
+		 // write the configstrings
+		for (i=0 ; i < MAX_CONFIGSTRINGS ; i++)	{
+			memset(&configString, 0, sizeof(configString));
+			RS_Syscall->GetConfigstring(i, configString, sizeof(configString));
+			if(configString[0]) {
+				sCfg->append(va("CONFIG_%i:%s\n", i, configString));
+			}
+		}
+		
+		RS_Syscall->GetServerinfo(configString, sizeof(configString));
+		sCfg->append(va("SRVINFO:%s\n", configString));
+
+		srReq->set_serverinfostring(sCfg->c_str());
+		srReq->set_serverid(RS_Syscall->CvarVariableIntegerValue("rs_serverid"));
+		srReq->set_serverkey(rs_api_key.string);
+		EXECUTE_API_ASYNC(&Q3dfApi::Register, srReq, srRes, NULL);
+		delete sCfg;
 	}
 
 
@@ -307,6 +332,7 @@ bool Recordsystem::GameInit(int levelTime, int randomSeed, int restart) {
 	RS_Print(va("Build Version: v%s\n", Q3DF_VERSION));
 	RS_Print(va("Build date: %s\n", Q3DF_BUILD));
 
+
 	for(i = 0; i<gPluginStore.GetCount(); i++) {
 		pBase = gPluginStore.GetAt(i)->Create();
 		RS_Print(va("Init Plugin %s\n", pBase->Name()));
@@ -318,12 +344,14 @@ bool Recordsystem::GameInit(int levelTime, int randomSeed, int restart) {
 	RegisterCvar(&rs_api_port, "rs_api_port", "1234", CVAR_ARCHIVE | CVAR_NORESTART, qfalse);
 	RegisterCvar(&rs_api_key, "rs_api_key", "-", CVAR_ARCHIVE | CVAR_NORESTART, qfalse);
 	RegisterCvar(&rs_auto_update, "rs_auto_update", "1", CVAR_ARCHIVE | CVAR_NORESTART, qfalse);
+	RegisterCvar(&rs_forward_console, "rs_forward_console", "0", CVAR_ARCHIVE | CVAR_NORESTART, qfalse);
 
 	RS_Print(va("API-Server is %s:%i ...\n", rs_api_server.string, rs_api_port.integer));
 
-	apiClient_ = new rpc::Client(rs_api_server.string, rs_api_port.integer);
+	apiClient_ = new rpc::Client(rs_api_server.string, rs_api_port.integer, gQ3Env);
 	Q3dfApi_ = new Q3dfApi_Stub(apiClient_);
 
+	
 	RS_Print(va("Loading vm/qagame.qvm ...\n", rs_api_server.string, rs_api_port.integer));
 	vm_ = new Q3Vm("vm/qagame.qvm", vm_syscall_);
 	
@@ -345,20 +373,14 @@ bool Recordsystem::GameInit(int levelTime, int randomSeed, int restart) {
 		);
 	});
 
+
 	VM_BEFORE_AddEventHandlerLambda(G_PRINT, [](Q3EventArgs *e) {
-		PrintfRequest *pRequest = new PrintfRequest();
-		pRequest->set_msg((const char *)e->GetParamVMA(0));
-		NullResponse *itemRes = new NullResponse();
-
-
-		/* TODO: remove TEST SQLITE */
-		//sqlite3_stmt *stmt = gRecordsystem->DB()->QueryStmt("INSERT INTO serverdemos (mapname, mode, physic, userid, mstime) VALUES (?, 1, 1, 1, 1000)");
-		//gRecordsystem->DB()->BindString(stmt, (const char *)e->GetParamVMA(0), strlen((const char *)e->GetParamVMA(0)));
-		//
-		//if(gRecordsystem->DB()->StmtStep(stmt) != SQLITE_DONE)
-		//	RS_Print("QueryFehler!!!!!!!!!!\n");
-
-		EXECUTE_API_ASYNC(&Q3dfApi_Stub::Printf, pRequest, itemRes, NULL);
+		if(rs_forward_console.integer == 1) {
+			PrintfRequest *pRequest = new PrintfRequest();
+			pRequest->set_msg((const char *)e->GetParamVMA(0));
+			NullResponse *itemRes = new NullResponse();
+			EXECUTE_API_ASYNC(&Q3dfApi_Stub::Printf, pRequest, itemRes, NULL);
+		}
 	});
 
 	return true;

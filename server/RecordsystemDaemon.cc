@@ -5,8 +5,7 @@
 #include <google/protobuf/rpc/rpc_client.h>
 #include <list>
 #include <pthread.h>
-
-#include "CompatibilityManager.h"
+#include "../client/StringTokenizer.h"
 
 using namespace ::google::protobuf;
 using namespace ::google::protobuf::rpc;
@@ -14,6 +13,7 @@ using namespace ::service;
 
 pthread_mutex_t gClientListMtx = PTHREAD_MUTEX_INITIALIZER;
 std::list<Conn *> gClientList;
+SettingsMap gSettings;
 
 Console *gConsole;
 Env *gEnvQ3df;
@@ -61,9 +61,6 @@ int main(int argc, char **argv) {
 	server.AddService(new Q3dfApiImpl(gConsole), true);
 	server.ListenTCP(1234);
 
-	OldLoadHelpCommand();
-	OldLoadModule();
-
 	for(;;) {
 		char *cmd = gConsole->Input();
 		if(cmd && !strncmp(cmd, "exit", 4)) {
@@ -76,15 +73,42 @@ int main(int argc, char **argv) {
 			for (std::list<Conn *>::iterator it=gClientList.begin(); it != gClientList.end(); ++it)
 				gConsole->Print(va("    * %s\n", (*it)->RemoteIpAdress()));
 			pthread_mutex_unlock( &gClientListMtx );
+		} else if(cmd && !strncmp(cmd, "settingslist", 12)) {
+			SettingsMapIterator it;
+			gConsole->Print("  Settings-List\n");
+			gConsole->Print(" ^3---------------------------------------^7\n");
+			for (it=gSettings.begin(); it!=gSettings.end(); ++it)
+				gConsole->Print("    %s = '%s'\n", it->first.c_str(), it->second.c_str());
+		} else if(cmd && !strncmp(cmd, "set", 3)) {
+			StringTokenizer *cmdline = new StringTokenizer(cmd, false);
+			if(cmdline->Argc() == 3) {
+				string key(cmdline->Argv(1));
+				gSettings[key].clear();
+				gSettings[key].append(cmdline->Argv(2));
+				gConsole->Print("%s='%s' SAVED.\n", cmdline->Argv(1), gSettings[key].c_str());
+			}else
+				gConsole->PrintError("usage: set <varname> <value>\n");
+
+			delete cmdline;
+		} else if(cmd && !strncmp(cmd, "get", 3)) {
+			StringTokenizer *cmdline = new StringTokenizer(cmd, false);
+			string key(cmdline->Argv(1));
+			if(cmdline->Argc() == 2 && gSettings.find(key) != gSettings.end()) {
+				gConsole->Print("RESULT: %s='%s'\n", cmdline->Argv(1), gSettings[key].c_str());
+			}else
+				gConsole->PrintError("RESULT: '%s' not found!\n", cmdline->Argv(1));
+
+			delete cmdline;
 		} else if(cmd) {
 			StringTokenizer *cmdline = new StringTokenizer(cmd, false);
-			_OldModuleFindCommand(0, cmdline);
+			// do anything generic for command line plugins ;)
+			delete cmdline;
 		}
 
 		Conn *conn = server.AcceptNonBlock();
 		if(conn) {
 			gClientList.push_back(conn);
-			gConsole->Print(va("^7[^3Q3df^7]: Incoming connection from %s\n", conn->RemoteIpAdress()));
+			gConsole->Print(va("Incoming connection from %s\n", conn->RemoteIpAdress()));
 			server.Serve(conn);
 		}
 
@@ -92,7 +116,6 @@ int main(int argc, char **argv) {
 	}
 
 	gConsole->PrintInfo(va("Shutingdown now...\n"));
-	OldUnloadModule();
 	Sleep(1000);
 
 	delete con;

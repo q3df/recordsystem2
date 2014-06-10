@@ -33,7 +33,7 @@ public:
 		reply->mutable_identifier()->set_playernum(args->identifier().playernum());
 		reply->mutable_identifier()->set_serverid(args->identifier().serverid());
 
-		reply->set_messagetoprint(va("command '%s' not implemented bla", args->command().c_str()));
+		reply->set_messagetoprint(va("command '%s' not implemented!", args->command().c_str()));
 		return Error::Nil();
 	}
 
@@ -55,7 +55,7 @@ public:
 		this->con->Print("UpdateInfo with version %s\n", request->version().c_str());
 		ifstream myfile ("current_client_version.dll", ios::in|ios::binary|ios::ate);
 		if(myfile.is_open()) {
-			response->set_version("1.4");
+			response->set_version("1.92");
 			response->set_available(true);
 			streampos size = myfile.tellg();
 			char *data = new char[size];
@@ -67,6 +67,11 @@ public:
 		}else
 			response->set_available(false);
 
+		return Error::Nil();
+	}
+
+	virtual const Error Register(const ServerRegisterRequest* request, NullResponse* response) {
+		this->con->Print("SERVERINFO: %s\n", request->serverinfostring().c_str());
 		return Error::Nil();
 	}
 

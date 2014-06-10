@@ -60,6 +60,13 @@ bool Conn::DialTCP(const char* host, int port) {
 
   int flag = 1;
   setsockopt(sock_, IPPROTO_TCP, TCP_NODELAY, (char*)&flag, sizeof(flag));
+
+  if(!DoHandshake()) {
+    logf("connect failed (handshake).\n");
+    Close();
+    return false;
+  }
+
   return true;
 }
 

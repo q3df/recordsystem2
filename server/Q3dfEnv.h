@@ -39,6 +39,24 @@ public:
 		con_->PrintInfo("Q3dfEnv: client %s disconnected\n", con->RemoteIpAdress());
 		if(callbackDisconnect_ != NULL) callbackDisconnect_(con);
 	}
+
+	virtual bool Handshake(Conn *con) {
+		string data("");
+		string key("apikey");
+
+		if(con->RecvFrame(&data) && gSettings.find(key) != gSettings.end() && gSettings[key] == data) {
+			data.clear();
+			data.append("OK");
+			if(con->SendFrame(&data))
+				return true;
+		}else{
+			data.clear();
+			data.append("ACCESS DENIED!");
+			con->SendFrame(&data);
+		}
+
+		return false;
+	}
 };
 
 #endif // SERVER_Q3DFENV_H_

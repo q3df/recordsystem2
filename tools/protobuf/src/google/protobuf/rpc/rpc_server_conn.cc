@@ -28,14 +28,20 @@ void ServerConn::Serve(Server* server, Conn* conn, Env* env) {
 // [static]
 void ServerConn::ServeProc(void* p) {
   auto self = (ServerConn*)p;
-  for(;;) {
-    auto err = self->ProcessOneCall(self->conn_);
-    if(!err.IsNil()) {
-	  self->env_->Logf("%s\n", err.String().c_str());
-	  self->env_->ClientDisconnect(self->conn_);
-      break;
+
+  if(self->env_->Handshake(self->conn_)) {
+    self->env_->Logf("client %s handshake done!\n", self->conn_->RemoteIpAdress());
+    for(;;) {
+      auto err = self->ProcessOneCall(self->conn_);
+      if(!err.IsNil()) {
+        self->env_->Logf("%s\n", err.String().c_str());
+        break;
+      }
     }
-  }
+  }else
+	self->env_->Logf("ERROR: client %s handshake faild!\n", self->conn_->RemoteIpAdress());
+
+  self->env_->ClientDisconnect(self->conn_);
   delete self;
 }
 

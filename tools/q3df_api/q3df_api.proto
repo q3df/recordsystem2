@@ -11,12 +11,8 @@ message Identifier {
 
 message ServerRegisterRequest {
 	required int32 serverId = 1;
-	required int32 serverKey = 2;
+	required string serverKey = 2;
 	required string serverInfoString = 3;
-}
-
-message ServerRegisterResponse {
-
 }
 
 message RecordRequest {
@@ -81,6 +77,7 @@ message UpdateResponse {
 }
 
 service Q3dfApi {
+	rpc Register (ServerRegisterRequest) returns (NullResponse);
 	rpc ClientConnected (ClientInfoRequest) returns (NullResponse);
 	rpc ClientDisconnected (ClientInfoRequest) returns (NullResponse);
 	rpc ClientCommand (ClientCommandRequest) returns (ClientCommandResponse);

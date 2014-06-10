@@ -55,6 +55,7 @@ const ::google::protobuf::rpc::Error Client::callMethod(
   const ::google::protobuf::Message* request,
   ::google::protobuf::Message* response
 ) {
+
   if(!conn_.IsValid()) {
     if(!conn_.DialTCP(host_.c_str(), port_)) {
       return ::google::protobuf::rpc::Error::New(

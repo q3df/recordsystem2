@@ -33,7 +33,6 @@ namespace google {
 namespace protobuf {
 namespace rpc {
 
-	
 Env::Env() {
 	page_size_ = getpagesize();
 	started_bgthread_ = false;
@@ -55,6 +54,10 @@ void Env::Logf(const char* fmt, ...) {
   va_start(ap, fmt);
   Logv(fmt, ap);
   va_end(ap);
+}
+
+bool Env::Handshake(Conn *con) {
+	return true;
 }
 
 void Env::StartThread(void (*function)(void* arg), void* arg) {

@@ -165,6 +165,14 @@ void Conn::logf(const char* fmt, ...) {
   }
 }
 
+bool Conn::DoHandshake() {
+	if(env_ != NULL) {
+		return env_->Handshake(this);
+	}
+
+	return true;
+}
+
 }  // namespace rpc
 }  // namespace protobuf
 }  // namespace google

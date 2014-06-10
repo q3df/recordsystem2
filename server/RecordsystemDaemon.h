@@ -7,6 +7,7 @@
 #include <google/protobuf/rpc/rpc_client.h>
 #include <cstdarg>
 #include <pthread.h>
+#include <map>
 
 using namespace ::google::protobuf;
 using namespace ::google::protobuf::rpc;
@@ -25,5 +26,9 @@ extern ProtobufOnceType gEnvQ3dfInitOnce;
 extern ::google::protobuf::rpc::Env *gEnvQ3df;
 
 const char *va( const char *format, ... );
+
+typedef std::map<string, string> SettingsMap;
+typedef std::map<string, string>::iterator SettingsMapIterator;
+extern SettingsMap gSettings;
 
 #endif // SERVER_RECORDSYSTEMDAEMON_H_

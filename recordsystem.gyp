@@ -14,7 +14,7 @@
 		],
 		'defines': [
 			'JSON_IS_AMALGAMATION',
-			'Q3DF_VERSION="<!@(echo 1.4)"',
+			'Q3DF_VERSION="<!@(git describe --tags --long)"',
 		],
 		'include_dirs': [
 			'tools/protobuf/src/',
@@ -60,6 +60,8 @@
 			'client/Plugins/UserCommandsPlugin.cc',
 			'client/SqliteDatabase.cc',
 			'client/SqliteDatabase.h',
+			'client/Q3Env.cc',
+			'client/Q3Env.h',
 			'tools/jsoncpp/jsoncpp.cpp',
 			'tools/jsoncpp/json/json.h',
 			'tools/jsoncpp/json/json-forwards.h',
@@ -68,7 +70,7 @@
 			['OS=="linux"', {
 				'defines': [
 					'LINUX',
-					#'Q3DF_BUILD="<!@(date) (posix-x86)")',
+					'Q3DF_BUILD=\"<!@(date) (posix-x86)\")',
 				],
 				'include_dirs': [
 				],
@@ -107,7 +109,6 @@
 			'tools/q3df_api/q3df_api.gyp:q3df_api',
 			'tools/protobuf/protobuf.gyp:protobuf_full_do_not_use',
 			'tools/sqlite/sqlite.gyp:sqlite',
-			'modules/modules.gyp:modules',
 		],
 		'defines': [
 		],
@@ -126,8 +127,6 @@
 			'server/Q3dfEnv.h',
 			'server/Q3dfApiImpl.cc',
 			'server/Q3dfApiImpl.h',
-			'server/CompatibilityManager.cc',
-			'server/CompatibilityManager.h',
 			'client/StringTokenizer.cc',
 			'client/StringTokenizer.h',
 		],
@@ -140,7 +139,7 @@
 				],
 				'link_settings': {
 					'libraries': [
-						'-L/usr/lib/i386-linux-gnu <!@(mysql_config --libs)'
+						'-lpthread'
 					],
 					'library_dirs': [
 					]
@@ -150,7 +149,7 @@
 					'server/ConsoleTty.h',
 				],
 				'cflags': [
-					'-std=c++0x', '-fPIC', '-fexceptions', '-fpermissive', '<!@(mysql_config --cflags)'
+					'-std=c++0x', '-fPIC', '-fexceptions', '-fpermissive'
 				]
 			}],
 			['OS=="win"', {
@@ -161,7 +160,6 @@
 					'VCLinkerTool': {
 						'AdditionalDependencies': [
 							'Advapi32.lib',
-							'tools/mysql/libmysql.lib'
 						],
 						'AdditionalOptions': [
 						]

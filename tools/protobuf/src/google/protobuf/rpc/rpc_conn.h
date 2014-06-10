@@ -64,9 +64,12 @@ class Conn {
   bool RecvFrame(::std::string* data);
   bool SendFrame(const ::std::string* data);
 
+  bool DoHandshake();
+
   char *RemoteIpAdress() {
 	  return inet_ntoa(((struct sockaddr_in*)addr_)->sin_addr);
   }
+
  private:
   void logf(const char* fmt, ...);
 

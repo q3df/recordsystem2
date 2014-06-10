@@ -21,9 +21,7 @@ class Conn;
 class LIBPROTOBUF_EXPORT Env {
  public:
 	Env();
-	virtual ~Env() {
-		exit(1);
-	}
+	virtual ~Env() {}
 
   // Return a default environment suitable for the current operating
   // system.  Sophisticated users may wish to provide their own Env
@@ -35,6 +33,8 @@ class LIBPROTOBUF_EXPORT Env {
   // Write an entry to the log file with the specified format.
   virtual void Logv(const char* fmt, va_list ap);
   virtual void Logf(const char* fmt, ...);
+
+  virtual bool Handshake(Conn *con);
 
   virtual void ClientDisconnect(Conn *con) {}
 

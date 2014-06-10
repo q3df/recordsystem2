@@ -1,9 +1,11 @@
-#include "Q3dfEnv.h"
+#include "Q3Env.h"
 
 using namespace ::google::protobuf;
 using namespace ::google::protobuf::rpc;
 using namespace ::service;
 
-void InitQ3dfEnv() {
-	gEnvQ3df = new Q3dfEnv(gConsole);
+Q3Env *gQ3Env;
+
+void InitQ3Env() {
+	gQ3Env = new Q3Env();
 }
