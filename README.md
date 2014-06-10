@@ -7,6 +7,7 @@ Dependency
 > apt-get install libstdc++6-4.4-dev gcc-4.4-multilib g++-4.4-multilib
 > apt-get install g++-multilib
 > apt-get install ia32-libs
+> apt-get install python
 > ```
 > #### Mac OS X 10.9.2
 > ```
@@ -22,7 +23,7 @@ Build (command line)
 > ```
 > git clone https://gitlab.q3df.org/megadaddeln/recordsystem2.git
 > cd recordsystem2
-> git submodule update --init
+> git submodule update --init --recursive
 > ```
 > 
 > > #### Windows (in vs2010 cmd shell)
