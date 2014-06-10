@@ -14,9 +14,9 @@ public:
 	sqlite3_stmt *QueryStmt(const char *sql);
 	void *BindInteger(sqlite3_stmt *stmt, int value);
 	void *BindString(sqlite3_stmt *stmt, const char *value, int size);
-	void *SqliteDatabase::BindBlob(sqlite3_stmt *stmt, void *data, int size);
+	void *BindBlob(sqlite3_stmt *stmt, void *data, int size);
 	int StmtStep(sqlite3_stmt *stmt);
-	int SqliteDatabase::LastInsertId();
+	int LastInsertId();
 	
 };
 

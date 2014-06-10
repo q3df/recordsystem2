@@ -85,6 +85,29 @@
 					'-std=c++0x', '-fPIC', '-fexceptions', '-fpermissive'
 				]
 			}],
+        ['OS == "mac"', {
+				'xcode_settings': {
+        			'OTHER_CFLAGS': [
+        				'-stdlib=libc++', '-std=c++11'
+        			],
+			    },
+				'defines': [
+					'LINUX',
+				],
+				'include_dirs': [
+				],
+				'link_settings': {
+					'libraries': [
+	        	      '$(SDKROOT)/System/Library/Frameworks/CoreFoundation.framework',
+    		          '$(SDKROOT)/System/Library/Frameworks/CoreServices.framework',
+					],
+					'library_dirs': [
+					]
+				},
+				'cflags': [
+					'-std=c++0x', '-fPIC', '-fexceptions', '-fpermissive'
+				]
+        }],
 			['OS=="win"', {
 				'defines': [
 					'WIN32',
@@ -104,7 +127,6 @@
 		'type': 'executable',
 		'msvs_guid': 'F3706CA9-3A31-4B33-8CF6-73EAAC40BF1E',
 		'dependencies': [
-			'qagamex86',
 			'tools/pthreads-win32/pthread.gyp:pthreads',
 			'tools/q3df_api/q3df_api.gyp:q3df_api',
 			'tools/protobuf/protobuf.gyp:protobuf_full_do_not_use',
@@ -152,6 +174,40 @@
 					'-std=c++0x', '-fPIC', '-fexceptions', '-fpermissive'
 				]
 			}],
+        ['OS == "mac"', {
+				'xcode_settings': {
+        			'OTHER_CFLAGS': [
+        				'-stdlib=libc++', '-std=c++11'
+        			],
+			    },
+				'defines': [
+					'LINUX', 'MAC'
+				],
+				'include_dirs': [
+				],
+				'sources': [
+					'server/ConsoleTty.cc',
+					'server/ConsoleTty.h',
+				],
+				'link_settings': {
+					'libraries': [
+	        	      '$(SDKROOT)/System/Library/Frameworks/CoreFoundation.framework',
+    		          '$(SDKROOT)/System/Library/Frameworks/CoreServices.framework',
+					],
+					'library_dirs': [
+					]
+				},
+				'cflags': [
+					'-std=c++0x', '-fPIC', '-fexceptions', '-fpermissive'
+				]
+        }],
+        	['OS == "mac"', {
+       	   		'link_settings': {
+       	     	'libraries': [  
+            	  '$(SDKROOT)/System/Library/Frameworks/CoreFoundation.framework',
+        	    ],
+    	      },
+	        }],
 			['OS=="win"', {
 				'defines': [
 					'WIN32',

@@ -76,12 +76,12 @@ Error ServerConn::ProcessOneCall(Conn* receiver) {
   // 3. make request/response message
   auto request = service->GetRequestPrototype(method).New();
   auto response = service->GetResponsePrototype(method).New();
-  defer([&](){ delete request; delete response; });
 
   // 4. recv request body
   err = wire::RecvRequestBody(receiver, &reqHeader, request);
   if(!err.IsNil()) {
     env_->Logf("ServerConn: RecvRequestBody fail: %s.\n", err.String().c_str());
+    delete request; delete response;
     return err;
   }
 
@@ -96,9 +96,11 @@ Error ServerConn::ProcessOneCall(Conn* receiver) {
   err = wire::SendResponse(receiver, reqHeader.id(), rv.String(), response);
   if(!err.IsNil()) {
     env_->Logf("ServerConn: SendResponse fail: %s.\n", err.String().c_str());
+    delete request; delete response;
     return err;
   }
 
+  delete request; delete response;
   return Error::Nil();
 }
 
