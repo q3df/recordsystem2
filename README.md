@@ -52,3 +52,42 @@ Build (windows vs2010 / vs2012)
 > create_projects.bat
 > ```
 > now you can open the generated recordsystem.sln solution!>
+
+
+Installation
+-------------------------------
+> > ### Windows (console)
+> > ```
+> > # DEAMON
+> > cd <git-repo>/build/<Debug|Releas>/
+> > mklink qagamex86.dll current_client_version.dll # for proxymod self update
+> > ./recordsystemd.exe
+> > # after starting you have to set the apikey (debug currently)
+> > # type following command into the daemon console:
+> > set apikey "secretkey"
+> >
+> > # IOQ3DED PROXYMOD
+> > cd <q3-directory-root>
+> > mkdir defrag\q3df_proxymod
+> > xcopy <git-repo>\build\<Debug|Release>\qagamex86.dll defrag/q3df_proxymod/qagamex86.dll
+> > mklink defrag/q3df_proxymod/qagamex86.so defrag/qagamex86.dll
+> > ioq3ded.x86.exe +set fs_game defrag +set vm_game 0 +set rs_api_key "secretkey" +map st1
+> > ```
+> >
+> > ### Linux (ubuntu 12.04 x64)
+> > ```
+> > # DEAMON
+> > cd <git-repo>/out/<Debug|Releas>/
+> > ln -s lib.target/libqagamei386.so current_client_version.so # for proxymod self update
+> > ./recordsystemd
+> > # after starting you have to set the apikey (debug currently)
+> > # type following command into the daemon console:
+> > set apikey "secretkey"
+> > 
+> > # IOQ3DED PROXYMOD
+> > cd <q3-directory-root>
+> > mkdir defrag/q3df_proxymod
+> > cp <git-repo>/out/<Debug|Release>/lib.target/libqagamex86.so defrag/q3df_proxymod/qagamei386.so
+> > ln -s defrag/q3df_proxymod/qagamei386.so defrag/qagamei386.so
+> > ./ioq3ded.i386 +set fs_game defrag +set vm_game 0 +set rs_api_key "secretkey" +map st1
+> > ```
