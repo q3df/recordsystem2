@@ -149,8 +149,6 @@ Conn* Conn::AcceptNonBlock() {
 	  return new Conn(sock, (struct sockaddr*)addr, env_);
   }else if (ret < 0) {
 	  free(addr);
-	  logf("accept faild!\n");
-	  exit(1);
   }
 
   return NULL;

@@ -35,6 +35,13 @@ ApiAsyncExecuter::~ApiAsyncExecuter() {
 }
 
 void ApiAsyncExecuter::ExecuteAsync(ExecuterFunction item, ::google::protobuf::Message *replyMsg, ::google::protobuf::Message *sentMsg, ExecuterCallbackFunction callback) {
+		if(stoppingThread_) {
+			RS_PrintWarning("ApiAsyncExecuter.ExecuteAsync: ApiAsyncExecuter.~ApiAsyncExecuter already called!\n");
+			delete replyMsg;
+			delete sentMsg;
+			return;
+		}
+
 		pthread_mutex_lock(&mutex_);
 		itemsThread_.push(new ApiAsyncItem(item, callback, replyMsg, sentMsg));
 		pthread_mutex_unlock(&mutex_);

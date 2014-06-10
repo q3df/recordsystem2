@@ -15,13 +15,11 @@
 #endif
 
 #ifdef WIN32
-#	define UPDATE_COMMAND1 "cmd.exe /c \"mkdir defrag\\q3df_proxymod\""
-#	define UPDATE_COMMAND2 "cmd.exe /c \"del defrag\\qagamex86.dll\""
-#	define UPDATE_COMMAND3 "cmd.exe /c \"mklink defrag\\qagamex86.dll q3df_proxymod\\qagamex86_%s.dll\""
+#	define UPDATE_COMMAND1 "cmd.exe /c \"del defrag\\qagamex86.dll\""
+#	define UPDATE_COMMAND2 "cmd.exe /c \"mklink defrag\\qagamex86.dll q3df_proxymod\\qagamex86_%s.dll\""
 #else
-#	define UPDATE_COMMAND1 "mkdir defrag/q3df_proxymod"
-#	define UPDATE_COMMAND2 "rm defrag/qagamex86.dll"
-#	define UPDATE_COMMAND3 "ln -l defrag/qagamex86.dll q3df_proxymod/qagamex86_%s.dll"
+#	define UPDATE_COMMAND1 "rm defrag/qagamei386.so"
+#	define UPDATE_COMMAND2 "ln -s q3df_proxymod/qagamei386_%s.so defrag/qagamei386.so"
 #endif
 
 using namespace google::protobuf;
@@ -149,8 +147,7 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 								outfile.write(uRes->data().c_str(), uRes->data().length());
 								outfile.close();
 								system(UPDATE_COMMAND1);
-								system(UPDATE_COMMAND2);
-								system(va(UPDATE_COMMAND3, uRes->version().c_str()));
+								system(va(UPDATE_COMMAND2, uRes->version().c_str()));
 							}
 						}else
 							RS_Print("UPDATE: no update available...\n");
@@ -260,7 +257,7 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 				sCfg->append(va("CONFIG_%i:%s\n", i, configString));
 			}
 		}
-		
+
 		RS_Syscall->GetServerinfo(configString, sizeof(configString));
 		sCfg->append(va("SRVINFO:%s\n", configString));
 
@@ -329,7 +326,7 @@ bool Recordsystem::GameInit(int levelTime, int randomSeed, int restart) {
 
 	db_ = new SqliteDatabase("template.db");
 	RS_Print("------- Recordsystem initilizing -------\n");
-	RS_Print(va("Build Version: v%s\n", Q3DF_VERSION));
+	RS_Print(va("Build Version: %s\n", Q3DF_VERSION));
 	RS_Print(va("Build date: %s\n", Q3DF_BUILD));
 
 
@@ -348,13 +345,14 @@ bool Recordsystem::GameInit(int levelTime, int randomSeed, int restart) {
 
 	RS_Print(va("API-Server is %s:%i ...\n", rs_api_server.string, rs_api_port.integer));
 
+	gQ3Env = new Q3Env();
 	apiClient_ = new rpc::Client(rs_api_server.string, rs_api_port.integer, gQ3Env);
 	Q3dfApi_ = new Q3dfApi_Stub(apiClient_);
 
-	
+
 	RS_Print(va("Loading vm/qagame.qvm ...\n", rs_api_server.string, rs_api_port.integer));
 	vm_ = new Q3Vm("vm/qagame.qvm", vm_syscall_);
-	
+
 	if(!vm_->IsInitilized()) {
 		RS_Error("Faild initializing vm/qagame.qvm!\n");
 		return false;

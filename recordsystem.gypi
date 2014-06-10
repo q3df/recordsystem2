@@ -41,6 +41,12 @@
 				],
 				'conditions': [
 					['OS=="linux"', {
+						'cflags!': [
+                                                        '-O2', '-Os', '-O3'
+                                                ],
+                                                'cflags': [
+                                                        '-O0', '-g3', '-p'
+                                                ],
 					}],
 					['OS=="win"', {
 						'msvs_settings': {
@@ -69,8 +75,7 @@
 				'conditions': [
 					['OS=="linux"', {
 						'cflags!': [
-							'-O2',
-							'-Os',
+							'-O2', '-Os', '-g', '-g3', '-p'
 						],
 						'cflags': [
 							'-O3',

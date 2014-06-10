@@ -14,7 +14,7 @@
 		],
 		'defines': [
 			'JSON_IS_AMALGAMATION',
-			'Q3DF_VERSION="<!@(git describe --tags --long)"',
+			'Q3DF_VERSION="<!@(git describe --tags --long --match \"v*\")"',
 		],
 		'include_dirs': [
 			'tools/protobuf/src/',
@@ -70,7 +70,7 @@
 			['OS=="linux"', {
 				'defines': [
 					'LINUX',
-					'Q3DF_BUILD=\"<!@(date) (posix-x86)\")',
+					'Q3DF_BUILD=\"<!@(date) (posix-x86)\"',
 				],
 				'include_dirs': [
 				],
