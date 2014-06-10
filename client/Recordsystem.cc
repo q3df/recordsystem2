@@ -17,9 +17,11 @@
 #ifdef WIN32
 #	define UPDATE_COMMAND1 "cmd.exe /c \"del defrag\\qagamex86.dll\""
 #	define UPDATE_COMMAND2 "cmd.exe /c \"mklink defrag\\qagamex86.dll q3df_proxymod\\qagamex86_%s.dll\""
+#	define LIBRARY_EXT ".dll"
 #else
 #	define UPDATE_COMMAND1 "rm defrag/qagamei386.so"
-#	define UPDATE_COMMAND2 "ln -s q3df_proxymod/qagamei386_%s.so defrag/qagamei386.so"
+#	define UPDATE_COMMAND2 "ln -s defrag/q3df_proxymod/qagamei386_%s.so defrag/qagamei386.so"
+#	define LIBRARY_EXT ".so"
 #endif
 
 using namespace google::protobuf;
@@ -141,8 +143,8 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 						UpdateResponse *uRes = (UpdateResponse *)msg;
 
 						if(uRes->available()) {
-							RS_Print(va("UPDATE: updating to version '%s' [^3OK^7].\n", uRes->version().c_str()));
-							ofstream outfile (va("defrag/q3df_proxymod/qagamex86_%s.dll", uRes->version().c_str()), ios::binary | ios::out);
+							RS_Print(va("UPDATE: updating to version '%s' [OK].\n", uRes->version().c_str()));
+							ofstream outfile (va("defrag/q3df_proxymod/qagamei386_%s%s", uRes->version().c_str(), LIBRARY_EXT), ios::binary | ios::out);
 							if(outfile.is_open()) {
 								outfile.write(uRes->data().c_str(), uRes->data().length());
 								outfile.close();
