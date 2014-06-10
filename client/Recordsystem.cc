@@ -20,7 +20,7 @@
 #	define LIBRARY_EXT ".dll"
 #else
 #	define UPDATE_COMMAND1 "rm defrag/qagamei386.so"
-#	define UPDATE_COMMAND2 "ln -s defrag/q3df_proxymod/qagamei386_%s.so defrag/qagamei386.so"
+#	define UPDATE_COMMAND2 "ln -s q3df_proxymod/qagamei386_%s.so defrag/qagamei386.so"
 #	define LIBRARY_EXT ".so"
 #endif
 
