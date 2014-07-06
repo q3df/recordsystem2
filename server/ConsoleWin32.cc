@@ -1,3 +1,7 @@
+// Copyright (c) 2012 q3df-team. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 #include "ConsoleWin32.h"
 #include <Windows.h>
 #include <stdio.h>
@@ -12,7 +16,7 @@ ConsoleWin32::ConsoleWin32() {
 	CONSOLE_SCREEN_BUFFER_INFO info;
 
 	// handle Ctrl-C or other console termination
-	// SetConsoleCtrlHandler(CtrlHandler, TRUE);
+	//SetConsoleCtrlHandler(CtrlHandler, TRUE);
 
 	qconsole_hin_ = GetStdHandle(STD_INPUT_HANDLE);
 	if(qconsole_hin_ == INVALID_HANDLE_VALUE)
@@ -47,8 +51,11 @@ ConsoleWin32::ConsoleWin32() {
 	SetConsoleTextAttribute(qconsole_hout_, ColorCharToAttrib(COLOR_WHITE));
 
 	Show();
+
+	this->Print("Console initialized...\n");
 }
-	
+
+
 ConsoleWin32::~ConsoleWin32() {
 	Hide();
 	SetConsoleMode(qconsole_hin_, qconsole_orig_mode_);
@@ -57,6 +64,7 @@ ConsoleWin32::~ConsoleWin32() {
 	CloseHandle(qconsole_hout_);
 	CloseHandle(qconsole_hin_);
 }
+
 
 char *ConsoleWin32::Input() {
 	CONSOLE_SCREEN_BUFFER_INFO binfo;
@@ -205,6 +213,7 @@ char *ConsoleWin32::Input() {
 	return qconsole_line_;
 }
 
+
 void ConsoleWin32::Print(const char *msg, ...) {
 	this->Lock();
 
@@ -238,6 +247,7 @@ void ConsoleWin32::Print(const char *msg, ...) {
 	this->Unlock();
 }
 
+
 void ConsoleWin32::PrintInput(const char *msg, ...) {
 	this->Lock();
 	va_list argptr;
@@ -254,6 +264,7 @@ void ConsoleWin32::PrintInput(const char *msg, ...) {
 	this->Show();
 	this->Unlock();
 }
+
 
 void ConsoleWin32::PrintInfo(const char *msg, ...) {
 	this->Lock();
@@ -272,6 +283,7 @@ void ConsoleWin32::PrintInfo(const char *msg, ...) {
 	this->Unlock();
 }
 
+
 void ConsoleWin32::PrintError(const char *msg, ...) {
 	this->Lock();
 	va_list argptr;
@@ -288,6 +300,7 @@ void ConsoleWin32::PrintError(const char *msg, ...) {
 	this->Show();
 	this->Unlock();
 }
+
 
 void ConsoleWin32::Show() {
 	CONSOLE_SCREEN_BUFFER_INFO binfo;
@@ -356,6 +369,7 @@ void ConsoleWin32::Show() {
 	SetConsoleCursorPosition(qconsole_hout_, cursorPos);
 }
 
+
 void ConsoleWin32::Hide() {
 	int realLen;
 	realLen = qconsole_linelen_;
@@ -412,6 +426,7 @@ void ConsoleWin32::WindowsColorPrint(const char *msg) {
 	}
 }
 
+
 WORD ConsoleWin32::ColorCharToAttrib(char color) {
 	WORD attrib;
 
@@ -434,6 +449,7 @@ WORD ConsoleWin32::ColorCharToAttrib(char color) {
 	return attrib;
 }
 
+
 BOOL WINAPI ConsoleWin32::CtrlHandler(DWORD sig) {
 	this->Print(va("SIGNAL: %i\n", sig));
 	return TRUE;
@@ -454,7 +470,8 @@ void ConsoleWin32::HistAdd() {
 
 	qconsole_history_pos_ = qconsole_history_oldest_;
 }
-	
+
+
 void ConsoleWin32::HistPrev() {
 	int pos;
 
@@ -470,6 +487,7 @@ void ConsoleWin32::HistPrev() {
 
 	qconsole_linelen_ = strlen(qconsole_line_);
 }
+
 
 void ConsoleWin32::HistNext() {
 	int pos;

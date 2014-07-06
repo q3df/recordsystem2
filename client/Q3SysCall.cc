@@ -2,7 +2,6 @@
 #include "Recordsystem.h"
 
 extern "C" {
-	void fix_utf8_string(std::string& str);
 	const char *va( const char *format, ... );
 }
 

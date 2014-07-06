@@ -1,13 +1,22 @@
+// Copyright (c) 2012 q3df-team. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 #ifndef SERVER_RECORDSYSTEMDAEMON_H_
 #define SERVER_RECORDSYSTEMDAEMON_H_
 
-#include "Console.h"
-#include <q3df_api.pb.h>
-#include <google/protobuf/rpc/rpc_server.h>
-#include <google/protobuf/rpc/rpc_client.h>
 #include <cstdarg>
 #include <pthread.h>
-#include <map>
+#include <list>
+#include <pthread.h>
+
+#include <q3df_api.pb.h>
+
+#include <google/protobuf/rpc/rpc_server.h>
+#include <google/protobuf/rpc/rpc_client.h>
+
+#include "Console.h"
+#include "Q3dfEnv.h"
 
 using namespace ::google::protobuf;
 using namespace ::google::protobuf::rpc;
@@ -21,14 +30,12 @@ using namespace ::service;
 #	define Sleep(x) usleep(x*1000)
 #endif
 
-extern Console *gConsole;
-extern ProtobufOnceType gEnvQ3dfInitOnce;
-extern ::google::protobuf::rpc::Env *gEnvQ3df;
-
 const char *va( const char *format, ... );
 
 typedef std::map<string, string> SettingsMap;
 typedef std::map<string, string>::iterator SettingsMapIterator;
 extern SettingsMap gSettings;
+
+extern std::list<Conn *> gClientList;
 
 #endif // SERVER_RECORDSYSTEMDAEMON_H_

@@ -37,12 +37,6 @@ vmCvar_t rs_auto_update;
 vmCvar_t rs_forward_console;
 
 extern "C" {
-	void fix_utf8_string(std::string& str) {
-		std::string temp;
-		utf8::replace_invalid(str.begin(), str.end(), back_inserter(temp));
-		str = temp;
-	}
-
 	const char *va( const char *format, ... ) {
 		va_list		argptr;
 		static char		string[2][32000];	// in case va is called by nested functions
@@ -200,7 +194,7 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 			pluginList_.clear();
 			userList_.clear();
 
-			delete db_;
+			//delete db_;
 			delete vm_;
 		}
 
@@ -251,18 +245,8 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 			userList_[i]->Reset();
 		}
 
-		 // write the configstrings
-		for (i=0 ; i < MAX_CONFIGSTRINGS ; i++)	{
-			memset(&configString, 0, sizeof(configString));
-			RS_Syscall->GetConfigstring(i, configString, sizeof(configString));
-			if(configString[0]) {
-				sCfg->append(va("CONFIG_%i:%s\n", i, configString));
-			}
-		}
-
 		RS_Syscall->GetServerinfo(configString, sizeof(configString));
-		sCfg->append(va("SRVINFO:%s\n", configString));
-
+		sCfg->append(configString+1);
 		srReq->set_serverinfostring(sCfg->c_str());
 		srReq->set_serverid(RS_Syscall->CvarVariableIntegerValue("rs_serverid"));
 		srReq->set_serverkey(rs_api_key.string);
@@ -326,7 +310,7 @@ bool Recordsystem::GameInit(int levelTime, int randomSeed, int restart) {
 	PluginBase *pBase;
 	int i;
 
-	db_ = new SqliteDatabase("template.db");
+	//db_ = new SqliteDatabase("template.db");
 	RS_Print("------- Recordsystem initilizing -------\n");
 	RS_Print(va("Build Version: %s\n", Q3DF_VERSION));
 	RS_Print(va("Build date: %s\n", Q3DF_BUILD));
@@ -350,8 +334,7 @@ bool Recordsystem::GameInit(int levelTime, int randomSeed, int restart) {
 	gQ3Env = new Q3Env();
 	apiClient_ = new rpc::Client(rs_api_server.string, rs_api_port.integer, gQ3Env);
 	Q3dfApi_ = new Q3dfApi_Stub(apiClient_);
-
-
+	
 	RS_Print(va("Loading vm/qagame.qvm ...\n", rs_api_server.string, rs_api_port.integer));
 	vm_ = new Q3Vm("vm/qagame.qvm", vm_syscall_);
 

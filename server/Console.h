@@ -1,3 +1,7 @@
+// Copyright (c) 2012 q3df-team. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 #ifndef SERVER_CONSOLE_H_
 #define SERVER_CONSOLE_H_
 
@@ -20,11 +24,11 @@
 #define COLOR_CYAN		'5'
 #define COLOR_MAGENTA	'6'
 #define COLOR_WHITE		'7'
+
 #define ColorIndex(c)	(((c) - '0') & 0x07)
 typedef float vec_t;
 typedef vec_t vec4_t[4];
 extern vec4_t g_color_table[8];
-
 
 class Console {
 public:
@@ -36,6 +40,8 @@ public:
 	virtual void PrintInfo(const char *msg, ...) = 0;
 	virtual void PrintError(const char *msg, ...) = 0;
 
+	static void Init();
+	static void Dispose();
 
 protected:
 	pthread_mutex_t mtx_;

@@ -1,23 +1,22 @@
-#include "Q3dfEnv.h"
+// Copyright (c) 2012 q3df-team. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 #include "RecordsystemDaemon.h"
-#include "Q3dfApiImpl.h"
+
 #include <google/protobuf/rpc/rpc_server.h>
 #include <google/protobuf/rpc/rpc_client.h>
-#include <list>
-#include <pthread.h>
+
+#include "Q3dfApiImpl.h"
+#include "ServerInfos.h"
+
 #include "../client/StringTokenizer.h"
 
 using namespace ::google::protobuf;
 using namespace ::google::protobuf::rpc;
 using namespace ::service;
 
-pthread_mutex_t gClientListMtx = PTHREAD_MUTEX_INITIALIZER;
-std::list<Conn *> gClientList;
 SettingsMap gSettings;
-
-Console *gConsole;
-Env *gEnvQ3df;
-ProtobufOnceType gEnvQ3dfInitOnce;
 
 extern "C" {
 	const char *va( const char *format, ... ) {
@@ -37,25 +36,9 @@ extern "C" {
 	}
 }
 
-
-void clientDisconnected(Conn *con) {
-	pthread_mutex_lock( &gClientListMtx );
-	gClientList.remove(con);
-	pthread_mutex_unlock( &gClientListMtx );
-}
-
 int main(int argc, char **argv) {
-#ifdef WIN32
-	ConsoleWin32 *con = new ConsoleWin32();
-	gConsole = con;
-#else
-	ConsoleTty *con = new ConsoleTty();
-	gConsole = con;
-#endif
-
-	GoogleOnceInit(&gEnvQ3dfInitOnce, InitQ3dfEnv);
-
-	((Q3dfEnv *)gEnvQ3df)->SetDisconnectCallback(clientDisconnected);
+	Console::Init();
+	Q3dfEnv::Init();
 
 	Server server(gEnvQ3df);
 	server.AddService(new Q3dfApiImpl(gConsole), true);
@@ -65,20 +48,17 @@ int main(int argc, char **argv) {
 		char *cmd = gConsole->Input();
 		if(cmd && !strncmp(cmd, "exit", 4)) {
 			break;
-		} else if(cmd && !strncmp(cmd, "status", 5)) {
-			gConsole->Print(va("%i client(s) connected:\n", gClientList.size()));
-			gConsole->Print("^3------------------------------^7\n");
 
-			pthread_mutex_lock( &gClientListMtx );
-			for (std::list<Conn *>::iterator it=gClientList.begin(); it != gClientList.end(); ++it)
-				gConsole->Print(va("    * %s\n", (*it)->RemoteIpAdress()));
-			pthread_mutex_unlock( &gClientListMtx );
+		} else if(cmd && !strncmp(cmd, "status", 5)) {
+			ServerInfos::PrintList(gConsole);
+
 		} else if(cmd && !strncmp(cmd, "settingslist", 12)) {
 			SettingsMapIterator it;
 			gConsole->Print("  Settings-List\n");
 			gConsole->Print(" ^3---------------------------------------^7\n");
 			for (it=gSettings.begin(); it!=gSettings.end(); ++it)
 				gConsole->Print("    %s = '%s'\n", it->first.c_str(), it->second.c_str());
+
 		} else if(cmd && !strncmp(cmd, "set", 3)) {
 			StringTokenizer *cmdline = new StringTokenizer(cmd, false);
 			if(cmdline->Argc() == 3) {
@@ -90,6 +70,7 @@ int main(int argc, char **argv) {
 				gConsole->PrintError("usage: set <varname> <value>\n");
 
 			delete cmdline;
+
 		} else if(cmd && !strncmp(cmd, "get", 3)) {
 			StringTokenizer *cmdline = new StringTokenizer(cmd, false);
 			string key(cmdline->Argv(1));
@@ -99,16 +80,17 @@ int main(int argc, char **argv) {
 				gConsole->PrintError("RESULT: '%s' not found!\n", cmdline->Argv(1));
 
 			delete cmdline;
+
 		} else if(cmd) {
 			StringTokenizer *cmdline = new StringTokenizer(cmd, false);
 			// do anything generic for command line plugins ;)
 			delete cmdline;
+
 		}
 
 		Conn *conn = server.AcceptNonBlock();
 		if(conn) {
-			gClientList.push_back(conn);
-			gConsole->Print(va("Incoming connection from %s\n", conn->RemoteIpAdress()));
+			gConsole->PrintInfo("incoming connection from ^3%s^7\n", conn->RemoteIpAdress());
 			server.Serve(conn);
 		}
 
@@ -118,7 +100,9 @@ int main(int argc, char **argv) {
 	gConsole->PrintInfo(va("Shutingdown now...\n"));
 	Sleep(1000);
 
-	delete con;
-	pthread_mutex_destroy(&gClientListMtx);
+	ServerInfos::Dispose();
+	Q3dfEnv::Dispose();
+	Console::Dispose();
+
 	return 0;
 }

@@ -8,7 +8,6 @@
 #include "Q3Event.h"
 #include "VmCvarItem.h"
 
-#include <utf8.h>
 #include <functional>
 #include <list>
 #include <vector>
@@ -32,7 +31,6 @@ extern vmCvar_t rs_api_port;
 extern vmCvar_t rs_api_key;
 
 extern "C" {
-	void fix_utf8_string(std::string& str);
 	const char *va( const char *format, ... );
 }
 

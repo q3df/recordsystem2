@@ -149,6 +149,8 @@
 			'server/Q3dfEnv.h',
 			'server/Q3dfApiImpl.cc',
 			'server/Q3dfApiImpl.h',
+			'server/ServerInfos.cc',
+			'server/ServerInfos.h',
 			'client/StringTokenizer.cc',
 			'client/StringTokenizer.h',
 		],
