@@ -163,7 +163,7 @@
 				],
 				'link_settings': {
 					'libraries': [
-						'-lpthread'
+						'-lpthread', 'tools/mysql/lib/libmysqlclient.a', 'tools/mysql/lib/libmysqlcppconn-static.a'
 					],
 					'library_dirs': [
 					]
