@@ -149,8 +149,8 @@
 			'server/Q3dfEnv.h',
 			'server/Q3dfApiImpl.cc',
 			'server/Q3dfApiImpl.h',
-			'server/ServerInfos.cc',
-			'server/ServerInfos.h',
+			'server/ClientMap.cc',
+			'server/ClientMap.h',
 			'client/StringTokenizer.cc',
 			'client/StringTokenizer.h',
 		],
@@ -185,8 +185,6 @@
 				'defines': [
 					'LINUX', 'MAC'
 				],
-				'include_dirs': [
-				],
 				'sources': [
 					'server/ConsoleTty.cc',
 					'server/ConsoleTty.h',
@@ -214,10 +212,34 @@
 				'defines': [
 					'WIN32',
 				],
+				'include_dirs': [
+					'C:\\Boost\\include\\boost-1_55',
+					'C:\Boost\lib',
+				],
 				'msvs_settings': {
+					'VCCLCompilerTool': {
+						'DisableSpecificWarnings': ['4251'],
+					},
 					'VCLinkerTool': {
+						'AdditionalLibraryDirectories': [
+							'C:\Boost\lib'
+						],
 						'AdditionalDependencies': [
 							'Advapi32.lib',
+							'kernel32.lib',
+							'user32.lib',
+							'gdi32.lib',
+							'winspool.lib',
+							'shell32.lib',
+							'ole32.lib',
+							'oleaut32.lib',
+							'uuid.lib',
+							'comdlg32.lib',
+							'advapi32.lib',
+							'ws2_32.lib',
+							'Secur32.lib',
+							'tools/mysql/prebuild-win32-vs2012-static/Debug/mysqlclient.lib',
+							'tools/mysql/prebuild-win32-vs2012-static/Debug/mysqlcppconn.lib',
 						],
 						'AdditionalOptions': [
 						]

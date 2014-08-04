@@ -7,7 +7,7 @@
 
 #include <q3df_api.pb.h>
 #include "Console.h"
-#include "ServerInfos.h"
+#include "ClientMap.h"
 #include "RecordsystemDaemon.h"
 #include <iostream>
 #include <fstream>

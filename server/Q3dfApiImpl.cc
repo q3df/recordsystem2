@@ -71,13 +71,15 @@ const Error Q3dfApiImpl::Register(const ServerRegisterRequest* request, NullResp
 	this->con->Print("SERVERINFO: %s\n", request->serverinfostring().c_str());
 	Conn *con = (Conn *)request->TagObj;
 
-	ServerInfos::InsertInfo(con, request->serverid(), request->serverinfostring());
+	ClientMap::InsertInfo(con, request->serverid(), request->serverinfostring());
 
 	return Error::Nil();
 }
 
 
 const Error Q3dfApiImpl::SaveRecord(const RecordRequest* request, NullResponse* response) {
+	Conn *con = (Conn *)request->TagObj;
+	
 	this->con->PrintInfo(
 		va("RECORD %s %s %i\n",
 			request->mapname().c_str(),

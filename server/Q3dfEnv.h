@@ -18,7 +18,7 @@ using namespace ::google::protobuf;
 using namespace ::google::protobuf::rpc;
 using namespace ::service;
 
-typedef std::function<void(google::protobuf::rpc::Conn*)> DisconnectCallbackFunction;
+typedef std::function<void(google::protobuf::rpc::Conn *)> DisconnectCallbackFunction;
 
 class Q3dfEnv : public Env {
 private:

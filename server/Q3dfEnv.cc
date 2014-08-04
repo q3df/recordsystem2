@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "Q3dfEnv.h"
-#include "ServerInfos.h"
+#include "ClientMap.h"
 
 using namespace ::google::protobuf;
 using namespace ::google::protobuf::rpc;
@@ -22,7 +22,7 @@ void Q3dfEnv::Init() {
 	GoogleOnceInit(&gEnvQ3dfInitOnce, InitQ3dfEnv);
 
 	gEnvQ3df->SetDisconnectCallback([](Conn *con) {
-		ServerInfos::DeleteInfo(con);
+		ClientMap::DeleteInfo(con);
 	});
 }
 
