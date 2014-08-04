@@ -214,6 +214,7 @@
 				],
 				'include_dirs': [
 					'C:\\Boost\\include\\boost-1_55',
+					'tools/inttypes_win/'
 				],
 				'msvs_settings': {
 					'VCCLCompilerTool': {
@@ -236,7 +237,7 @@
 							'advapi32.lib',
 							'ws2_32.lib',
 							'Secur32.lib',
-							'tools/mysql/lib/mysqlclient.lib',
+							'tools/mysql/lib/libmysql.lib',
 							'tools/mysql/lib/mysqlcppconn.lib',
 						],
 						'AdditionalOptions': [
