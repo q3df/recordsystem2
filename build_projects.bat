@@ -2,7 +2,7 @@
 set RC=
 setlocal
 
-xcopy /Y /F ./rbnf.cpp.patched tools/icu/source/i18n/rbnf.cpp
+xcopy /Y /F .\rbnf.cpp.patched tools\icu\source\i18n\rbnf.cpp
 
 if "%1" == "" (
 echo ERROR: Please specify a build target: Debug or Release
