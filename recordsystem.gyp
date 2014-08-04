@@ -85,7 +85,7 @@
 					'-std=c++0x', '-fPIC', '-fexceptions', '-fpermissive'
 				]
 			}],
-        ['OS == "mac"', {
+		        ['OS == "mac"', {
 				'xcode_settings': {
         			'OTHER_CFLAGS': [
         				'-stdlib=libc++', '-std=c++11'
@@ -98,8 +98,8 @@
 				],
 				'link_settings': {
 					'libraries': [
-	        	      '$(SDKROOT)/System/Library/Frameworks/CoreFoundation.framework',
-    		          '$(SDKROOT)/System/Library/Frameworks/CoreServices.framework',
+						'$(SDKROOT)/System/Library/Frameworks/CoreFoundation.framework',
+    						'$(SDKROOT)/System/Library/Frameworks/CoreServices.framework',
 					],
 					'library_dirs': [
 					]
@@ -107,7 +107,7 @@
 				'cflags': [
 					'-std=c++0x', '-fPIC', '-fexceptions', '-fpermissive'
 				]
-        }],
+			}],
 			['OS=="win"', {
 				'defines': [
 					'WIN32',
@@ -163,7 +163,12 @@
 				],
 				'link_settings': {
 					'libraries': [
-						'-lpthread', 'tools/mysql/lib/libmysqlclient.a', 'tools/mysql/lib/libmysqlcppconn-static.a'
+						'tools/mysql/lib/libmysqlcppconn-static.a',
+						'tools/mysql/lib/libmysqlclient.a',
+						'-lm',
+						'-ldl',
+						'-lpthread',
+						'-lrt',
 					],
 					'library_dirs': [
 					]
@@ -176,12 +181,12 @@
 					'-std=c++0x', '-fPIC', '-fexceptions', '-fpermissive'
 				]
 			}],
-        ['OS == "mac"', {
+			['OS == "mac"', {
 				'xcode_settings': {
-        			'OTHER_CFLAGS': [
-        				'-stdlib=libc++', '-std=c++11'
-        			],
-			    },
+	        			'OTHER_CFLAGS': [
+        					'-stdlib=libc++', '-std=c++11'
+        				],
+				},
 				'defines': [
 					'LINUX', 'MAC'
 				],
@@ -191,8 +196,8 @@
 				],
 				'link_settings': {
 					'libraries': [
-	        	      '$(SDKROOT)/System/Library/Frameworks/CoreFoundation.framework',
-    		          '$(SDKROOT)/System/Library/Frameworks/CoreServices.framework',
+						'$(SDKROOT)/System/Library/Frameworks/CoreFoundation.framework',
+    						'$(SDKROOT)/System/Library/Frameworks/CoreServices.framework',
 					],
 					'library_dirs': [
 					]
@@ -200,14 +205,7 @@
 				'cflags': [
 					'-std=c++0x', '-fPIC', '-fexceptions', '-fpermissive'
 				]
-        }],
-        	['OS == "mac"', {
-       	   		'link_settings': {
-       	     	'libraries': [  
-            	  '$(SDKROOT)/System/Library/Frameworks/CoreFoundation.framework',
-        	    ],
-    	      },
-	        }],
+			}],
 			['OS=="win"', {
 				'defines': [
 					'WIN32',
