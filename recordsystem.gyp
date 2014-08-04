@@ -137,7 +137,7 @@
 		'include_dirs': [
 			'tools/protobuf/src/',
 			'tools/q3df_api/',
-			'tools/mysql/',
+			'tools/mysql/include/',
 		],
 		'actions': [],
 		'sources': [
@@ -214,7 +214,6 @@
 				],
 				'include_dirs': [
 					'C:\\Boost\\include\\boost-1_55',
-					'C:\Boost\lib',
 				],
 				'msvs_settings': {
 					'VCCLCompilerTool': {
@@ -222,7 +221,6 @@
 					},
 					'VCLinkerTool': {
 						'AdditionalLibraryDirectories': [
-							'C:\Boost\lib'
 						],
 						'AdditionalDependencies': [
 							'Advapi32.lib',
@@ -238,8 +236,8 @@
 							'advapi32.lib',
 							'ws2_32.lib',
 							'Secur32.lib',
-							'tools/mysql/prebuild-win32-vs2012-static/Debug/mysqlclient.lib',
-							'tools/mysql/prebuild-win32-vs2012-static/Debug/mysqlcppconn.lib',
+							'tools/mysql/lib/mysqlclient.lib',
+							'tools/mysql/lib/mysqlcppconn.lib',
 						],
 						'AdditionalOptions': [
 						]
