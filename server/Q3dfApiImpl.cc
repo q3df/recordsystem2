@@ -21,7 +21,38 @@ const Error Q3dfApiImpl::ClientCommand(const ClientCommandRequest* args, ClientC
 	reply->mutable_identifier()->set_playernum(args->identifier().playernum());
 	reply->mutable_identifier()->set_serverid(args->identifier().serverid());
 
-	reply->set_messagetoprint(va("command '%s' not implemented!", args->command().c_str()));
+	Conn *con = (Conn *)args->TagObj;
+	string responseData("");
+
+
+	if(args->command() == string("!top")) {
+		sql::SQLString map(ClientMap::GetClientMap(con)->GetServerInfo(string("mapname")).c_str());
+		sql::SQLString mode(ClientMap::GetClientMap(con)->GetServerInfo(string("defrag_mode")).c_str());
+		sql::SQLString physic(ClientMap::GetClientMap(con)->GetServerInfo(string("df_promode")).c_str());
+
+		try {
+			int i = 0;
+			std::auto_ptr< sql::PreparedStatement > stmt(gMysqlCon->prepareStatement("SELECT * FROM q3_defrag_records WHERE map = ? AND mode = ? AND physic = ? ORDER BY mstime LIMIT 10"));
+			stmt->setString(1, map);
+			stmt->setString(2, mode);
+			stmt->setString(3, physic);
+
+			std::auto_ptr< sql::ResultSet > res(stmt->executeQuery());
+			while (res->next()) {
+				i++;
+				responseData.append(va(" %-3i). %-20s^7 %i\n", i, res->getString("nickname").c_str(), res->getInt("mstime")));
+			}
+		} catch (sql::SQLException &e) {
+			responseData.clear();
+			responseData.append(va("REMOTE ERROR: Q3dfApiImpl::ClientCommand::SqlError: '%s'\n", e.what()));
+			gConsole->PrintError("Q3dfApiImpl::ClientCommand::SqlError: '%s'\n", e.what());
+		}
+
+		reply->set_messagetoprint(responseData);
+	}else{
+		reply->set_messagetoprint(va("command '%s' not implemented!", args->command().c_str()));
+	}
+	
 	return Error::Nil();
 }
 
@@ -87,5 +118,25 @@ const Error Q3dfApiImpl::SaveRecord(const RecordRequest* request, NullResponse* 
 			request->mstime()
 		)
 	);
+
+	try {
+		int i = 0;
+		std::auto_ptr< sql::PreparedStatement > stmt(gMysqlCon->prepareStatement("SELECT * FROM q3_defrag_records WHERE map = ? AND mode = ? AND physic = ? ORDER BY mstime LIMIT 10"));
+		stmt->setString(1, request->mapname().c_str());
+		stmt->setInt(2, request->df_mode());
+		stmt->setInt(3, request->df_promode());
+
+		std::auto_ptr< sql::ResultSet > res(stmt->executeQuery());
+		while (res->next()) {
+			i++;
+			responseData.append(va(" %-3i). %-20s^7 %i\n", i, res->getString("nickname").c_str(), res->getInt("mstime")));
+		}
+	} catch (sql::SQLException &e) {
+		responseData.clear();
+		responseData.append(va("REMOTE ERROR: Q3dfApiImpl::ClientCommand::SqlError: '%s'\n", e.what()));
+		gConsole->PrintError("Q3dfApiImpl::ClientCommand::SqlError: '%s'\n", e.what());
+	}
+
+
 	return Error::Nil();
 }

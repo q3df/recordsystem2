@@ -29,6 +29,7 @@ using namespace service;
 extern vmCvar_t rs_api_server;
 extern vmCvar_t rs_api_port;
 extern vmCvar_t rs_api_key;
+extern vmCvar_t rs_server_id;
 
 extern "C" {
 	const char *va( const char *format, ... );

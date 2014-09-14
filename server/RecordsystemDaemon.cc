@@ -12,7 +12,9 @@
 
 #include "../client/StringTokenizer.h"
 
-#include <mysql_public_iface.h>
+#include <Request.hpp>
+#include <Response.hpp>
+
 
 using namespace ::google::protobuf;
 using namespace ::google::protobuf::rpc;
@@ -38,12 +40,12 @@ extern "C" {
 	}
 }
 
+sql::Connection *gMysqlCon = NULL;
+static sql::Driver *driver = NULL;
+
 int main(int argc, char **argv) {
 	Console::Init();
 	Q3dfEnv::Init();
-
-	sql::Connection *con = NULL;
-	static sql::Driver *driver = NULL;
 
 	bool startupOk = false;
 
@@ -55,22 +57,41 @@ int main(int argc, char **argv) {
 	try {
 		driver = sql::mysql::get_driver_instance();
 		/* Using the Driver to create a connection */
-		con = driver->connect(mysql_hostname, mysql_username, mysql_password);
+		gMysqlCon = driver->connect(mysql_hostname, mysql_username, mysql_password);
 
-		std::auto_ptr< sql::Statement > stmt(con->createStatement());
+		std::auto_ptr< sql::Statement > stmt(gMysqlCon->createStatement());
 		stmt->execute(mysql_database);
 		startupOk = true;
 		gConsole->PrintInfo("connected to database: '%s'\n", mysql_hostname.c_str());
 	} catch (sql::SQLException &e) {
 		gConsole->PrintError("can't connect to database: '%s'\n", e.what());
-		con = NULL;
+		gMysqlCon = NULL;
 		driver = NULL;
 		startupOk = false;
 	}
 
+
+	char data[] = "GET / HTTP/1.0\r\nHost: localhost\r\n\r\n\0..........................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................";
+
+	rpc::Conn *t = new rpc::Conn();
+	if(t->DialTCP("127.0.0.1", 80)) {
+		t->Write(data, sizeof(data));
+
+		http::Response *res = new http::Response();
+		while(!res->complete() && t->Read(data, 1024)) {
+			res->feed(data, 1024);
+		}
+		res = res;
+	}
+
+
+	
+
+
+	
 	if(startupOk) {
 		try {
-			std::auto_ptr< sql::Statement > stmt(con->createStatement());
+			std::auto_ptr< sql::Statement > stmt(gMysqlCon->createStatement());
 			/* Fetching again but using type convertion methods */
 			std::auto_ptr< sql::ResultSet > res(stmt->executeQuery("SELECT * FROM q3_servers ORDER BY id"));
 			gConsole->Print("Load apikeys of all servers\n");
@@ -145,16 +166,14 @@ int main(int argc, char **argv) {
 	gConsole->PrintInfo(va("Shutingdown now...\n"));
 	Sleep(1000);
 
-	if(con != NULL) {
-		con->close();
-		delete con;
+	if(gMysqlCon != NULL) {
+		gMysqlCon->close();
+		delete gMysqlCon;
 	}
 
 	ClientMap::Dispose();
 	Q3dfEnv::Dispose();
 	Console::Dispose();
-
-
 
 	return 0;
 }

@@ -18,6 +18,8 @@
 #include "Console.h"
 #include "Q3dfEnv.h"
 
+#include <mysql_public_iface.h>
+
 using namespace ::google::protobuf;
 using namespace ::google::protobuf::rpc;
 using namespace ::service;
@@ -37,5 +39,6 @@ typedef std::map<string, string>::iterator SettingsMapIterator;
 extern SettingsMap gSettings;
 
 extern std::list<Conn *> gClientList;
+extern sql::Connection *gMysqlCon;
 
 #endif // SERVER_RECORDSYSTEMDAEMON_H_

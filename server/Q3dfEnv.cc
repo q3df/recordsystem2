@@ -55,18 +55,34 @@ void Q3dfEnv::ClientDisconnect(Conn *con) {
 
 bool Q3dfEnv::Handshake(Conn *con) {
 	string data("");
-	string key("apikey");
 
-	if(con->RecvFrame(&data) && gSettings.find(key) != gSettings.end() && gSettings[key] == data) {
-		data.clear();
-		data.append("OK");
-		if(con->SendFrame(&data))
-			return true;
-	}else{
-		data.clear();
-		data.append("ACCESS DENIED!");
-		con->SendFrame(&data);
+	string apikey("");
+	string serverId("");
+
+
+	if(con->RecvFrame(&data) && data.length() > 0 && data.find_first_of("_") > 0) {
+		int pos = data.find_first_of("_");
+
+		for(string::iterator it = data.begin(); it != data.end(); it++) {
+			if((it-data.begin()) > pos)
+				apikey.append(&it[0], 1);
+			else if((it-data.begin()) < pos)
+				serverId.append(&it[0], 1);
+		}
+
+		string settingsKey("apikey-"+serverId);
+		if(apikey.length() > 0 && serverId.length() > 0
+		   && gSettings.find(settingsKey) != gSettings.end()
+		   && gSettings[settingsKey] == apikey) {
+			data.clear();
+			data.append("OK");
+			if(con->SendFrame(&data))
+				return true;
+		}
 	}
 
+	data.clear();
+	data.append("ACCESS DENIED!");
+   	con->SendFrame(&data);
 	return false;
 }

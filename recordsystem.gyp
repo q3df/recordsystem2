@@ -131,6 +131,7 @@
 			'tools/q3df_api/q3df_api.gyp:q3df_api',
 			'tools/protobuf/protobuf.gyp:protobuf_full_do_not_use',
 			'tools/sqlite/sqlite.gyp:sqlite',
+			'tools/httpxx.gyp:httpxx'
 		],
 		'defines': [
 		],
@@ -138,6 +139,8 @@
 			'tools/protobuf/src/',
 			'tools/q3df_api/',
 			'tools/mysql/include/',
+			'tools/httpxx/code/',
+			'tools/httpxx/libs/http-parser/',
 		],
 		'actions': [],
 		'sources': [

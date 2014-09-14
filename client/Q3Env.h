@@ -31,11 +31,13 @@ public:
 	}
 
 	virtual bool Handshake(Conn *con) {
-		string str(rs_api_key.string);
+		string res("");
+		string apikey(rs_api_key.string);
+		string serverId(rs_server_id.string);
 
-		if(con->SendFrame(&str)) {
-			str.clear();
-			if(con->RecvFrame(&str) && str == "OK")
+		if(con->SendFrame(&(serverId + "_" + apikey))) {
+			res.clear();
+			if(con->RecvFrame(&res) && res == "OK")
 				return true;
 		}
 

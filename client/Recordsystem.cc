@@ -31,6 +31,7 @@ using namespace std::placeholders;
 PluginStore gPluginStore;
 
 vmCvar_t rs_api_server;
+vmCvar_t rs_server_id;
 vmCvar_t rs_api_port;
 vmCvar_t rs_api_key;
 vmCvar_t rs_auto_update;
@@ -326,6 +327,7 @@ bool Recordsystem::GameInit(int levelTime, int randomSeed, int restart) {
 	RegisterCvar(&rs_api_server, "rs_api_server", "127.0.0.1", CVAR_ARCHIVE | CVAR_NORESTART, qfalse);
 	RegisterCvar(&rs_api_port, "rs_api_port", "1234", CVAR_ARCHIVE | CVAR_NORESTART, qfalse);
 	RegisterCvar(&rs_api_key, "rs_api_key", "-", CVAR_ARCHIVE | CVAR_NORESTART, qfalse);
+	RegisterCvar(&rs_server_id, "rs_server_id", "-1", CVAR_ARCHIVE | CVAR_NORESTART, qfalse);
 	RegisterCvar(&rs_auto_update, "rs_auto_update", "1", CVAR_ARCHIVE | CVAR_NORESTART, qfalse);
 	RegisterCvar(&rs_forward_console, "rs_forward_console", "0", CVAR_ARCHIVE | CVAR_NORESTART, qfalse);
 
