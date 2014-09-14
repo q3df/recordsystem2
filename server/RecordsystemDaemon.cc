@@ -61,7 +61,6 @@ int main(int argc, char **argv) {
 		stmt->execute(mysql_database);
 		startupOk = true;
 		gConsole->PrintInfo("connected to database: '%s'\n", mysql_hostname.c_str());
-		
 	} catch (sql::SQLException &e) {
 		gConsole->PrintError("can't connect to database: '%s'\n", e.what());
 		con = NULL;

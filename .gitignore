@@ -42,5 +42,5 @@ tools/q3df_api/q3df_api.pb.cc
 tools/q3df_api/q3df_api.pb.h
 *.host.mk
 *.xcodeproj
-tools/mysql/mysql-connector-c++-1.1.3/
-tools/mysql/mysql-connector-c-6.1.5-src/
+tools/mysql/src/mysql-connector-c++-1.1.3/*
+tools/mysql/src/mysql-connector-c-6.1.5-src/*
