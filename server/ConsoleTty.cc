@@ -23,7 +23,7 @@ ConsoleTty::ConsoleTty() {
 
 	Init();
 
-	this->Print("Console initialized...\n");
+	this->PrintInfo("Console initialized...\n");
 }
 
 void ConsoleTty::Init() {

@@ -154,6 +154,8 @@
 			'server/Q3dfApiImpl.h',
 			'server/ClientMap.cc',
 			'server/ClientMap.h',
+			'server/MysqlPool.cc',
+			'server/MysqlPool.h',
 			'client/StringTokenizer.cc',
 			'client/StringTokenizer.h',
 		],

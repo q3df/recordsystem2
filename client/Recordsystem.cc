@@ -1,7 +1,6 @@
 #include "Recordsystem.h"
 #include <cstdarg>
 #include "Q3Env.h"
-
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
@@ -29,6 +28,7 @@ using namespace service;
 using namespace std::placeholders;
 
 PluginStore gPluginStore;
+
 
 vmCvar_t rs_api_server;
 vmCvar_t rs_server_id;

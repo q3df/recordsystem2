@@ -29,10 +29,12 @@ const Error Q3dfApiImpl::ClientCommand(const ClientCommandRequest* args, ClientC
 		sql::SQLString map(ClientMap::GetClientMap(con)->GetServerInfo(string("mapname")).c_str());
 		sql::SQLString mode(ClientMap::GetClientMap(con)->GetServerInfo(string("defrag_mode")).c_str());
 		sql::SQLString physic(ClientMap::GetClientMap(con)->GetServerInfo(string("df_promode")).c_str());
+		
+		sql::Connection *con = gMysqlPool->Get();
 
 		try {
 			int i = 0;
-			std::auto_ptr< sql::PreparedStatement > stmt(gMysqlCon->prepareStatement("SELECT * FROM q3_defrag_records WHERE map = ? AND mode = ? AND physic = ? ORDER BY mstime LIMIT 10"));
+			std::auto_ptr< sql::PreparedStatement > stmt(con->prepareStatement("SELECT * FROM q3_defrag_records WHERE map = ? AND mode = ? AND physic = ? ORDER BY mstime LIMIT 10"));
 			stmt->setString(1, map);
 			stmt->setString(2, mode);
 			stmt->setString(3, physic);
@@ -48,6 +50,7 @@ const Error Q3dfApiImpl::ClientCommand(const ClientCommandRequest* args, ClientC
 			gConsole->PrintError("Q3dfApiImpl::ClientCommand::SqlError: '%s'\n", e.what());
 		}
 
+		gMysqlPool->Return(con);
 		reply->set_messagetoprint(responseData);
 	}else{
 		reply->set_messagetoprint(va("command '%s' not implemented!", args->command().c_str()));
@@ -110,7 +113,8 @@ const Error Q3dfApiImpl::Register(const ServerRegisterRequest* request, NullResp
 
 const Error Q3dfApiImpl::SaveRecord(const RecordRequest* request, NullResponse* response) {
 	Conn *con = (Conn *)request->TagObj;
-	
+	string responseData("");
+
 	this->con->PrintInfo(
 		va("RECORD %s %s %i\n",
 			request->mapname().c_str(),
@@ -119,9 +123,11 @@ const Error Q3dfApiImpl::SaveRecord(const RecordRequest* request, NullResponse* 
 		)
 	);
 
+	sql::Connection *mcon = gMysqlPool->Get();
+
 	try {
 		int i = 0;
-		std::auto_ptr< sql::PreparedStatement > stmt(gMysqlCon->prepareStatement("SELECT * FROM q3_defrag_records WHERE map = ? AND mode = ? AND physic = ? ORDER BY mstime LIMIT 10"));
+		std::auto_ptr< sql::PreparedStatement > stmt(mcon->prepareStatement("SELECT * FROM q3_defrag_records WHERE map = ? AND mode = ? AND physic = ? ORDER BY mstime LIMIT 10"));
 		stmt->setString(1, request->mapname().c_str());
 		stmt->setInt(2, request->df_mode());
 		stmt->setInt(3, request->df_promode());
@@ -136,7 +142,7 @@ const Error Q3dfApiImpl::SaveRecord(const RecordRequest* request, NullResponse* 
 		responseData.append(va("REMOTE ERROR: Q3dfApiImpl::ClientCommand::SqlError: '%s'\n", e.what()));
 		gConsole->PrintError("Q3dfApiImpl::ClientCommand::SqlError: '%s'\n", e.what());
 	}
-
+	gMysqlPool->Return(mcon);
 
 	return Error::Nil();
 }

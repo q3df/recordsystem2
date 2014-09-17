@@ -14,11 +14,14 @@
 
 #include <Request.hpp>
 #include <Response.hpp>
-
+#include <boost/program_options.hpp>
+#include <sstream>
 
 using namespace ::google::protobuf;
 using namespace ::google::protobuf::rpc;
 using namespace ::service;
+
+namespace po = boost::program_options;
 
 SettingsMap gSettings;
 
@@ -40,64 +43,79 @@ extern "C" {
 	}
 }
 
-sql::Connection *gMysqlCon = NULL;
+MysqlPool *gMysqlPool;
 static sql::Driver *driver = NULL;
 
 int main(int argc, char **argv) {
 	Console::Init();
+
+	po::options_description desc("Allowed options");
+
+	string mysql_hostname;
+	string mysql_username;
+	string mysql_password;
+	string mysql_database;
+	int listenPort;
+	int mysqlPoolSize;
+
+	desc.add_options()
+	  ("help", "produce help message")
+	  ("mysql_host",   po::value<string>(&mysql_hostname)->default_value(string("localhost")),  "MySQL host.")
+	  ("mysql_user",   po::value<string>(&mysql_username)->default_value(string("root")),  "MySQL username.")
+	  ("mysql_passwd", po::value<string>(&mysql_password)->default_value(string("root")),  "MySQL password.")
+	  ("mysql_db",     po::value<string>(&mysql_database)->default_value(string("USE db_q3df")), "MySQL database name.")
+	  ("api_listen_port", po::value<int>(&listenPort)->default_value(1234), "api listen on a specific port.")
+	  ("mysql_pool_size", po::value<int>(&mysqlPoolSize)->default_value(10), "The pool size of the mysql connections.")
+	;
+
+	po::variables_map vm;
+	po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
+    po::notify(vm);
+
+	if (vm.count("help")) {
+		std::ostringstream tmpDesc;
+		desc.print(tmpDesc);
+
+		gConsole->PrintInfo("Usage: recordsystemd [options]\n");
+        gConsole->PrintInfo("%s\n", tmpDesc.str().c_str());
+		Console::Dispose();
+        return 0;
+	}
+
 	Q3dfEnv::Init();
 
 	bool startupOk = false;
-
-	const sql::SQLString mysql_hostname(argc >= 2 ? argv[1] : "localhost");
-	const sql::SQLString mysql_username(argc >= 3 ? argv[2] : "root");
-	const sql::SQLString mysql_password(argc >= 4 ? argv[3] : "root");
-	const sql::SQLString mysql_database(argc >= 5 ? argv[4] : "USE db_q3df");
-
 	try {
-		driver = sql::mysql::get_driver_instance();
-		/* Using the Driver to create a connection */
-		gMysqlCon = driver->connect(mysql_hostname, mysql_username, mysql_password);
+		gConsole->PrintInfo("Initialize MysqlPool to database server '%s' with %i connections...\n", mysql_hostname.c_str(), mysqlPoolSize);
+		gMysqlPool = new MysqlPool(mysqlPoolSize, [&mysql_hostname, &mysql_username, &mysql_password, &mysql_database]() -> sql::Connection* {
+			if(driver == NULL)
+				driver = sql::mysql::get_driver_instance();
 
-		std::auto_ptr< sql::Statement > stmt(gMysqlCon->createStatement());
-		stmt->execute(mysql_database);
+			/* Using the Driver to create a connection */
+			sql::Connection *con = driver->connect(mysql_hostname, mysql_username, mysql_password);
+
+			std::auto_ptr< sql::Statement > stmt(con->createStatement());
+			stmt->execute(mysql_database);
+
+			return con;
+		});
 		startupOk = true;
-		gConsole->PrintInfo("connected to database: '%s'\n", mysql_hostname.c_str());
 	} catch (sql::SQLException &e) {
 		gConsole->PrintError("can't connect to database: '%s'\n", e.what());
-		gMysqlCon = NULL;
 		driver = NULL;
 		startupOk = false;
 	}
-
-
-	char data[] = "GET / HTTP/1.0\r\nHost: localhost\r\n\r\n\0..........................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................";
-
-	rpc::Conn *t = new rpc::Conn();
-	if(t->DialTCP("127.0.0.1", 80)) {
-		t->Write(data, sizeof(data));
-
-		http::Response *res = new http::Response();
-		while(!res->complete() && t->Read(data, 1024)) {
-			res->feed(data, 1024);
-		}
-		res = res;
-	}
-
-
-	
-
-
 	
 	if(startupOk) {
+		sql::Connection *mcon = gMysqlPool->Get();
 		try {
-			std::auto_ptr< sql::Statement > stmt(gMysqlCon->createStatement());
+			std::auto_ptr< sql::Statement > stmt(mcon->createStatement());
 			/* Fetching again but using type convertion methods */
 			std::auto_ptr< sql::ResultSet > res(stmt->executeQuery("SELECT * FROM q3_servers ORDER BY id"));
-			gConsole->Print("Load apikeys of all servers\n");
-			gConsole->Print("---------------------------\n");
+			gConsole->PrintInfo("Load apikeys of all servers\n");
+			gConsole->PrintInfo("---------------------------\n");
 			while (res->next()) {
-				gConsole->Print("  - get apikey for '%s'\n", res->getString("name").c_str());
+				gConsole->PrintInfo("  - get apikey for '%s'\n", res->getString("name").c_str());
 				string key(va("apikey-%i", res->getInt("id")));
 				gSettings[key] = string(res->getString("apikey").c_str());
 			}
@@ -105,8 +123,10 @@ int main(int argc, char **argv) {
 			gConsole->PrintError("could not load servr api keys: '%s'\n", e.what());
 		}
 
+		gMysqlPool->Return(mcon);
 		Server server(gEnvQ3df);
 		server.AddService(new Q3dfApiImpl(gConsole), true);
+		gConsole->PrintInfo("API-Server starting listen on port %i.\n", listenPort);
 		server.ListenTCP(1234);
 
 		for(;;) {
@@ -165,15 +185,12 @@ int main(int argc, char **argv) {
 
 	gConsole->PrintInfo(va("Shutingdown now...\n"));
 	Sleep(1000);
-
-	if(gMysqlCon != NULL) {
-		gMysqlCon->close();
-		delete gMysqlCon;
-	}
+	
+	delete gMysqlPool;
 
 	ClientMap::Dispose();
 	Q3dfEnv::Dispose();
 	Console::Dispose();
-
+	
 	return 0;
 }

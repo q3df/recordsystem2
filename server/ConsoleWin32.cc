@@ -52,7 +52,7 @@ ConsoleWin32::ConsoleWin32() {
 
 	Show();
 
-	this->Print("Console initialized...\n");
+	this->PrintInfo("Console initialized...\n");
 }
 
 
