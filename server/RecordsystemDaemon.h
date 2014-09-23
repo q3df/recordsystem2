@@ -8,38 +8,54 @@
 #include <cstdarg>
 #include <pthread.h>
 #include <list>
-#include <pthread.h>
-
+#include <map>
 #include <q3df_api.pb.h>
 
 #include <google/protobuf/rpc/rpc_server.h>
 #include <google/protobuf/rpc/rpc_client.h>
 
+#include "ClientList.h"
+#include "MysqlPool.h"
 #include "Console.h"
 #include "Q3dfEnv.h"
 
 #include <mysql_public_iface.h>
-#include "MysqlPool.h"
 
 using namespace ::google::protobuf;
 using namespace ::google::protobuf::rpc;
 using namespace ::service;
 
-#ifdef WIN32
-#	include "ConsoleWin32.h"
-#else
+#ifndef WIN32
 #	include <unistd.h>
-#	include "ConsoleTty.h"
 #	define Sleep(x) usleep(x*1000)
 #endif
 
-const char *va( const char *format, ... );
+extern "C" {
+	const char *va( const char *format, ... );
+}
 
 typedef std::map<string, string> SettingsMap;
 typedef std::map<string, string>::iterator SettingsMapIterator;
-extern SettingsMap gSettings;
 
-extern std::list<Conn *> gClientList;
-extern MysqlPool *gMysqlPool;
+class GlobalObject {
+private:
+	SettingsMap settings_;
+	ClientList *clientList_;
+	MysqlPool *mysqlPool_;
+	Console *con_;
+	Q3dfEnv *env_;
+
+public:
+	GlobalObject(string mysql_host, string mysql_username, string mysql_password, string mysql_dbname, int poolSize);
+	~GlobalObject();
+
+	ClientList *Clients() { return this->clientList_; }
+	SettingsMap Settings() { return this->settings_; }
+	MysqlPool *SqlPool() { return this->mysqlPool_; }
+	Console *Con() { return this->con_; }
+	Q3dfEnv *Env() { return this->env_; }
+};
+
+extern GlobalObject *RS;
 
 #endif // SERVER_RECORDSYSTEMDAEMON_H_

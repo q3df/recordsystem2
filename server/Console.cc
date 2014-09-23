@@ -13,8 +13,6 @@
 #	include "ConsoleTty.h"
 #endif
 
-Console *gConsole;
-
 vec4_t	g_color_table[8] = {
 	{0.0, 0.0, 0.0, 1.0},
 	{1.0, 0.0, 0.0, 1.0},
@@ -37,18 +35,12 @@ Console::~Console() {
 }
 
 
-void Console::Init() {
+Console *Console::Create() {
 	#ifdef WIN32
-		gConsole = new ConsoleWin32();
+		return new ConsoleWin32();
 	#else
-		gConsole = new ConsoleTty();
+		return new ConsoleTty();
 	#endif
-}
-
-
-void Console::Dispose() {
-	delete gConsole;
-	gConsole = NULL;
 }
 
 

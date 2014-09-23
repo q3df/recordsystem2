@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef SERVER_ClientMap_H_
-#define SERVER_ClientMap_H_
+#ifndef SERVER_ClientList_H_
+#define SERVER_ClientList_H_
 
 #include <string>
 #include <map>
@@ -15,38 +15,40 @@
 #include <google/protobuf/rpc/rpc_server.h>
 #include <google/protobuf/rpc/rpc_client.h>
 
-#include "Console.h"
-
 using namespace std;
 using namespace google::protobuf::rpc;
 
-class ClientMap {
+class ClientInfo {
 public:
-	ClientMap(int serverId, const string &serverInfo);
-	~ClientMap();
+	ClientInfo(Conn *con, int serverId, const string &serverInfo);
+	~ClientInfo();
+
 	string GetServerInfo(string key);
-	const string *GetServerKey();
 	int GetServerId();
-
-	static void Init();
-	static void Dispose();
-
-	static void InsertInfo(Conn *con, int serverId, const string &serverInfo);
-	static void DeleteInfo(Conn *con);
-	static void PrintList(Console *con);
-	static ClientMap *GetClientMap(Conn *con);
+	bool IsRegistred() { return isRegistred_; }
 
 private:
 	vector<string> &split(const string &s, char delim, vector<string> &elems);	
 	void split(const string &s, char delim);
 
 	map<string, string> info_;
-	string *serverKey_;
 	int serverId_;
+	bool isRegistred_;
 	Conn *con_;
 };
 
-typedef map<Conn*, ClientMap*> ClientMapMap;
-typedef ClientMapMap::iterator ClientMapMapIterator;
+class ClientList {
+public:
+	ClientList();
+	~ClientList();
 
-#endif // SERVER_ClientMap_H
+	void Insert(Conn *con, int serverId, const string &serverInfo);
+	void Delete(Conn *con);
+	ClientInfo *GetClient(Conn *con);
+
+private:
+	map<Conn*, ClientInfo*> clList_;
+	pthread_mutex_t clientMapMtx_;
+};
+
+#endif // SERVER_ClientList_H_

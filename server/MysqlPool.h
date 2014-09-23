@@ -2,6 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#ifndef SERVER_MYSQLPOOL_H_
+#define SERVER_MYSQLPOOL_H_
+
 #include <pthread.h>
 #include <semaphore.h>
 #include <functional>
@@ -35,3 +38,5 @@ private:
 	sem_t mutex_;
 	int size_;
 };
+
+#endif // SERVER_MYSQLPOOL_H_

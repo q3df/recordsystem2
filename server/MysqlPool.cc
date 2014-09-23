@@ -15,7 +15,16 @@ MysqlPool::MysqlPool(int size, std::function<sql::Connection *()> callbackInitOb
 }
 
 MysqlPool::~MysqlPool() {
+	sql::Connection *con;
+
 	sem_destroy(&this->mutex_);
+	
+	while(this->objList_.size() != 0) {
+		con = this->objList_.back();
+		this->objList_.pop_back();
+		con->close();
+		delete con;
+	}
 }
 
 

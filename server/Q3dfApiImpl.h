@@ -6,9 +6,6 @@
 #define SERVER_Q3DFAPIIMPLE_H_
 
 #include <q3df_api.pb.h>
-#include "Console.h"
-#include "ClientMap.h"
-#include "RecordsystemDaemon.h"
 #include <iostream>
 #include <fstream>
 
@@ -23,12 +20,9 @@ using namespace ::google::protobuf::rpc;
 using namespace ::service;
 
 class Q3dfApiImpl : public service::Q3dfApi {
-private:
-	Console *con;
-
 public:
-	Q3dfApiImpl(Console *con) : con(con) {}
-	~Q3dfApiImpl() { con = NULL; }
+	Q3dfApiImpl() {}
+	~Q3dfApiImpl() {}
 
 	virtual const Error ClientConnected(const ClientInfoRequest* args, NullResponse* reply);
 	virtual const Error ClientDisconnected(const ClientInfoRequest* args, NullResponse* reply);

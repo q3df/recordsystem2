@@ -40,8 +40,7 @@ public:
 	virtual void PrintInfo(const char *msg, ...) = 0;
 	virtual void PrintError(const char *msg, ...) = 0;
 
-	static void Init();
-	static void Dispose();
+	static Console *Create();
 
 protected:
 	pthread_mutex_t mtx_;
@@ -54,7 +53,5 @@ protected:
 private:
 
 };
-
-extern Console *gConsole;
 
 #endif // SERVER_CONSOLE_H_
