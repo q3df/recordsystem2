@@ -113,12 +113,12 @@ int main(int argc, char **argv) {
 		while (res->next()) {
 			RS->Con()->PrintInfo("  - get apikey for '%s'\n", res->getString("name").c_str());
 			string key(va("apikey-%i", res->getInt("id")));
-			RS->Settings()[key] = string(res->getString("apikey").c_str());
+			RS->SetSetting(key, string(res->getString("apikey")));
 		}
 	} catch (sql::SQLException &e) {
 		RS->Con()->PrintError("could not load servr api keys: '%s'\n", e.what());
 	}
-
+	
 	RS->SqlPool()->Return(mcon);
 	Server server(RS->Env());
 	server.AddService(new Q3dfApiImpl(), true);
@@ -131,22 +131,17 @@ int main(int argc, char **argv) {
 			break;
 
 		} else if(cmd && !strncmp(cmd, "status", 5)) {
-			//ClientList::PrintList(gConsole);
+			RS->Clients()->PrintList();
 
 		} else if(cmd && !strncmp(cmd, "settingslist", 12)) {
-			SettingsMapIterator it;
-			RS->Con()->Print("  Settings-List\n");
-			RS->Con()->Print(" ^3---------------------------------------^7\n");
-			for (it=RS->Settings().begin(); it!=RS->Settings().end(); ++it)
-				RS->Con()->Print("    %s = '%s'\n", it->first.c_str(), it->second.c_str());
+			RS->PrintSettingsList();
 
 		} else if(cmd && !strncmp(cmd, "set", 3)) {
 			StringTokenizer *cmdline = new StringTokenizer(cmd, false);
 			if(cmdline->Argc() == 3) {
 				string key(cmdline->Argv(1));
-				RS->Settings()[key].clear();
-				RS->Settings()[key].append(cmdline->Argv(2));
-				RS->Con()->Print("%s='%s' SAVED.\n", cmdline->Argv(1), RS->Settings()[key].c_str());
+				RS->SetSetting(key, string(cmdline->Argv(2)));
+				RS->Con()->Print("%s='%s' SAVED.\n", cmdline->Argv(1), RS->GetSetting(key).c_str());
 			}else
 				RS->Con()->PrintError("usage: set <varname> <value>\n");
 
@@ -155,7 +150,7 @@ int main(int argc, char **argv) {
 		} else if(cmd && !strncmp(cmd, "get", 3)) {
 			StringTokenizer *cmdline = new StringTokenizer(cmd, false);
 			string key(cmdline->Argv(1));
-			if(cmdline->Argc() == 2 && RS->Settings().find(key) != RS->Settings().end()) {
+			if(cmdline->Argc() == 2 && RS->HasSettingKey(key)) {
 				RS->Con()->Print("RESULT: %s='%s'\n", cmdline->Argv(1), RS->Settings()[key].c_str());
 			}else
 				RS->Con()->PrintError("RESULT: '%s' not found!\n", cmdline->Argv(1));

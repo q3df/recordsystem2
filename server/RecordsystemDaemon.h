@@ -51,6 +51,28 @@ public:
 
 	ClientList *Clients() { return this->clientList_; }
 	SettingsMap Settings() { return this->settings_; }
+
+	void SetSetting(string key, string value) {
+		settings_[key].clear();
+		settings_[key].append(value);
+	}
+
+	const string &GetSetting(string key) {
+		return settings_[key];
+	}
+
+	bool HasSettingKey(string key) {
+		return settings_.find(key) != settings_.end();
+	}
+
+	void PrintSettingsList() {
+		SettingsMapIterator it;
+		this->Con()->Print("  Settings-List\n");
+		this->Con()->Print(" ^3---------------------------------------^7\n");
+		for (it=settings_.begin(); it!=settings_.end(); ++it)
+			this->Con()->Print("    %s = '%s'\n", it->first.c_str(), it->second.c_str());
+	}
+
 	MysqlPool *SqlPool() { return this->mysqlPool_; }
 	Console *Con() { return this->con_; }
 	Q3dfEnv *Env() { return this->env_; }

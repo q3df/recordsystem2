@@ -249,7 +249,7 @@ int Recordsystem::VmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 		RS_Syscall->GetServerinfo(configString, sizeof(configString));
 		sCfg->append(configString+1);
 		srReq->set_serverinfostring(sCfg->c_str());
-		srReq->set_serverid(RS_Syscall->CvarVariableIntegerValue("rs_serverid"));
+		srReq->set_serverid(RS_Syscall->CvarVariableIntegerValue("rs_server_id"));
 		srReq->set_serverkey(rs_api_key.string);
 		EXECUTE_API_ASYNC(&Q3dfApi::Register, srReq, srRes, NULL);
 		delete sCfg;

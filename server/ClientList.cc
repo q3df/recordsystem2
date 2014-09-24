@@ -4,6 +4,8 @@
 
 #include "ClientList.h"
 #include <pthread.h>
+#include "RecordsystemDaemon.h"
+
 
 ClientInfo::ClientInfo(Conn *con, int serverId, const string &serverInfo) {
 	this->con_ = con;
@@ -59,17 +61,21 @@ void ClientList::Delete(Conn *con) {
 }
 
 
-//void ClientList::Print(Console *con) {
-//	pthread_mutex_lock( &clientMapMtx_ );
-//
-//	con->PrintInfo("ClientMap\n");
-//	con->PrintInfo("-----------------------------------------------\n");
-//	for(ClientMapMapIterator it = clList_.begin(); it != clList_.end(); it++) {
-//		con->PrintInfo("  %i). %s -> %s\n", it->second->GetServerId(), it->first->RemoteIpAdress(), it->second->GetServerInfo(string("sv_hostname")).c_str());
-//	}
-//
-//	pthread_mutex_unlock( &clientMapMtx_ );
-//}
+void ClientList::PrintList() {
+	map<Conn*, ClientInfo*>::iterator it;
+
+	pthread_mutex_lock( &clientMapMtx_ );
+
+	RS->Con()->PrintInfo("ClientMap\n");
+	RS->Con()->PrintInfo("-----------------------------------------------\n");
+	string serverHostnameKey("sv_hostname");
+	for(it = clList_.begin(); it != clList_.end(); ++it) {
+		RS->Con()->PrintInfo("  %i). [%.3i] %s -> %s\n", it->second->GetServerId(), it->second->GetServerId(), it->first->RemoteIpAdress(), it->second->GetServerInfo(serverHostnameKey).c_str());
+	}
+
+	pthread_mutex_unlock( &clientMapMtx_ );
+}
+
 
 ClientInfo *ClientList::GetClient(Conn *con) {
 	ClientInfo *ret = NULL;
@@ -82,9 +88,6 @@ ClientInfo *ClientList::GetClient(Conn *con) {
 	pthread_mutex_unlock( &clientMapMtx_ );
 	return ret;
 }
-
-
-
 
 
 string ClientInfo::GetServerInfo(string key) {
