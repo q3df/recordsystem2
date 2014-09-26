@@ -158,6 +158,8 @@
 			'server/MysqlPool.h',
 			'server/Commands.cc',
 			'server/Commands.h',
+			'server/RconClient.cc',
+			'server/RconClient.h',
 			'client/StringTokenizer.cc',
 			'client/StringTokenizer.h',
 		],

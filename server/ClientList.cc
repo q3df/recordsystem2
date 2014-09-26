@@ -6,11 +6,13 @@
 #include <pthread.h>
 #include "RecordsystemDaemon.h"
 
+#include <boost/algorithm/string.hpp>
 
 ClientInfo::ClientInfo(Conn *con, int serverId, const string &serverInfo) {
 	this->con_ = con;
 	this->split(serverInfo, '\\');
 	this->serverId_ = serverId;
+	//rcon_ = new RconClient(string(con->RemoteIpAdress()), 27960, "test");
 }
 
 
@@ -18,6 +20,7 @@ ClientInfo::~ClientInfo() {
 	info_.clear();
 	con_ = NULL;
 	serverId_ = 0;
+	delete rcon_;
 }
 
 
@@ -100,6 +103,11 @@ string ClientInfo::GetServerInfo(string key) {
 
 int ClientInfo::GetServerId() {
 	return serverId_;
+}
+
+
+RconClient* ClientInfo::Rcon() {
+	return rcon_;
 }
 
 

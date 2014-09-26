@@ -15,6 +15,8 @@
 #include <google/protobuf/rpc/rpc_server.h>
 #include <google/protobuf/rpc/rpc_client.h>
 
+#include "RconClient.h"
+
 using namespace std;
 using namespace google::protobuf::rpc;
 
@@ -26,6 +28,7 @@ public:
 	string GetServerInfo(string key);
 	int GetServerId();
 	bool IsRegistred() { return isRegistred_; }
+	RconClient *Rcon();
 
 private:
 	vector<string> &split(const string &s, char delim, vector<string> &elems);	
@@ -35,6 +38,7 @@ private:
 	int serverId_;
 	bool isRegistred_;
 	Conn *con_;
+	RconClient *rcon_;
 };
 
 class ClientList {
