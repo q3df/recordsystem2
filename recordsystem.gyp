@@ -222,7 +222,6 @@
 					'WIN32',
 				],
 				'include_dirs': [
-					'C:\\Boost\\include\\boost-1_55',
 					'tools/inttypes_win/'
 				],
 				'msvs_settings': {
