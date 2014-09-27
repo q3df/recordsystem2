@@ -30,7 +30,7 @@ RconClient::~RconClient() {
 
 #define BUFFER_LEN 1024
 
-const string &RconClient::SendCommand(const string &cmd) {
+void RconClient::SendCommand(const string &cmd) {
 	static char retData[BUFFER_LEN];
 	int len = 0;
 
@@ -45,6 +45,4 @@ const string &RconClient::SendCommand(const string &cmd) {
 	}
 
 	delete data;
-
-	return string("TEST");
 }

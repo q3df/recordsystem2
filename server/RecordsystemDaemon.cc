@@ -68,6 +68,7 @@ GlobalObject::~GlobalObject() {
 	delete this->env_;
 	delete this->con_;
 }
+#include "RconClient.h"
 
 int main(int argc, char **argv) {
 	string mysql_hostname;

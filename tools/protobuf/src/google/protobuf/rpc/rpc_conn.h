@@ -70,7 +70,7 @@ class Conn {
 	  return inet_ntoa(((struct sockaddr_in*)addr_)->sin_addr);
   }
 
- private:
+private:
   void logf(const char* fmt, ...);
 
   struct sockaddr* addr_;

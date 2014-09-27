@@ -172,8 +172,9 @@
 				],
 				'link_settings': {
 					'libraries': [
-						'tools/mysql/lib/libmysqlcppconn-static.a',
-						'tools/mysql/lib/libmysqlclient.a',
+						'tools/precompiled/linux_x86/libmysqlcppconn-static.a',
+						'tools/precompiled/linux_x86/libmysqlclient.a',
+						'tools/precompiled/linux_x86/libboost_program_options.a',
 						'-lm',
 						'-ldl',
 						'-lpthread',
@@ -206,7 +207,7 @@
 				'link_settings': {
 					'libraries': [
 						'$(SDKROOT)/System/Library/Frameworks/CoreFoundation.framework',
-    						'$(SDKROOT)/System/Library/Frameworks/CoreServices.framework',
+    					'$(SDKROOT)/System/Library/Frameworks/CoreServices.framework',
 					],
 					'library_dirs': [
 					]
@@ -229,6 +230,7 @@
 					},
 					'VCLinkerTool': {
 						'AdditionalLibraryDirectories': [
+							'tools/precompiled/win_x86/'
 						],
 						'AdditionalDependencies': [
 							'Advapi32.lib',
@@ -244,8 +246,8 @@
 							'advapi32.lib',
 							'ws2_32.lib',
 							'Secur32.lib',
-							'tools/mysql/lib/libmysql.lib',
-							'tools/mysql/lib/mysqlcppconn.lib',
+							'libmysql.lib',
+							'mysqlcppconn.lib',
 						],
 						'AdditionalOptions': [
 						]

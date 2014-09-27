@@ -14,7 +14,7 @@
 #	include <unistd.h>
 #endif
 
-static char gRconDataHeader[] = { 255, 255, 255, 255, 'r', 'c', 'o', 'n', ' ', 0 };
+static char gRconDataHeader[] = { '\xFF', '\xFF', '\xFF', '\xFF', 'r', 'c', 'o', 'n', ' ', '\0' };
 using namespace std;
 
 class RconClient {
@@ -27,7 +27,7 @@ public:
 	RconClient(const string &ip, int port, const string &password);
 	~RconClient();
 
-	const string &SendCommand(const string &cmd);
+	void SendCommand(const string &cmd);
 };
 
 #endif // SERVER_RCONCLIENT_H__
