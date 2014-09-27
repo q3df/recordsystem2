@@ -40,9 +40,32 @@ static sql::Driver *driver = NULL;
 GlobalObject *RS = NULL;
 
 
-GlobalObject::GlobalObject(string mysql_hostname, string mysql_username, string mysql_password, string mysql_database, int poolSize) {
+GlobalObject::GlobalObject() {
 	this->con_ = Console::Create();
-	this->con_->PrintInfo("Initialize MysqlPool to database server '%s' with %i connections...\n", mysql_hostname.c_str(), poolSize);
+	this->clientList_ = new ClientList();
+	this->env_ = new Q3dfEnv();
+	this->cmdList_ = new vector<CommandBase*>();
+}
+
+
+GlobalObject::~GlobalObject() {
+	delete this->mysqlPool_;
+	delete this->clientList_;
+	delete this->env_;
+	delete this->con_;
+
+	while(!this->cmdList_->empty()) {
+		auto pBase = this->cmdList_->back();
+		this->cmdList_->pop_back();
+		delete pBase;
+	}
+
+	delete this->cmdList_;
+}
+
+void GlobalObject::Initialize(string mysql_hostname, string mysql_username, string mysql_password, string mysql_database, int poolSize) {
+	int i;
+	this->con_->PrintInfo("Initialize MysqlPool to database server '^5%s^7' with ^5%i^7 connections...\n", mysql_hostname.c_str(), poolSize);
 	this->mysqlPool_ = new MysqlPool(poolSize, [&mysql_hostname, &mysql_username, &mysql_password, &mysql_database]() -> sql::Connection* {
 		if(driver == NULL)
 			driver = sql::mysql::get_driver_instance();
@@ -50,23 +73,86 @@ GlobalObject::GlobalObject(string mysql_hostname, string mysql_username, string 
 		/* Using the Driver to create a connection */
 		sql::Connection *con = driver->connect(mysql_hostname, mysql_username, mysql_password);
 
-		std::auto_ptr< sql::Statement > stmt(con->createStatement());
+		auto_ptr< sql::Statement > stmt(con->createStatement());
 		stmt->execute(mysql_database);
 
 		return con;
 	});
 
-	this->clientList_ = new ClientList();
-	this->env_ = new Q3dfEnv();
+	for(i=0; i<gCommandStore.GetCount(); i++) {
+		auto pBase = gCommandStore.GetAt(i)->Create();
+		this->con_->PrintInfo("Command [^5%s^7] initialied...\n", pBase->Name().c_str());
+		this->cmdList_->push_back(pBase);
+	}
 }
 
-GlobalObject::~GlobalObject() {
-	delete this->mysqlPool_;
-	delete this->clientList_;
-	delete this->env_;
-	delete this->con_;
+ClientList* GlobalObject::Clients() {
+	return this->clientList_;
 }
-#include "RconClient.h"
+
+
+SettingsMap GlobalObject::Settings() {
+	return this->settings_;
+}
+
+
+void GlobalObject::SetSetting(string key, string value) {
+	settings_[key].clear();
+	settings_[key].append(value);
+}
+
+
+Console* GlobalObject::Con() {
+	return this->con_;
+}
+
+
+string const& GlobalObject::GetSetting(string key) {
+	return settings_[key];
+}
+
+
+bool GlobalObject::HasSettingKey(string key) {
+	return settings_.find(key) != settings_.end();
+}
+
+
+void GlobalObject::PrintSettingsList() {
+	SettingsMapIterator it;
+	this->Con()->Print("  Settings-List\n");
+	this->Con()->Print(" ^3---------------------------------------^7\n");
+	for (it=settings_.begin(); it!=settings_.end(); ++it)
+		this->Con()->Print("    %s = '%s'\n", it->first.c_str(), it->second.c_str());
+}
+
+
+bool GlobalObject::HandleCommand(string const& cmd, const vector<string>* args, Conn *contextCon, string *output) {
+	vector<CommandBase *>::iterator it;
+
+	for(it = this->cmdList_->begin(); it != this->cmdList_->end(); ++it) {
+		if((*it)->Name() == cmd) {
+			return (*it)->Execute(args, contextCon, output);
+			break;
+		}
+	}
+	return true;
+}
+
+
+MysqlPool* GlobalObject::SqlPool() {
+	return this->mysqlPool_;
+}
+
+
+Q3dfEnv* GlobalObject::Env() {
+	return this->env_;
+}
+
+
+/*********************************************
+ * Recordsystem Daemon
+ * ENTRY FUNCTION ;)
+ */
 
 int main(int argc, char **argv) {
 	string mysql_hostname;
@@ -101,21 +187,22 @@ int main(int argc, char **argv) {
 	}
 
 	try {
-		RS = new GlobalObject(mysql_hostname, mysql_username, mysql_password, mysql_database, mysqlPoolSize);
+		RS = new GlobalObject();
+		RS->Initialize(mysql_hostname, mysql_username, mysql_password, mysql_database, mysqlPoolSize);
 	} catch(sql::SQLException &e) {
-		printf("SQL-Error: %s\n", e.what());
+		RS->Con()->PrintError("SQL: %s\n", e.what());
 		return -1;
 	}
 
 	sql::Connection *mcon = RS->SqlPool()->Get();
 	try {
-		std::auto_ptr< sql::Statement > stmt(mcon->createStatement());
+		auto_ptr< sql::Statement > stmt(mcon->createStatement());
 		/* Fetching again but using type convertion methods */
-		std::auto_ptr< sql::ResultSet > res(stmt->executeQuery("SELECT * FROM q3_servers ORDER BY id"));
+		auto_ptr< sql::ResultSet > res(stmt->executeQuery("SELECT * FROM q3_servers ORDER BY id"));
 		RS->Con()->PrintInfo("Load apikeys of all servers\n");
 		RS->Con()->PrintInfo("---------------------------\n");
 		while (res->next()) {
-			RS->Con()->PrintInfo("  - get apikey for '%s'\n", res->getString("name").c_str());
+			RS->Con()->Print("  - get apikey for '%s'\n", res->getString("name").c_str());
 			string key(va("apikey-%i", res->getInt("id")));
 			RS->SetSetting(key, string(res->getString("apikey")));
 		}
@@ -163,9 +250,19 @@ int main(int argc, char **argv) {
 
 		} else if(cmd) {
 			StringTokenizer *cmdline = new StringTokenizer(cmd, false);
+			vector<string> *t = new vector<string>();
+			string output("");
+
+			for(int i = 1; i<cmdline->Argc(); i++) {
+				t->push_back(cmdline->Argv(i));
+			}
+						
+			RS->HandleCommand(string(cmdline->Argv(0)), t, nullptr, &output);
+			RS->Con()->Print("%s\n", output.c_str());
+
 			// do anything generic for command line plugins ;)
 			delete cmdline;
-
+			delete t;
 		}
 
 		Conn *conn = server.AcceptNonBlock();

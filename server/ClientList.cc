@@ -69,11 +69,11 @@ void ClientList::PrintList() {
 
 	pthread_mutex_lock( &clientMapMtx_ );
 
-	RS->Con()->PrintInfo("ClientMap\n");
-	RS->Con()->PrintInfo("-----------------------------------------------\n");
+	RS->Con()->Print("ClientMap\n");
+	RS->Con()->Print("-----------------------------------------------\n");
 	string serverHostnameKey("sv_hostname");
 	for(it = clList_.begin(); it != clList_.end(); ++it) {
-		RS->Con()->PrintInfo("  %i). [%.3i] %s -> %s\n", it->second->GetServerId(), it->second->GetServerId(), it->first->RemoteIpAdress(), it->second->GetServerInfo(serverHostnameKey).c_str());
+		RS->Con()->Print("  %i). [%.3i] %s -> %s\n", it->second->GetServerId(), it->second->GetServerId(), it->first->RemoteIpAdress(), it->second->GetServerInfo(serverHostnameKey).c_str());
 	}
 
 	pthread_mutex_unlock( &clientMapMtx_ );

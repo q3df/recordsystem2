@@ -20,6 +20,7 @@
 #include "Q3dfEnv.h"
 
 #include <mysql_public_iface.h>
+#include <server/Commands.h>
 
 using namespace ::google::protobuf;
 using namespace ::google::protobuf::rpc;
@@ -34,8 +35,8 @@ extern "C" {
 	const char *va( const char *format, ... );
 }
 
-typedef std::map<string, string> SettingsMap;
-typedef std::map<string, string>::iterator SettingsMapIterator;
+typedef map<string, string> SettingsMap;
+typedef map<string, string>::iterator SettingsMapIterator;
 
 class GlobalObject {
 private:
@@ -44,38 +45,25 @@ private:
 	MysqlPool *mysqlPool_;
 	Console *con_;
 	Q3dfEnv *env_;
+	vector<CommandBase*> *cmdList_;
 
 public:
-	GlobalObject(string mysql_host, string mysql_username, string mysql_password, string mysql_dbname, int poolSize);
+	GlobalObject();
 	~GlobalObject();
 
-	ClientList *Clients() { return this->clientList_; }
-	SettingsMap Settings() { return this->settings_; }
+	void Initialize(string mysql_host, string mysql_username, string mysql_password, string mysql_dbname, int poolSize);
 
-	void SetSetting(string key, string value) {
-		settings_[key].clear();
-		settings_[key].append(value);
-	}
+	ClientList *Clients();
 
-	const string &GetSetting(string key) {
-		return settings_[key];
-	}
-
-	bool HasSettingKey(string key) {
-		return settings_.find(key) != settings_.end();
-	}
-
-	void PrintSettingsList() {
-		SettingsMapIterator it;
-		this->Con()->Print("  Settings-List\n");
-		this->Con()->Print(" ^3---------------------------------------^7\n");
-		for (it=settings_.begin(); it!=settings_.end(); ++it)
-			this->Con()->Print("    %s = '%s'\n", it->first.c_str(), it->second.c_str());
-	}
-
-	MysqlPool *SqlPool() { return this->mysqlPool_; }
-	Console *Con() { return this->con_; }
-	Q3dfEnv *Env() { return this->env_; }
+	SettingsMap Settings();
+	void SetSetting(string key, string value);
+	const string &GetSetting(string key);
+	bool HasSettingKey(string key);
+	void PrintSettingsList();
+	bool  HandleCommand(string const& cmd, const vector<string>* args, Conn *contextCon, string *output);
+	MysqlPool *SqlPool();
+	Console *Con();
+	Q3dfEnv *Env();
 };
 
 extern GlobalObject *RS;
