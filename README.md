@@ -8,8 +8,10 @@ Dependency
 > apt-get install g++-multilib
 > apt-get install ia32-libs
 > apt-get install python
+> apt-get install p7zip p7zip-full
 > ```
 > #### Mac OS X 10.9.2
+> !currently not supported!
 > ```
 > xcode 5.1 and console utils have to installed on the system
 > ```
