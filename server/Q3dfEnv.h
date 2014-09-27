@@ -23,9 +23,9 @@ public:
 	~Q3dfEnv() { }
 
 	// Write an entry to the log file with the specified format.
-	virtual void Logv(const char* format, va_list ap) override;
-	virtual void ClientDisconnect(Conn *con) override;
-	virtual bool Handshake(Conn *con) override;
+	virtual void Logv(const char* format, va_list ap);
+	virtual void ClientDisconnect(Conn *con);
+	virtual bool Handshake(Conn *con);
 };
 
 #endif // SERVER_Q3DFENV_H_

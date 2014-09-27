@@ -3,7 +3,7 @@ build/
 tools/protorpc/lib/
 tools/protorpc/bin/
 tools/protorpc/zz_*
-tools/Boost/*
+tools/boost/include/*
 tools/libQ3dfApi/*.pb.cc
 tools/libQ3dfApi/*.pb.h
 #ignore thumbnails created by windows

@@ -12,6 +12,7 @@
 #	include <netinet/in.h>
 #	include <sys/socket.h>
 #	include <unistd.h>
+typedef int SOCKET;
 #endif
 
 static char gRconDataHeader[] = { '\xFF', '\xFF', '\xFF', '\xFF', 'r', 'c', 'o', 'n', ' ', '\0' };

@@ -141,6 +141,7 @@
 			'tools/mysql/include/',
 			'tools/httpxx/code/',
 			'tools/httpxx/libs/http-parser/',
+			'tools/boost/include/'
 		],
 		'actions': [],
 		'sources': [

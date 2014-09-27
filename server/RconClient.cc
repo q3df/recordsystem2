@@ -1,4 +1,13 @@
 #include "RconClient.h"
+#include <string.h>
+
+class RconClientSocketException: public exception
+{
+  virtual const char* what() const throw()
+  {
+    return "socket initializing faild!";
+  }
+} RconClientSocketEx;
 
 int InitSockets() {
 #ifdef WIN32
@@ -13,19 +22,19 @@ int InitSockets() {
 RconClient::RconClient(const string &ip, int port, const string &password) {
 	InitSockets();
 	if ((sock_=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))==-1) {
-		throw exception("socket initalizing faild!");
+		throw RconClientSocketEx;
 	}
 
 	memset(&si_other_, 0, sizeof(si_other_));
-    si_other_.sin_family = AF_INET;
-    si_other_.sin_port = htons(port);
+	si_other_.sin_family = AF_INET;
+	si_other_.sin_port = htons(port);
 	si_other_.sin_addr.s_addr = inet_addr(ip.c_str());
 	password_ = password;
 }
 
 
 RconClient::~RconClient() {
-	
+
 }
 
 #define BUFFER_LEN 1024
@@ -41,7 +50,7 @@ void RconClient::SendCommand(const string &cmd) {
 	data->append(cmd);
 
 	while(len < data->length()) {
-		len += sendto(sock_, data->c_str()+len, data->length()-len, 0, (SOCKADDR *)&si_other_, sizeof(si_other_));
+		len += sendto(sock_, data->c_str()+len, data->length()-len, 0, (struct sockaddr *)&si_other_, sizeof(si_other_));
 	}
 
 	delete data;

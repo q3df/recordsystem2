@@ -42,9 +42,7 @@ GlobalObject *RS = NULL;
 
 GlobalObject::GlobalObject(string mysql_hostname, string mysql_username, string mysql_password, string mysql_database, int poolSize) {
 	this->con_ = Console::Create();
-	
 	this->con_->PrintInfo("Initialize MysqlPool to database server '%s' with %i connections...\n", mysql_hostname.c_str(), poolSize);
-	
 	this->mysqlPool_ = new MysqlPool(poolSize, [&mysql_hostname, &mysql_username, &mysql_password, &mysql_database]() -> sql::Connection* {
 		if(driver == NULL)
 			driver = sql::mysql::get_driver_instance();
@@ -76,9 +74,9 @@ int main(int argc, char **argv) {
 	string mysql_password;
 	string mysql_database;
 
-	int listenPort;
-	int mysqlPoolSize;
-	
+	int listenPort = 1234;
+	int mysqlPoolSize = 10;
+
 	po::options_description desc("Allowed options");
 	desc.add_options()
 	  ("help", "produce help message")
@@ -91,18 +89,23 @@ int main(int argc, char **argv) {
 	;
 	po::variables_map vm;
 	po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
-    po::notify(vm);
-	
+	po::notify(vm);
+
 	if (vm.count("help")) {
 		std::ostringstream tmpDesc;
 		desc.print(tmpDesc);
 
 		printf("Usage: recordsystemd [options]\n");
-        printf("%s", tmpDesc.str().c_str());
-        return 0;
+		printf("%s", tmpDesc.str().c_str());
+		return 0;
 	}
 
-	RS = new GlobalObject(mysql_hostname, mysql_username, mysql_password, mysql_database, mysqlPoolSize);
+	try {
+		RS = new GlobalObject(mysql_hostname, mysql_username, mysql_password, mysql_database, mysqlPoolSize);
+	} catch(sql::SQLException &e) {
+		printf("SQL-Error: %s\n", e.what());
+		return -1;
+	}
 
 	sql::Connection *mcon = RS->SqlPool()->Get();
 	try {
@@ -119,7 +122,7 @@ int main(int argc, char **argv) {
 	} catch (sql::SQLException &e) {
 		RS->Con()->PrintError("could not load servr api keys: '%s'\n", e.what());
 	}
-	
+
 	RS->SqlPool()->Return(mcon);
 	Server server(RS->Env());
 	server.AddService(new Q3dfApiImpl(), true);
