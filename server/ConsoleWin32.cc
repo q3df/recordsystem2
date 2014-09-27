@@ -228,7 +228,7 @@ void ConsoleWin32::Print(const char *msg, ...) {
 
 	this->Hide();
 
-	std::string *str = new std::string();
+	/*std::string *str = new std::string();
 	for(index = 0; index < strlen(string); index++) {
 		if(string[index] == '\n' && index == 0 && index < strlen(string)-1) {
 			str->append("\n^7[^5Q3df ^7]: ");
@@ -238,10 +238,11 @@ void ConsoleWin32::Print(const char *msg, ...) {
 			str->append(&string[index], 1);
 		}
 	}
-
-
 	this->WindowsColorPrint( this->va("^7[^5Q3df ^7]: %s", str->c_str()) );
 	delete str;
+	*/
+
+	this->WindowsColorPrint( string );
 	this->Show();
 
 	this->Unlock();

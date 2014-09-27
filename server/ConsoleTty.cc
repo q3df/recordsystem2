@@ -231,7 +231,7 @@ void ConsoleTty::Print(const char *msg, ...) {
 	va_end (argptr);
 
 	Hide();
-	AnsiColorPrint(va("^7[^5Q3df ^7]: %s", string));
+	AnsiColorPrint(string);
 
 	if (!ttycon_on_)
 		return;
