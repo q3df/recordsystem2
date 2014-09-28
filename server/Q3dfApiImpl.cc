@@ -35,7 +35,7 @@ const Error Q3dfApiImpl::ClientCommand(const ClientCommandRequest* args, ClientC
 
 	string output("");
 
-	if(RS->HandleCommand(args->command(), &list, con, &output)) {
+	if(RS->HandleCommand(args->command(), &list, true, con, &output)) {
 		reply->set_messagetoprint(output.c_str());
 	}
 	

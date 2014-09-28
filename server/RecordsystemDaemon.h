@@ -60,7 +60,7 @@ public:
 	const string &GetSetting(string key);
 	bool HasSettingKey(string key);
 	void PrintSettingsList();
-	bool  HandleCommand(string const& cmd, const vector<string>* args, Conn *contextCon, string *output);
+	bool  HandleCommand(string const& cmd, const vector<string>* args, bool fromApi, Conn *contextCon, string *output);
 	MysqlPool *SqlPool();
 	Console *Con();
 	Q3dfEnv *Env();

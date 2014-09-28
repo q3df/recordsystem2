@@ -126,16 +126,29 @@ void GlobalObject::PrintSettingsList() {
 }
 
 
-bool GlobalObject::HandleCommand(string const& cmd, const vector<string>* args, Conn *contextCon, string *output) {
+bool GlobalObject::HandleCommand(string const& cmd, const vector<string>* args, bool fromApi, Conn *contextCon, string *output) {
 	vector<CommandBase *>::iterator it;
+	bool haveToExecute = false;
 
 	for(it = this->cmdList_->begin(); it != this->cmdList_->end(); ++it) {
 		if((*it)->Name() == cmd) {
-			return (*it)->Execute(args, contextCon, output);
-			break;
+			if(fromApi && (*it)->IsAlsoProxymodCommand())
+				haveToExecute = true;
+			else if(!fromApi)
+				haveToExecute = true;
+
+			if(haveToExecute)
+				return (*it)->Execute(args, contextCon, output);
+
+			output->clear();
+			output->append("unknown command");
+			return false;
 		}
 	}
-	return true;
+
+	output->clear();
+	output->append("unknown command");
+	return false;
 }
 
 
@@ -257,7 +270,7 @@ int main(int argc, char **argv) {
 				t->push_back(cmdline->Argv(i));
 			}
 						
-			RS->HandleCommand(string(cmdline->Argv(0)), t, nullptr, &output);
+			RS->HandleCommand(string(cmdline->Argv(0)), t, false, nullptr, &output);
 			RS->Con()->Print("%s\n", output.c_str());
 
 			// do anything generic for command line plugins ;)
