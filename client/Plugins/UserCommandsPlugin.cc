@@ -1,9 +1,16 @@
 #include <stdio.h>
 #include "Plugin.h"
+#include <queue>
+#include <sstream>
+#include <string>
 
 class UserCommandsPlugin : public PluginBase {
 private:
+	int counter_;
+	queue<string> sentTextLinesToClient;
 	void OnGameClientCommand(Q3EventArgs *e);
+	void OnGameRunFrame(Q3EventArgs *e);
+	void OnExecClientCommandFinished(Message *msg, rpc::Error *error);
 
 public:
 	virtual void Init();
@@ -12,11 +19,38 @@ public:
 };
 
 void UserCommandsPlugin::Init() {
+	counter_ = 0;
+	RS_AFTER_AddEventHandler(GAME_RUN_FRAME, this, UserCommandsPlugin::OnGameRunFrame);
 	RS_BEFORE_AddEventHandler(GAME_CLIENT_COMMAND, this, UserCommandsPlugin::OnGameClientCommand);
 }
 
+
 void UserCommandsPlugin::Destroy() {
 }
+
+
+void UserCommandsPlugin::OnGameRunFrame(Q3EventArgs *e) {
+	int i = 0;
+
+	if(counter_ % 4) {
+		string printData("");
+		while(i < 5 && !sentTextLinesToClient.empty()) {
+			string item = sentTextLinesToClient.front();
+			sentTextLinesToClient.pop();
+			printData.append(item);
+			printData.append("\n");
+			i++;
+		}
+
+		if(printData.size() > 0 && sentTextLinesToClient.empty()) {
+			RS_Syscall->SendServerCommand(0, va("print \"%s\n\"", printData.c_str()));
+		}else if(printData.size() > 0 && !sentTextLinesToClient.empty()) {
+			RS_Syscall->SendServerCommand(0, va("print \"%s\"", printData.c_str()));
+		}
+	}
+	this->counter_++;
+}
+
 
 void UserCommandsPlugin::OnGameClientCommand(Q3EventArgs *e) {
 	int i;
@@ -68,16 +102,25 @@ void UserCommandsPlugin::OnGameClientCommand(Q3EventArgs *e) {
 			tmpStr->append(arg);
 		}
 
-		EXECUTE_API_ASYNC(&Q3dfApi_Stub::ClientCommand, cmdReq, cmdRes, [](Message *msg, rpc::Error *error) {
-			ClientCommandResponse *res = (ClientCommandResponse *)msg;
+		auto callback = std::bind(&UserCommandsPlugin::OnExecClientCommandFinished, this, std::placeholders::_1, std::placeholders::_2);
+		EXECUTE_API_ASYNC(&Q3dfApi_Stub::ClientCommand, cmdReq, cmdRes, callback);
+	}
+}
 
-			if(!error->IsNil()) {
-				RS_Syscall->SendServerCommand(0, va("print \"ERROR: %s\n\"", error->String().c_str()));
-				return;
-			}else{
-				RS_Syscall->SendServerCommand(res->identifier().playernum(), va("print \"%s\n\"", res->messagetoprint().c_str()));
-			}
-		});
+void UserCommandsPlugin::OnExecClientCommandFinished(Message *msg, rpc::Error *error) {
+	ClientCommandResponse *res = (ClientCommandResponse *)msg;
+
+	if(!error->IsNil()) {
+		RS_Syscall->SendServerCommand(0, va("print \"^1ERROR:^7 %s\n\"", error->String().c_str()));
+		return;
+	}else{
+		//RS_Syscall->SendServerCommand(res->identifier().playernum(), va("print \"%s\n\"", res->messagetoprint().c_str()));
+		stringstream ss;
+		string line;
+		ss << res->messagetoprint();
+		while(std::getline(ss, line, '\n')) {
+			this->sentTextLinesToClient.push(line);
+		}
 	}
 }
 
