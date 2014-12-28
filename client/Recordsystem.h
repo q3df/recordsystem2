@@ -81,6 +81,7 @@ private:
 
 extern Recordsystem *gRecordsystem;
 
+#define RS gRecordsystem
 #define RS_Syscall gRecordsystem->GetSyscalls()
 #define RS_VmSyscall gRecordsystem->GetVmSyscalls()
 #define RS_Print(x) RS_Syscall->Print(x);

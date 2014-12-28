@@ -24,15 +24,18 @@ public:
 	virtual bool IsAlsoProxymodCommand() = 0;
 	virtual bool Execute(const vector<string> *args, google::protobuf::rpc::Conn *contextCon, string *output) = 0;
 
-	inline void ParseOptions(const vector<string> *args, po::variables_map *options, vector<string> *optionalOptions) {
-		po::parsed_options t = po::command_line_parser(*args).options(this->description_).allow_unregistered().run();
+	inline void ParseOptions(const vector<string> *args, po::variables_map *options, vector<string> *optionalOptions, po::positional_options_description *p = nullptr) {
+		po::command_line_parser r = po::command_line_parser(*args).options(this->description_);
+
+		if(p != nullptr) {
+			r.positional(*p);
+		}
+
+		po::parsed_options t = r.allow_unregistered().run();
 		po::store(t, *options);
 		po::notify(*options);
 
 		*optionalOptions = po::collect_unrecognized(t.options, po::include_positional);
-
-		/*		for(vector<string>::iterator it = tmp.begin(); it != tmp.end(); ++it)
-			optionalOptions*/
 	}
 
 	inline char *MstimeToDftime(int mstime, int opt) {

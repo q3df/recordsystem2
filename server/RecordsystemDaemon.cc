@@ -273,7 +273,6 @@ int main(int argc, char **argv) {
 			RS->HandleCommand(string(cmdline->Argv(0)), t, false, nullptr, &output);
 			RS->Con()->Print("%s\n", output.c_str());
 
-			// do anything generic for command line plugins ;)
 			delete cmdline;
 			delete t;
 		}

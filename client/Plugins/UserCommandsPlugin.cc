@@ -57,8 +57,8 @@ void UserCommandsPlugin::OnGameClientCommand(Q3EventArgs *e) {
 	char arg[255];
 	bool isLoginCommand = false;
 	bool isRsCommand = false;
-	ClientCommandRequest *cmdReq = NULL;
-	ClientCommandResponse *cmdRes = NULL;
+	ClientCommandRequest *cmdReq = nullptr;
+	ClientCommandResponse *cmdRes = nullptr;
 
 	int playernum = e->GetParam(0);
 	int argc = RS_Syscall->Argc();
@@ -98,17 +98,17 @@ void UserCommandsPlugin::OnGameClientCommand(Q3EventArgs *e) {
 		for(i=2; i<argc; i++) {
 			RS_Syscall->Argv(i, arg, sizeof(arg));
 
-			std::string *tmpStr = cmdReq->add_args();
+			string *tmpStr = cmdReq->add_args();
 			tmpStr->append(arg);
 		}
 
-		auto callback = std::bind(&UserCommandsPlugin::OnExecClientCommandFinished, this, std::placeholders::_1, std::placeholders::_2);
+		auto callback = bind(&UserCommandsPlugin::OnExecClientCommandFinished, this, std::placeholders::_1, std::placeholders::_2);
 		EXECUTE_API_ASYNC(&Q3dfApi_Stub::ClientCommand, cmdReq, cmdRes, callback);
 	}
 }
 
 void UserCommandsPlugin::OnExecClientCommandFinished(Message *msg, rpc::Error *error) {
-	ClientCommandResponse *res = (ClientCommandResponse *)msg;
+	ClientCommandResponse *res = static_cast<ClientCommandResponse *>(msg);
 
 	if(!error->IsNil()) {
 		RS_Syscall->SendServerCommand(0, va("print \"^1ERROR:^7 %s\n\"", error->String().c_str()));

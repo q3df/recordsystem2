@@ -146,6 +146,7 @@
 		'actions': [],
 		'sources': [
 			'server/Commands/TopCommand.cc',
+			'server/Commands/AdminCommand.cc',
 			'server/RecordsystemDaemon.cc',
 			'server/RecordsystemDaemon.h',
 			'server/Console.cc',

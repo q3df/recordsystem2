@@ -34,7 +34,7 @@ void UserManagementPlugin::Init() {
 	RS_BEFORE_AddEventHandler(G_SET_USERINFO, this, UserManagementPlugin::OnSyscallSetUserInfo);
 	RS_BEFORE_AddEventHandler(GAME_SHUTDOWN, this, UserManagementPlugin::OnVmMainShutdown);
 
-	gRecordsystem->RegisterCvar(&cvarRsNoNewClients, "rs_no_new_clients", "0", 0, qfalse);
+	RS->RegisterCvar(&cvarRsNoNewClients, "rs_no_new_clients", "0", 0, qfalse);
 	gRecordsystem->RegisterCvar(&cvarRsWelcome1, "rs_welcome1", "q3df - recordsystem - v0.1 (alpha)", 0, qfalse);
 	gRecordsystem->RegisterCvar(&cvarRsWelcome2, "rs_welcome2", "", 0, qfalse);
 	gRecordsystem->RegisterCvar(&cvarRsWelcome3, "rs_welcome3", "", 0, qfalse);
