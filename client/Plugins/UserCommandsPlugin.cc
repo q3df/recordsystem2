@@ -64,8 +64,7 @@ void UserCommandsPlugin::OnGameClientCommand(Q3EventArgs *e) {
 	int argc = RS_Syscall->Argc();
 
 	Q3User *cl = gRecordsystem->GetUser(playernum);
-
-
+	
 	RS_Syscall->Argv(0, arg, sizeof(arg));
 	if(!strncmp(arg, "login", 5)) {
 		isLoginCommand = true;

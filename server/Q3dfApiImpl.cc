@@ -32,6 +32,7 @@ const Error Q3dfApiImpl::ClientCommand(const ClientCommandRequest* args, ClientC
 	
 	reply->mutable_identifier()->set_playernum(args->identifier().playernum());
 	reply->mutable_identifier()->set_serverid(args->identifier().serverid());
+	reply->mutable_identifier()->set_uniqueid(args->identifier().uniqueid());
 
 	string output("");
 
@@ -50,8 +51,10 @@ const Error Q3dfApiImpl::Printf(const PrintfRequest* args, NullResponse* reply) 
 
 
 const Error Q3dfApiImpl::Login(const LoginRequest* args, LoginResponse* reply) {
+	Sleep(10000);
 	reply->mutable_identifier()->set_playernum(args->identifier().playernum());
 	reply->mutable_identifier()->set_serverid(args->identifier().serverid());
+	reply->mutable_identifier()->set_uniqueid(args->identifier().uniqueid());
 	reply->set_hash("TEST");
 	reply->set_userid(11);
 	reply->set_result(LoginResponse_LoginResult_PASSED);
@@ -89,7 +92,7 @@ const Error Q3dfApiImpl::Register(const ServerRegisterRequest* request, NullResp
 	Conn *con = (Conn *)request->TagObj;
 
 	RS->Clients()->Insert(con, request->serverid(), request->serverinfostring());
-
+	
 	return Error::Nil();
 }
 

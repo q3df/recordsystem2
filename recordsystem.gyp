@@ -25,6 +25,7 @@
 			'tools/httpxx/code/',
 			'tools/httpxx/libs/http-parser/',
 			'tools/jsoncpp/',
+			'tools/boost/include/',
 		],
 		'sources': [
 			'client/Q3Vm.cc',

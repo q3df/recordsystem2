@@ -33,8 +33,8 @@ public:
 	inline int GetUserId() { return userId_; }
 	inline Q3User *SetUserId(int userId) { userId_ = userId; return this; }
 
-	inline int GetUniqueId() { return uniqueId_; }
-	inline void SetUniqueId(int uniqueId) { uniqueId_ = uniqueId; }
+	inline string *GetUniqueId() { return &uniqueId_; }
+	inline void SetUniqueId(string uniqueId) { uniqueId_ = uniqueId; }
 
 	inline const char *GetLastQ3dfkey() { return this->lastQ3dfkey_; }
 	inline Q3User *SetLastQ3dfKey(const char *q3dfkey) {
@@ -52,7 +52,7 @@ private:
 	char userInfo_[MAX_INFO_STRING];
 	int playernum_;
 	int userId_;
-	int uniqueId_;
+	string uniqueId_;
 	char lastQ3dfkey_[MAX_INFO_STRING];
 	clientState_t state_;
 

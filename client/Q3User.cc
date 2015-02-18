@@ -31,6 +31,7 @@ Q3User *Q3User::SetUserInfo(const char *key, const char *value) {
 Q3User *Q3User::WriteIdentifier(::service::Identifier *identity) {
 	identity->set_playernum(this->GetPlayernum());
 	identity->set_serverid(1);
+	identity->set_uniqueid(this->GetUniqueId()->c_str(), this->GetUniqueId()->length());
 	return this;
 }
 
@@ -39,6 +40,6 @@ Q3User *Q3User::Reset() {
 	memset(&lastQ3dfkey_, 0, sizeof(lastQ3dfkey_));
 	state_ = CLIENT_FREE;
 	userId_ = 0;
-	uniqueId_ = 0;
+	uniqueId_.clear();
 	return this;
 }

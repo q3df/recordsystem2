@@ -215,9 +215,11 @@ int main(int argc, char **argv) {
 		RS->Con()->PrintInfo("Load apikeys of all servers\n");
 		RS->Con()->PrintInfo("---------------------------\n");
 		while (res->next()) {
-			RS->Con()->Print("  - get apikey for '%s'\n", res->getString("name").c_str());
-			string key(va("apikey-%i", res->getInt("id")));
-			RS->SetSetting(key, string(res->getString("apikey")));
+			if(res->getString("apikey").length() > 0) {
+				RS->Con()->Print("  - get apikey for '%s'\n", res->getString("name").c_str());
+				string key(va("apikey-%i", res->getInt("id")));
+				RS->SetSetting(key, string(res->getString("apikey")));
+			}
 		}
 	} catch (sql::SQLException &e) {
 		RS->Con()->PrintError("could not load servr api keys: '%s'\n", e.what());

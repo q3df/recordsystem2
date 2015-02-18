@@ -2,6 +2,11 @@
 #include "Plugin.h"
 #include <functional>
 
+#include <boost/lexical_cast.hpp>
+#include <boost/uuid/uuid.hpp>            // uuid class
+#include <boost/uuid/uuid_generators.hpp> // generators
+#include <boost/uuid/uuid_io.hpp>         // streaming operators etc.
+
 class UserManagementPlugin : public PluginBase {
 private:
 	vmCvar_t cvarRsNoNewClients;
@@ -63,7 +68,9 @@ void UserManagementPlugin::OnClientConnected(Q3EventArgs *e) {
 
 	cl = gRecordsystem->GetUser(playernum);
 	cl->Reset();
-	cl->SetUniqueId(RS_Syscall->Milliseconds());
+
+	boost::uuids::uuid uuid = boost::uuids::random_generator()();
+	cl->SetUniqueId(boost::lexical_cast<std::string>(uuid));
 
 	OnClientUserInfoChanged(e); // we can forward because param 1 is our playernum!
 
@@ -132,24 +139,29 @@ void UserManagementPlugin::OnClientUserInfoChanged(Q3EventArgs *e) {
 
 		EXECUTE_API_ASYNC(&Q3dfApi_Stub::Login, lReq, lRes, [](Message *msg, rpc::Error *error) {
 			LoginResponse *res = (LoginResponse *)msg;
-
+			
 			if(!error->IsNil()) {
 				RS_Syscall->SendServerCommand(
 					res->identifier().playernum(), 
-					va("print \"^7[^1Q3df::Error^7] %s\n\"", error->String().c_str())
+					va("chat \"^7[^1Q3df::Error^7] %s\n\"", error->String().c_str())
 				);
 				RS_Syscall->SendServerCommand(
 					res->identifier().playernum(), 
-					"print \"^7[^3Q3df::Info^7] you're currently ^1NOT^7 logged in!\n\""
+					"chat \"^7[^3Q3df::Info^7] you're currently ^1NOT^7 logged in!\n\""
 				);
 				gRecordsystem->GetUser(res->identifier().playernum())->SetUserId(0);
 				return;
 			}else{
-				RS_Syscall->SendServerCommand(
-					res->identifier().playernum(), 
-					va("print \"^7[^3Q3df::Info^7] you're currently logged in with userid %i!\n\"", res->userid())
-				);
-				gRecordsystem->GetUser(res->identifier().playernum())->SetUserId(res->userid());
+				if((*gRecordsystem->GetUser(res->identifier().playernum())->GetUniqueId()) == res->identifier().uniqueid()) {
+					
+					RS_Syscall->SendServerCommand(
+						res->identifier().playernum(), 
+						va("chat \"^7[^3Q3df::Info^7] you're currently logged in with userid %i!\n\"", res->userid())
+					);
+					gRecordsystem->GetUser(res->identifier().playernum())->SetUserId(res->userid());
+				}else{
+					gRecordsystem->GetSyscalls()->PrintWarning("ERROR: client disconnect after login!\n");
+				}
 			}
 		});
 	}
