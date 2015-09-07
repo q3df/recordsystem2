@@ -1,0 +1,19 @@
+image: ruby:2.1
+services:
+before_script:
+  - apt-get update
+  - apt-get upgrade -y
+
+stages:
+  - build
+  - test
+  - deploy
+
+job1:
+  stage: build
+  script:
+    - echo "test"
+  only:
+    - master
+  tags:
+    - docker
