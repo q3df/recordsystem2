@@ -1,8 +1,6 @@
 image: czimnick/recordsystem-dev:latest
 services:
 before_script:
-  - apt-get install git -y
-
 stages:
   - build
   - test
@@ -12,6 +10,9 @@ job1:
   stage: build
   script:
     - echo "test"
+    - git submodule update --init --recursive
+    - ./create_projects.sh
+    - ./build_projects.sh Release
   only:
     - master
   tags:
