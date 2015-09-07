@@ -1,4 +1,4 @@
-image: ubuntu:latest
+image: czimnick/recordsystem-dev:latest
 services:
 before_script:
   - apt-get install git -y
