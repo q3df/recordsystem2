@@ -6,7 +6,7 @@ stages:
   - test
   - deploy
 
-job1:
+ubuntu-build:
   stage: build
   script:
     - echo "test"
@@ -17,3 +17,13 @@ job1:
     - master
   tags:
     - docker
+windows-build:
+  stage: build
+  script:
+    - git submodule update --init --recursive
+    - create_projects.bat
+    - build_projects.bat Release
+  only:
+    - master
+  tags:
+    - windows
