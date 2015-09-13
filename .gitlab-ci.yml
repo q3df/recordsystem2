@@ -5,7 +5,6 @@ stages:
   - build
   - test
   - deploy
-
 ubuntu-build:
   stage: build
   script:
@@ -27,3 +26,13 @@ windows-build:
     - master
   tags:
     - windows
+osx-build:
+  stage: build
+  script:
+    - git submodule update --init --recursive
+    - ./create_projects.sh
+    - ./build_projects.sh Release
+  only:
+    - master
+  tags:
+    - osx
