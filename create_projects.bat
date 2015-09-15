@@ -11,5 +11,7 @@ move boost include\
 cd %OLDCD%
 
 :FINISH
-@powershell -NoProfile -ExecutionPolicy Bypass -Command "(Get-Content compileprotoc.sh -Raw).Replace(\"`r`n\", \"`n\") | Set-Content "compileprotoc.sh"
+
+
+@powershell -NoProfile -ExecutionPolicy Bypass -Command "$text = [IO.File]::ReadAllText(\"compileprotoc.sh\") -replace  \"`r`n\", \"`n\"; [IO.File]::WriteAllText(\"compileprotoc.sh\", $text)"
 tools\gyp\gyp.bat --depth "%CD%" -I recordsystem.gypi
