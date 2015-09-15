@@ -4,7 +4,7 @@ PATH=%PATH%;%CD%\tools\python_26\
 xcopy /Y /F .\rbnf.cpp.patched tools\icu\source\i18n\rbnf.cpp
 IF EXIST tools\boost\include goto :FINISH
 mkdir tools\boost\include
-OLDCD=%CD%
+set OLDCD=%CD%
 cd tools\boost\
 ..\7z\7z.exe x boost_win_headers.7z
 move boost include\
