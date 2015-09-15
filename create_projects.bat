@@ -6,9 +6,10 @@ IF EXIST tools\boost\include goto :FINISH
 mkdir tools\boost\include
 set OLDCD=%CD%
 cd tools\boost\
-..\7z\7z.exe x boost_win_headers.7z
+..\7z\7z.exe x boost_win_headers.7z 2> NUL > NUL
 move boost include\
 cd %OLDCD%
 
 :FINISH
+@powershell -NoProfile -ExecutionPolicy Bypass -Command "(Get-Content compileprotoc.sh -Raw).Replace(\"`r`n\", \"`n\") | Set-Content "compileprotoc.sh"
 tools\gyp\gyp.bat --depth "%CD%" -I recordsystem.gypi

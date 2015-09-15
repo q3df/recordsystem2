@@ -19,7 +19,7 @@ ubuntu-build:
 windows-build:
   stage: build
   script:
-    - git submodule update --init --recursive && create_projects.bat && build_projects.bat Release
+    - git submodule update --init --recursive && call create_projects.bat && call build_projects.bat Release
   only:
     - master
   tags:
