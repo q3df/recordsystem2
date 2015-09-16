@@ -192,7 +192,7 @@ int main(int argc, char **argv) {
 
 	if (vm.count("help")) {
 		std::ostringstream tmpDesc;
-		desc.print(tmpDesc);
+		//desc.print(tmpDesc);
 
 		printf("Usage: recordsystemd [options]\n");
 		printf("%s", tmpDesc.str().c_str());

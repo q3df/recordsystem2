@@ -55,14 +55,14 @@ public:
 
 		if(options.count("help")) {
 			ostringstream tmpDesc;
-			this->description_.print(tmpDesc);
+			//this->description_.print(tmpDesc);
 			output->append(tmpDesc.str());
 			return true;
 		}
 
 		if(!options.count("command")) {
 			ostringstream tmpDesc;
-			this->description_.print(tmpDesc);
+			//this->description_.print(tmpDesc);
 			output->append(tmpDesc.str());
 			return true;
 		}
@@ -74,7 +74,7 @@ public:
 			output->append("test2 command...\n");
 		}else{
 			ostringstream tmpDesc;
-			this->description_.print(tmpDesc);
+			//this->description_.print(tmpDesc);
 			output->append(tmpDesc.str());
 		}
 

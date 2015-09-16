@@ -211,7 +211,10 @@
 				'link_settings': {
 					'libraries': [
 						'$(SDKROOT)/System/Library/Frameworks/CoreFoundation.framework',
-    					'$(SDKROOT)/System/Library/Frameworks/CoreServices.framework',
+						'$(SDKROOT)/System/Library/Frameworks/CoreServices.framework',
+						'tools/precompiled/osx_x86/libmysqlcppconn-static.a',
+						'tools/precompiled/osx_x86/libmysqlclient.a',
+						'tools/precompiled/osx_x86/libboost_program_options.a'
 					],
 					'library_dirs': [
 					]

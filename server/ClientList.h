@@ -49,7 +49,7 @@ public:
 	void Insert(Conn *con, int serverId, const string &serverInfo);
 	void Delete(Conn *con);
 	ClientInfo *GetClient(Conn *con);
-	void ClientList::PrintList();
+	void PrintList();
 
 private:
 	map<Conn*, ClientInfo*> clList_;

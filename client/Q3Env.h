@@ -35,7 +35,8 @@ public:
 		string apikey(rs_api_key.string);
 		string serverId(rs_server_id.string);
 
-		if(con->SendFrame(&(serverId + "_" + apikey))) {
+		string *buf = new string(serverId + "_" + apikey);
+		if(con->SendFrame(buf)) {
 			res.clear();
 			if(con->RecvFrame(&res) && res == "OK")
 				return true;

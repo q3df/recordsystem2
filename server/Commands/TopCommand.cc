@@ -115,7 +115,7 @@ public:
 
 		if(options.count("help")) {
 			ostringstream tmpDesc;
-			this->description_.print(tmpDesc);
+			//this->description_.print(tmpDesc);
 			output->append(tmpDesc.str());
 			return true;
 		}
@@ -141,7 +141,7 @@ public:
 					col_nick += (res->getString("visname").length() - res->getString("strip_visname").length());
 
 				struct tm *ptr;
-#ifdef WIN32
+#if defined(WIN32) || defined(__APPLE__)
 				time_t epoch;
 #else
 				int epoch;
@@ -149,7 +149,7 @@ public:
 				char timestr[100];
 				memset(static_cast<void *>(&timestr), '\0', sizeof(timestr));
 				epoch = (time_t)res->getInt64("timestamp");
-#ifdef WIN32
+#if defined(WIN32) || defined(__APPLE__)
 				ptr = gmtime((time_t *)(&epoch));
 #else
 				ptr = gmtime((void *)(&epoch));
