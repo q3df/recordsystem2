@@ -1,3 +1,5 @@
+[![build status](https://ci.q3df.org/projects/1/status.png?ref=master)](https://ci.q3df.org/projects/1?ref=master)
+
 Dependency
 ----------
 > #### Linux (ubuntu 12.04 x64 tested)
