@@ -9,8 +9,7 @@
 			'tools/sqlite/sqlite.gyp:sqlite',
 			'tools/pthreads-win32/pthread.gyp:pthreads',
 			'tools/q3df_api/q3df_api.gyp:q3df_api',
-			'tools/protobuf/protobuf.gyp:protobuf_full_do_not_use',
-			'tools/httpxx.gyp:httpxx'
+			'tools/protobuf/protobuf.gyp:protobuf_full_do_not_use'
 		],
 		'defines': [
 			'JSON_IS_AMALGAMATION',
@@ -71,7 +70,7 @@
 			['OS=="linux"', {
 				'defines': [
 					'LINUX',
-					'Q3DF_BUILD=\"<!@(date) (posix-x86)\"',
+					'Q3DF_BUILD=\"<!@(date) (posix-<(target_arch))\"',
 				],
 				'include_dirs': [
 				],
@@ -131,8 +130,7 @@
 			'tools/pthreads-win32/pthread.gyp:pthreads',
 			'tools/q3df_api/q3df_api.gyp:q3df_api',
 			'tools/protobuf/protobuf.gyp:protobuf_full_do_not_use',
-			'tools/sqlite/sqlite.gyp:sqlite',
-			'tools/httpxx.gyp:httpxx'
+			'tools/sqlite/sqlite.gyp:sqlite'
 		],
 		'defines': [
 		],
@@ -140,8 +138,6 @@
 			'tools/protobuf/src/',
 			'tools/q3df_api/',
 			'tools/mysql/include/',
-			'tools/httpxx/code/',
-			'tools/httpxx/libs/http-parser/',
 			'tools/boost/include/'
 		],
 		'actions': [],
@@ -168,7 +164,7 @@
 			'client/StringTokenizer.h',
 		],
 		'conditions': [
-			['OS=="linux"', {
+			['OS=="linux" and target_arch!="arm"', {
 				'defines': [
 					'LINUX',
 				],
@@ -179,6 +175,33 @@
 						'tools/precompiled/linux_x86/libmysqlcppconn-static.a',
 						'tools/precompiled/linux_x86/libmysqlclient.a',
 						'tools/precompiled/linux_x86/libboost_program_options.a',
+						'-lm',
+						'-ldl',
+						'-lpthread',
+						'-lrt',
+					],
+					'library_dirs': [
+					]
+				},
+				'sources': [
+					'server/ConsoleTty.cc',
+					'server/ConsoleTty.h',
+				],
+				'cflags': [
+					'-std=c++0x', '-fPIC', '-fexceptions', '-fpermissive'
+				]
+			}],
+			['OS=="linux" and target_arch=="arm"', {
+				'defines': [
+					'LINUX',
+				],
+				'include_dirs': [
+				],
+				'link_settings': {
+					'libraries': [
+						'tools/precompiled/linux_arm/libmysqlcppconn-static.a',
+						'tools/precompiled/linux_arm/libmysqlclient.a',
+						'tools/precompiled/linux_arm/libboost_program_options.a',
 						'-lm',
 						'-ldl',
 						'-lpthread',

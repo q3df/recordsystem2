@@ -24,8 +24,8 @@
 		'os_posix%': '<(os_posix)',
 		'clang%': 0,
 		'component%': "static_library",
-		'target_arch%': 'ia32',
-		'host_arch%': 'ia32'
+		'target_arch%': '<!pymod_do_main(detect_host_arch)',
+		'host_arch%': '<!pymod_do_main(detect_host_arch)'
 	},
 	'target_defaults': {
 		'sources': [
@@ -175,13 +175,14 @@
 				'ARCHS': ['$(ARCHS_STANDARD_32_BIT)'],
 			},
 		}],
-		['OS=="linux"', {
+		['OS=="linux" and target_arch!="arm"', {
 			'target_defaults': {
 				'cflags': [
 					'-Wno-unused-parameter', '-w',
 					'-pthread', '-fno-exceptions',
-					 '-fPIC', '-fexceptions',
-					'-m32', '-Wno-strict-aliasing'
+					'-fPIC', '-fexceptions',
+					'-m32',
+					'-Wno-strict-aliasing'
 				],
 				'cflags_cxx': [
 					'-std=c++0x', '-fpermissive'
@@ -189,7 +190,31 @@
 				'cflags_cc': [
 				],
 				'defines': [ 'LINUX' ],
-				'ldflags': [ '-m32', '-L/usr/lib32' ],
+				'ldflags': [ 
+					'-m32', 
+					'-L/usr/lib32'
+				],
+			}
+		}],
+		['OS=="linux" and target_arch=="arm"', {
+			'target_defaults': {
+				'cflags': [
+					'-Wno-unused-parameter', '-w',
+					'-pthread', '-fno-exceptions',
+					'-fPIC', '-fexceptions',
+					#'-m32',
+					'-Wno-strict-aliasing'
+				],
+				'cflags_cxx': [
+					'-std=c++0x', '-fpermissive'
+				],
+				'cflags_cc': [
+				],
+				'defines': [ 'LINUX' ],
+				'ldflags': [ 
+					#'-m32', 
+					'-L/usr/lib32'
+				],
 			}
 		}],
 	],

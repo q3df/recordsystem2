@@ -16,6 +16,16 @@ ubuntu-build:
     - master
   tags:
     - docker
+arm-build:
+  stage: build
+  script:
+    - git submodule update --init --recursive
+    - ./create_projects.sh
+    - ./build_projects.sh Release
+  only:
+    - master
+  tags:
+    - arm
 windows-build:
   stage: build
   script:
