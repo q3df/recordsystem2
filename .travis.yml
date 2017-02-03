@@ -7,7 +7,7 @@ git:
 before_install:
   - git submodule update --init
   - sudo apt-get -qq update
-  - sudo apt-get install -y libgd2-xpm ia32-libs ia32-libs-multiarch
-  - sudo apt-get install -y gcc-multilib libstdc++6-4.4-dev gcc-4.4-multilib g++-4.4-multilib g++-multilib python p7zip p7zip-full build-essential
+  - sudo apt-get -qq install -y libgd2-xpm ia32-libs ia32-libs-multiarch
+  - sudo apt-get -qq install -y gcc-multilib libstdc++6-4.4-dev gcc-4.4-multilib g++-4.4-multilib g++-multilib python p7zip p7zip-full build-essential
 script:
-  - create_projects.sh && build_projects.sh Release
+  - ./create_projects.sh && ./build_projects.sh Release
