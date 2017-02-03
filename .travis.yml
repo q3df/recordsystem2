@@ -1,5 +1,8 @@
 # Enable C++ support
 language: cpp
+os:
+  - linux
+  - osx
 compiler:
   - gcc
 git:
@@ -7,8 +10,8 @@ git:
 before_install:
   - git submodule update --init
   - git fetch -t
-  - sudo apt-get -qq update
-  - sudo apt-get -qq install -y libgd2-xpm ia32-libs ia32-libs-multiarch
-  - sudo apt-get -qq install -y gcc-multilib libstdc++6-4.4-dev gcc-4.4-multilib g++-4.4-multilib g++-multilib python p7zip p7zip-full build-essential
+  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then sudo apt-get -qq update; fi
+  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then sudo apt-get -qq install -y libgd2-xpm ia32-libs ia32-libs-multiarch; fi
+  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then sudo apt-get -qq install -y gcc-multilib libstdc++6-4.4-dev gcc-4.4-multilib g++-4.4-multilib g++-multilib python p7zip p7zip-full build-essential; fi
 script:
   - ./create_projects.sh && ./build_projects.sh Release
