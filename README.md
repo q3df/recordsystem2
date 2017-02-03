@@ -1,4 +1,6 @@
-[![build status](https://ci.q3df.org/projects/1/status.png?ref=master)](https://ci.q3df.org/projects/1?ref=master)
+||windows|mac os x|ubuntu|
+|:--:|:--:|:--:|:--:|
+|**master**|[![Build status](https://ci.appveyor.com/api/projects/status/u1pewm7ewm4muepj?svg=true)](https://ci.appveyor.com/project/czimnick/recordsystem2)|-|-|
 
 Dependency
 ----------
