@@ -1,0 +1,14 @@
+# Enable C++ support
+language: cpp
+compiler:
+  - clang
+  - gcc
+git:
+  submodules: false
+before_install:
+  - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+  - git submodule update --init --recursive
+  - sudo apt-get -qq update
+  - sudo apt-get install -y gcc-multilib libstdc++6-4.4-dev gcc-4.4-multilib g++-4.4-multilib g++-multilib ia32-libs python p7zip p7zip-full build-essential
+script:
+  - create_projects.sh && build_projects.sh Release
