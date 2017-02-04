@@ -20,7 +20,7 @@
 #include "Q3dfEnv.h"
 
 #include <mysql_public_iface.h>
-#include <server/Commands.h>
+#include "Commands.h"
 
 using namespace ::google::protobuf;
 using namespace ::google::protobuf::rpc;

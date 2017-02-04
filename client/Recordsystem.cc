@@ -68,9 +68,9 @@ ApiAsyncExecuter *Recordsystem::GetAsyncExecuter() {
 	return asyncExec_;
 }
 
-SqliteDatabase *Recordsystem::DB() {
-	return this->db_;
-}
+//SqliteDatabase *Recordsystem::DB() {
+//	return this->db_;
+//}
 
 Q3dfApi_Stub *Recordsystem::GetQ3dfApi() {
 	return Q3dfApi_;

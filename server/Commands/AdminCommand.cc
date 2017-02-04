@@ -1,7 +1,7 @@
 #include "../RecordsystemDaemon.h"
 #include "../Commands.h"
 #include <time.h>
-#include "client/Q3User.h"
+#include "../../client/Q3User.h"
 
 
 class AdminCommand : public CommandBase {

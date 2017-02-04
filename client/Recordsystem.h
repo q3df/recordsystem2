@@ -21,7 +21,7 @@
 #include "PluginBase.h"
 #include "PluginProxy.h"
 #include "Q3User.h"
-#include "SqliteDatabase.h"
+//#include "SqliteDatabase.h"
 
 using namespace google::protobuf;
 using namespace service;
@@ -50,7 +50,7 @@ public:
 	Q3SysCall *GetVmSyscalls();
 	void AddEventHandler(Q3EventHandler *eventItem);
 	void RemoveEventHandler(Q3EventHandler *eventItem);
-	SqliteDatabase *DB();
+//	SqliteDatabase *DB();
 	int VmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11);
 
 private:
@@ -76,7 +76,7 @@ private:
 	list<VmCvarItem *> cvarList_;
 	list<PluginBase *> pluginList_;
 	vector<Q3User *> userList_;
-	SqliteDatabase *db_;
+//	SqliteDatabase *db_;
 };
 
 extern Recordsystem *gRecordsystem;

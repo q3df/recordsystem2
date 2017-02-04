@@ -6,10 +6,10 @@
 		'type': 'shared_library',
 		'msvs_guid': '905C1895-E657-4584-B1C9-C8642BDA8523',
 		'dependencies': [
-			'tools/sqlite/sqlite.gyp:sqlite',
+#			'tools/sqlite/sqlite.gyp:sqlite',
 			'tools/pthreads-win32/pthread.gyp:pthreads',
-			'tools/q3df_api/q3df_api.gyp:q3df_api',
-			'tools/protobuf/protobuf.gyp:protobuf_full_do_not_use'
+			'tools/protobuf/protobuf.gyp:protobuf_full_do_not_use',
+			'tools/q3df_api/q3df_api.gyp:q3df_api'
 		],
 		'defines': [
 			'JSON_IS_AMALGAMATION',
@@ -58,8 +58,8 @@
 			'client/Plugins/ServerDemosPlugin.cc',
 			'client/Plugins/ServerRecordsPlugin.cc',
 			'client/Plugins/UserCommandsPlugin.cc',
-			'client/SqliteDatabase.cc',
-			'client/SqliteDatabase.h',
+#			'client/SqliteDatabase.cc',
+#			'client/SqliteDatabase.h',
 			'client/Q3Env.cc',
 			'client/Q3Env.h',
 			'tools/jsoncpp/jsoncpp.cpp',
@@ -128,9 +128,8 @@
 		'msvs_guid': 'F3706CA9-3A31-4B33-8CF6-73EAAC40BF1E',
 		'dependencies': [
 			'tools/pthreads-win32/pthread.gyp:pthreads',
-			'tools/q3df_api/q3df_api.gyp:q3df_api',
 			'tools/protobuf/protobuf.gyp:protobuf_full_do_not_use',
-			'tools/sqlite/sqlite.gyp:sqlite'
+			'tools/q3df_api/q3df_api.gyp:q3df_api'
 		],
 		'defines': [
 		],
