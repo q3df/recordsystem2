@@ -1,6 +1,6 @@
 ||windows|mac os x|ubuntu|
 |:--:|:--:|:--:|:--:|
-|**master**|[![Build status](https://ci.appveyor.com/api/projects/status/u1pewm7ewm4muepj?svg=true)](https://ci.appveyor.com/project/czimnick/recordsystem2)|-|-|
+|**master**|[![Build status](https://ci.appveyor.com/api/projects/status/u1pewm7ewm4muepj?svg=true)](https://ci.appveyor.com/project/czimnick/recordsystem2)|[![Build Status](https://travis-ci.org/q3df/recordsystem2.svg?branch=master)](https://travis-ci.org/q3df/recordsystem2)|[![Build Status](https://travis-ci.org/q3df/recordsystem2.svg?branch=master)](https://travis-ci.org/q3df/recordsystem2)|
 
 Dependency
 ----------
