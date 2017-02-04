@@ -13,5 +13,6 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then sudo apt-get -qq update; fi
   - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then sudo apt-get -qq install -y libgd2-xpm ia32-libs ia32-libs-multiarch; fi
   - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then sudo apt-get -qq install -y gcc-multilib libstdc++6-4.4-dev gcc-4.4-multilib g++-4.4-multilib g++-multilib python p7zip p7zip-full build-essential; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install p7zip; fi
 script:
   - ./create_projects.sh && ./build_projects.sh Release
