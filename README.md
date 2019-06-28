@@ -4,15 +4,11 @@
 
 Dependency
 ----------
-> #### Linux (ubuntu 12.04 x64 tested)
+> #### Linux (ubuntu 16.04 x64 tested)
 > ```
-> apt-get install build-essential
-> apt-get install gcc-multilib
-> apt-get install libstdc++6-4.4-dev gcc-4.4-multilib g++-4.4-multilib
-> apt-get install g++-multilib
-> apt-get install ia32-libs
-> apt-get install python
-> apt-get install p7zip p7zip-full
+> dpkg --add-architecture i386
+> apt-get update
+> apt-get install build-essential gcc-multilib p7zip-full g++-multilib libboost-dev:i386 libboost-program-options-dev:i386 python p7zip p7zip-full
 > ```
 > #### Mac OS X 10.9.2
 > !currently not supported!

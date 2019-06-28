@@ -24,7 +24,6 @@
 			'tools/httpxx/code/',
 			'tools/httpxx/libs/http-parser/',
 			'tools/jsoncpp/',
-			'tools/boost/include/',
 		],
 		'sources': [
 			'client/Q3Vm.cc',
@@ -137,7 +136,7 @@
 			'tools/protobuf/src/',
 			'tools/q3df_api/',
 			'tools/mysql/include/',
-			'tools/boost/include/'
+#			'tools/boost/include/'
 		],
 		'actions': [],
 		'sources': [
@@ -173,11 +172,12 @@
 					'libraries': [
 						'tools/precompiled/linux_x86/libmysqlcppconn-static.a',
 						'tools/precompiled/linux_x86/libmysqlclient.a',
-						'tools/precompiled/linux_x86/libboost_program_options.a',
+#						'tools/precompiled/linux_x86/libboost_program_options.a',
 						'-lm',
 						'-ldl',
 						'-lpthread',
 						'-lrt',
+						'-lboost_program_options',
 					],
 					'library_dirs': [
 					]
@@ -200,11 +200,12 @@
 					'libraries': [
 						'tools/precompiled/linux_arm/libmysqlcppconn-static.a',
 						'tools/precompiled/linux_arm/libmysqlclient.a',
-						'tools/precompiled/linux_arm/libboost_program_options.a',
+#						'tools/precompiled/linux_arm/libboost_program_options.a',
 						'-lm',
 						'-ldl',
 						'-lpthread',
 						'-lrt',
+						'-lboost_program_options',
 					],
 					'library_dirs': [
 					]
